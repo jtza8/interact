@@ -3,5 +3,6 @@
 ; license that can be found in the license.txt file
 ; in the root directory of this project.
 
-(defpackage :click
-  (:use :common-lisp))
+(in-package :click)
+
+(defgeneric init (target &rest options))
