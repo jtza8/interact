@@ -10,5 +10,5 @@
                (:file "window" :depends-on ("package" "widget"))
                (:file "window_manager"
                 :depends-on ("package" "widget" "window"))
-               (:file "click_wm"
+               (:file "basic_gui"
                 :depends-on ("package" "widget" "window"))))
