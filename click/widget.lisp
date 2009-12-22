@@ -5,18 +5,19 @@
 
 (in-package :click)
 
-(define-condition unlistenable-event (error)
-  ((event-type :initvar :event-type)))
+(define-condition invalid-event (error)
+  ((event-type :initarg :event-type)))
 
 (defclass widget ()
-  (listeners :initform '())
-  (listenable-events :initform '()
-                     :initvar :listenable-events))
+  ((listeners :initform '()
+              :reader listeners)
+   (listenable-events :initform '()
+                      :initarg :listenable-events)))
 
 (defmethod add-listener ((widget widget) listener event)
-  (with-slots (listeners) widget
+  (with-slots (listeners listenable-events) widget
     (unless (find event listenable-events)
-      (restart-case (error 'unlistenable-event :event-type event)
+      (restart-case (error 'invalid-event :event-type event)
         (ignore ()
           :report "Ignore and return from add-listener."
           (return-from add-listener))))
@@ -25,10 +26,16 @@
                (push event listeners))
         (pushnew listener (getf listeners event)))))
 
-(defmethod remove-listener ((widget widget) listener)
+(defmethod remove-listener ((widget widget) listener event)
   (with-slots (listeners) widget
-    (setf listeners (delete listener listeners))))
+    (let ((event-listeners (getf listeners event)))
+      (unless event-listeners 
+        (restart-case (error 'invalid-event :event-type event)
+          (ignore ()
+            :report "Ignore and return from remove-listener")))
+      (setf (getf listeners event)
+            (delete listener (getf listeners event))))))
 
 (defmethod notify-listeners ((widget widget) event &rest args)
   (dolist (listener (getf (slot-value widget 'listeners) event))
-    (apply 'event-update (cons event args))))
+    (apply 'event-update `(,listener ,event ,@args))))

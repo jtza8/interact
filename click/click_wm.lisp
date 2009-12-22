@@ -6,14 +6,14 @@
 (in-package :click)
 
 (defclass click-wm ()
-  (screen-width :initform 800
-                :initarg :screen-width
-                :reader screen-width)
-  (screen-height :initform 600
-                 :initarg :screen-height
-                 :reader screen-height))
+  ((screen-width :initform 800
+                 :initarg :screen-width
+                 :reader screen-width)
+   (screen-height :initform 600
+                  :initarg :screen-height
+                  :reader screen-height)))
 
-(defmethod initialize-instance :after ((click-wm click-wm) &keys)
+(defmethod initialize-instance :after ((click-wm click-wm) &key)
   (with-slots (screen-width screen-height) click-wm
     (gl:matrix-mode :projection)
     (gl:load-identity)

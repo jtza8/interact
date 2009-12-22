@@ -5,4 +5,5 @@
 
 (in-package :click)
 
-;(defgeneric init (target &rest options))
+(defclass dummy-widget (widget)
+  ((listenable-events :initform '(:dummy-event))))
