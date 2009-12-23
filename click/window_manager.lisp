@@ -20,3 +20,20 @@
 (defmacro assert-window-manager-exists ()
   '(assert (not (eq *window-manager* nil)) ()
     'no-window-manager-condition))
+
+(defmethod add-window ((manager window-manager) window)
+  (with-slots (windows) manager
+    (when (find window windows)
+      (return-from add-window))
+    (if (> (length windows) 0)
+        (setf (cdr (last windows)) (cons window nil))
+        (push window windows))))
+
+(defmethod remove-window ((manager window-manager) window)
+  (with-slots (windows) manager
+    (setf windows (delete window windows))))
+
+(defmethod draw ((manager window-manager))
+  (with-slots (windows) manager
+    (dolist (window windows)
+      (draw window))))

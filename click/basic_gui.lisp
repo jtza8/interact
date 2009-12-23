@@ -24,7 +24,6 @@
 
 (defun start-basic-gui (&optional (screen-width 800) (screen-height 600)
                        (full-screen nil))
-  (assert (eq sdl:*default-display* nil))
   (sdl:with-init (sdl:sdl-init-video)
     (let ((flags (list sdl:sdl-opengl)))
       (when full-screen (push sdl:sdl-fullscreen flags))
@@ -33,12 +32,16 @@
                   :flags flags))
     (setf cl-opengl-bindings:*gl-get-proc-address*
           #'sdl-cffi::sdl-gl-get-proc-address)
-    (gl:clear-color 0.0 0.0 0.0 0.0)
+    (gl:clear-color 0.5 0.5 0.5 0.0)
+    (gl:clear :color-buffer-bit)
     (let ((basic-gui (make-instance 'basic-gui
                                    :screen-width screen-width
                                    :screen-height screen-height)))
       (declare (ignore basic-gui)) ; No methods to call yet.
+      (init-window-manager)
+      (make-instance 'window)
       (sdl:with-events ()
         (:quit-event () t)
         (:idle ()
-               ())))))
+               (draw *window-manager*)
+               (sdl:update-display))))))

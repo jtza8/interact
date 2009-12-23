@@ -11,13 +11,20 @@
    (visible :initarg :visible
             :initform nil)
    (tags :initform '())
-   (x :initform 100)
-   (y :initform 100)
-   (width :initform 1000)
-   (height :initform 1000)))
+   (x :initform 10)
+   (y :initform 10)
+   (width :initform 100)
+   (height :initform 100)))
+
+(defmethod initialize-instance :after ((window window) &key)
+  (assert-window-manager-exists)
+  (add-window *window-manager* window))
 
 (defmethod draw ((window window))
-  (assert-window-manager-exists)
   (with-slots (x y width height) window
+    (gl:color 1 1 1)
     (gl:with-primitive :quads
-      (gl:vertex (+ x width) (+ y height)))))
+      (gl:vertex x y)
+      (gl:vertex (+ x width) y)
+      (gl:vertex (+ x width) (+ y height))
+      (gl:vertex x (+ y height)))))
