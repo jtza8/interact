@@ -7,8 +7,8 @@
 
 (defclass theme-manager ()
   ((root-path :initarg :root-path
-             :initform #P"."
-             :reader root-path)))
+              :initform #P"."
+              :reader root-path)))
 
 (defmethod initialize-instance :after ((manager theme-manager) &key)
   (with-slots (root-path) manager
@@ -18,3 +18,5 @@
                     "Couldn't initialize ~S. Directory ~S doesn't exist."
                     manager
                     root-path))))
+
+;(defmethod
