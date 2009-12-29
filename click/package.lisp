@@ -4,4 +4,4 @@
 ; in the root directory of this project.
 
 (defpackage :click
-  (:use :common-lisp :cl-fad))
+  (:use :common-lisp))

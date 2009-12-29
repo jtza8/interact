@@ -5,12 +5,12 @@
 
 (in-package :click)
 
-(defclass theme-manager ()
+(defclass file-manager ()
   ((root-path :initarg :root-path
               :initform #P"."
               :reader root-path)))
 
-(defmethod initialize-instance :after ((manager theme-manager) &key)
+(defmethod initialize-instance :after ((manager file-manager) &key)
   (with-slots (root-path) manager
     (assert (directory-exists-p root-path)
             (root-path)
