@@ -5,8 +5,8 @@
   :licence "BSD-Style License"
   :depends-on ("lispbuilder-sdl" "cl-opengl" "cl-fad")
   :components ((:file "package")
-               (:file "resource_manager" :depends-on ("package"))
-               (:file "click" :depends-on ("resource_manager"))
+               (:file "file_manager" :depends-on ("package"))
+               (:file "click" :depends-on ("file_manager"))
                (:file "widget" :depends-on ("click"))
                (:file "window_manager" :depends-on ("package"))
                (:file "window" :depends-on ("widget" "window_manager"))
