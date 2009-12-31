@@ -18,7 +18,7 @@
     (assert-equal 3 (length (files (tree-child file-manager
                                                :window :title-bar))))))
 
-(def-test-method init-test ((test file-manager-test))
+(def-test-method initialize-instance-test ((test file-manager-test))
   (with-slots (file-manager) test
     (assert-false (null file-manager))
     (assert-true (eq (class-of (tree-child file-manager :window))

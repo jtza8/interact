@@ -6,6 +6,7 @@
 (in-package :click)
 
 (defvar *settings* '())
+(defvar *theme-path* nil)
 
 (defun load-settings ()
   (let ((clickrc-file
@@ -15,4 +16,9 @@
     (with-open-file (settings clickrc-file)
       (setf *settings* (read settings)))))
 
+(defun configure-click ()
+  (setf *theme-path* (make-instance 'file-manager
+                                    :base-dir (getf *settings* :theme-path))))
+
 (load-settings)
+(configure-click)

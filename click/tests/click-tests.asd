@@ -6,6 +6,7 @@
   :depends-on ("click" "xlunit")
   :components ((:file "test_package")
                (:file "file_manager_test" :depends-on ("test_package"))
+               (:file "texture_manager_test" :depends-on ("test_package"))
                (:file "dummy_widget" :depends-on ("test_package"))
                (:file "dummy_listener")
                (:file "widget_test"

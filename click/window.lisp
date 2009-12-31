@@ -10,15 +10,23 @@
           :initform "Untitled")
    (visible :initarg :visible
             :initform nil)
+   (widgets :initform '())
    (tags :initform '())
    (x :initform 10)
    (y :initform 10)
    (width :initform 100)
-   (height :initform 100)))
+   (height :initform 100)
+   (themed :initform (not (null *theme-path*)))
+   (textures :initform '())))
 
 (defmethod initialize-instance :after ((window window) &key)
   (assert-window-manager-exists)
   (add-window *window-manager* window))
+
+;(defmethod load-textures ((window window))
+;  (with-slots (themed textures) window
+;    (unless themed (return-from load-textures))
+;    (
 
 (defmethod draw ((window window))
   (with-slots (x y width height) window

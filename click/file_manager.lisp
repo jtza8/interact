@@ -39,4 +39,3 @@
      for keyword in path
        do (setf child (getf (managers child) keyword))
      finally (return child)))
-     
