@@ -12,10 +12,14 @@
             :initform nil)
    (widgets :initform '())
    (tags :initform '())
-   (x :initform 10)
-   (y :initform 10)
-   (width :initform 100)
-   (height :initform 100)
+   (x :initform 10
+      :initarg :x)
+   (y :initform 10
+      :initarg :y)
+   (width :initform 100
+          :initarg :width)
+   (height :initform 100
+           :initarg :height)
    (themed :initform (not (null *theme-path*)))
    (textures :initform '())))
 
@@ -31,8 +35,11 @@
 (defmethod draw ((window window))
   (with-slots (x y width height) window
     (gl:color 1 1 1)
-    (gl:with-primitive :quads
-      (gl:vertex x y)
-      (gl:vertex (+ x width) y)
-      (gl:vertex (+ x width) (+ y height))
-      (gl:vertex x (+ y height)))))
+    (let* ((shadow (fetch-texture *theme-texture-tree* :window :shadow))
+           (corner-tl (fetch-texture shadow :corner-top-left))
+           (corner-tr (fetch-texture shadow :corner-top-right)))
+      (draw-texture shadow
+                   
+          
+                    
+                  

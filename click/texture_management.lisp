@@ -8,7 +8,25 @@
 (defparameter *theme-texture-tree* nil)
 
 (defun load-texture (file)
-  file)
+  (let  ((texture (car (gl:gen-textures 1)))
+         (image (sdl-image:load-image file)))
+    (gl:bind-texture :texture-2d texture)
+    (sdl-base::with-pixel (pix (sdl:fp image))
+      (let ((texture-format (ecase (sdl-base::pixel-bpp pix)
+                              (3 :rgb)
+                              (4 :rgba))))
+        (assert (and (= (sdl-base::pixel-pitch pix)
+                        (* (sdl:width image) (sdl-base::pixel-bpp pix)))
+                     (zerop (rem (sdl-base::pixel-pitch pix) 4))))
+        (gl:tex-image-2d :texture-2d 0 :rgba
+                         (sdl:width image) (sdl:height image)
+                         0
+                         texture-format
+                         :unsigned-byte (sdl-base::pixel-data pix))))
+    (make-instance 'image
+                   :texture texture
+                   :width (sdl:width image)
+                   :height (sdl:height image))))
 
 (defun make-texture-tree (base-dir)
   (flet ((make-keyword (string)
@@ -25,12 +43,17 @@
          collect (make-keyword (pathname-name item))
          and collect (load-texture item))))
 
-(defun fetch-texture (&rest texture-path)
+(defun free-texture-tree (&optional (tree *theme-texture-tree*))
   (loop
-     with pointer = *theme-texture-tree*
-     for keyword in texture-path
+     for (nil item) on tree by #'cddr
+     if (consp item)
+       do (free-texture-tree item)
+     else
+       do (gl:delete-textures (list item))))
+
+(defun fetch-texture (parent &rest path)
+  (loop
+     with pointer = parent
+     for keyword in path
        do (setf pointer (getf pointer keyword))
      finally (return pointer)))
-
-;(defun bind-texture (&rest texture-path)
-;  ())

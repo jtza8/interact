@@ -3,11 +3,10 @@
   :version "0.1"
   :author "Jens Thiede"
   :licence "BSD-Style License"
-  :depends-on ("lispbuilder-sdl" "cl-opengl" "cl-fad")
+  :depends-on ("lispbuilder-sdl" "lispbuilder-sdl-image" "cl-opengl" "cl-fad")
   :components ((:file "package")
-               (:file "file_manager" :depends-on ("package"))
-               (:file "texture_manager" :depends-on ("package"))
-               (:file "click" :depends-on ("file_manager"))
+               (:file "texture_management" :depends-on ("package"))
+               (:file "click" :depends-on ("package"))
                (:file "widget" :depends-on ("click"))
                (:file "window_manager" :depends-on ("package"))
                (:file "window" :depends-on ("widget" "window_manager"))

@@ -5,20 +5,29 @@
 
 (in-package :click)
 
-(defvar *settings* '())
-(defvar *theme-path* nil)
+(defparameter *settings* '())
+(defparameter *theme-path* nil)
+(defparameter *window-manager* nil)
 
 (defun load-settings ()
   (let ((clickrc-file
          (merge-pathnames ".clickrc" (user-homedir-pathname))))
     (unless (cl-fad:file-exists-p clickrc-file)
+      (set-defaults)
       (return-from load-settings))
     (with-open-file (settings clickrc-file)
       (setf *settings* (read settings)))))
 
-(defun configure-click ()
-  (setf *theme-path* (make-instance 'file-manager
-                                    :base-dir (getf *settings* :theme-path))))
+(defun set-defaults ()
+  (setf *settings*
+        (list :theme-path 
+              (asdf:system-relative-pathname :click "default_theme"))))
+
+(defun init-click ()
+  (setf *window-manager* (make-instance 'window-manager)
+        *theme-texture-tree* (make-texture-tree (getf *settings* :theme-path))))
+
+(defun quit-click ()
+  (free-texture-tree))
 
 (load-settings)
-(configure-click)
