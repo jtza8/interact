@@ -6,9 +6,9 @@
 (in-package :click)
 
 (defclass image ()
-  ((texture :initarg :name
+  ((texture :initarg :texture
             :initform (error "No texture name given.")
-            :reader name)
+            :reader texture)
    (width :initarg :width
           :initform (error "No width given.")
           :reader width)
@@ -31,3 +31,8 @@
       (gl:vertex (+ x width) y)
       (gl:vertex (+ x width) (+ y height))
       (gl:vertex x (+ y height)))))
+
+(defmethod move-to ((image image) new-x new-y)
+  (with-slots (x y) image
+    (setf x new-x 
+          y new-y)))

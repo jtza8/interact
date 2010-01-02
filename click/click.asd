@@ -5,7 +5,7 @@
   :licence "BSD-Style License"
   :depends-on ("lispbuilder-sdl" "lispbuilder-sdl-image" "cl-opengl" "cl-fad")
   :components ((:file "package")
-               (:file "texture_management" :depends-on ("package"))
+               (:file "image_management" :depends-on ("package"))
                (:file "click" :depends-on ("package"))
                (:file "widget" :depends-on ("click"))
                (:file "window_manager" :depends-on ("package"))

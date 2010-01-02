@@ -5,12 +5,11 @@
 
 (in-package :click)
 
-(defparameter *theme-texture-tree* nil)
-
-(defun load-texture (file)
+(defun load-image (file)
   (let  ((texture (car (gl:gen-textures 1)))
          (image (sdl-image:load-image file)))
     (gl:bind-texture :texture-2d texture)
+    (gl:tex-parameter :texture-2d :texture-min-filter :linear)
     (sdl-base::with-pixel (pix (sdl:fp image))
       (let ((texture-format (ecase (sdl-base::pixel-bpp pix)
                               (3 :rgb)
@@ -28,7 +27,7 @@
                    :width (sdl:width image)
                    :height (sdl:height image))))
 
-(defun make-texture-tree (base-dir)
+(defun make-image-tree (base-dir)
   (flet ((make-keyword (string)
            (intern (nsubstitute #\- #\_ (string-upcase string))
                    "KEYWORD")))
@@ -36,24 +35,33 @@
        for item in (cl-fad:list-directory base-dir)
        when (cl-fad:directory-exists-p item)
          collect (make-keyword (car (last (pathname-directory item))))
-         and collect (make-texture-tree item)
+         and collect (make-image-tree item)
        when (and (cl-fad:file-exists-p item)
                  (let ((type (pathname-type item)))
                    (and type (string-equal (string-downcase type) "png"))))
          collect (make-keyword (pathname-name item))
-         and collect (load-texture item))))
+         and collect (load-image item))))
 
-(defun free-texture-tree (&optional (tree *theme-texture-tree*))
+(defun free-image-tree (&optional (tree *theme-image-tree*))
   (loop
      for (nil item) on tree by #'cddr
      if (consp item)
-       do (free-texture-tree item)
+       do (free-image-tree item)
      else
-       do (gl:delete-textures (list item))))
+       do (gl:delete-textures (list (texture item)))))
 
-(defun fetch-texture (parent &rest path)
+(defun fetch-image-node (&rest path)
   (loop
-     with pointer = parent
+     with pointer = *theme-image-tree*
      for keyword in path
        do (setf pointer (getf pointer keyword))
      finally (return pointer)))
+
+(defmacro with-node-images (images plist &body body)
+  `(symbol-macrolet
+       ,(loop
+           for image in images
+           collect (list image
+                         `(getf ,plist
+                                (intern ,(symbol-name image) "KEYWORD"))))
+     ,@body))

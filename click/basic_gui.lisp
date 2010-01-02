@@ -21,8 +21,13 @@
   (gl:matrix-mode :modelview)
   (gl:load-identity)
   (gl:viewport 0 0 screen-width screen-height)
-  (gl:clear-color 0.5 0.5 0.5 0.0)
+  (gl:clear-color 1 1 1 0.0)
   (gl:clear :color-buffer-bit)
+  
+  (gl:enable :texture-2d)
+  (gl:enable :blend)
+  (gl:blend-func :src-alpha :one-minus-src-alpha)
+
   (init-click))
 
 
@@ -32,6 +37,7 @@
          (:quit-event () t)
          (:idle ()
                 (draw *window-manager*)
+                (gl:flush)
                 (sdl:update-display)))
     (quit-click)
     (sdl:quit-video)))

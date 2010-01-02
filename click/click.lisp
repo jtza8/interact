@@ -8,6 +8,7 @@
 (defparameter *settings* '())
 (defparameter *theme-path* nil)
 (defparameter *window-manager* nil)
+(defparameter *theme-image-tree* nil)
 
 (defun load-settings ()
   (let ((clickrc-file
@@ -25,9 +26,9 @@
 
 (defun init-click ()
   (setf *window-manager* (make-instance 'window-manager)
-        *theme-texture-tree* (make-texture-tree (getf *settings* :theme-path))))
+        *theme-image-tree* (make-image-tree (getf *settings* :theme-path))))
 
 (defun quit-click ()
-  (free-texture-tree))
+  (free-image-tree))
 
 (load-settings)
