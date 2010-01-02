@@ -32,7 +32,7 @@
       (gl:vertex (+ x width) (+ y height))
       (gl:vertex x (+ y height)))))
 
-(defmethod move-to ((image image) new-x new-y)
+(defmethod move ((image image) new-x new-y)
   (with-slots (x y) image
     (setf x new-x 
           y new-y)))

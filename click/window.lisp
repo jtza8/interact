@@ -38,13 +38,13 @@
     (with-node-images (corner-left-top top-01 top-02 corner-right-top)
         (fetch-image-node :window :shadow)
       (gl:bind-texture :texture-2d (texture corner-left-top))
-      (move-to corner-left-top
-               (- x (width corner-left-top))
-               (- y (height corner-left-top)))
+      (move corner-left-top
+            (- x (width corner-left-top))
+            (- y (height corner-left-top)))
       (draw corner-left-top)
       (gl:bind-texture :texture-2d (texture top-01))
-      (move-to top-01 x (- y (height top-01)))
+      (move top-01 x (- y (height top-01)))
       (draw top-01)
       (gl:bind-texture :texture-2d (texture corner-right-top))
-      (move-to corner-right-top (+ x width) (- y (height corner-right-top)))
+      (move corner-right-top (+ x width) (- y (height corner-right-top)))
       (draw corner-right-top))))

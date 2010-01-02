@@ -6,8 +6,8 @@
 (in-package :click)
 
 (defun load-image (file)
-  (let  ((texture (car (gl:gen-textures 1)))
-         (image (sdl-image:load-image file)))
+  (let ((texture (car (gl:gen-textures 1)))
+        (image (sdl-image:load-image file)))
     (gl:bind-texture :texture-2d texture)
     (gl:tex-parameter :texture-2d :texture-min-filter :linear)
     (sdl-base::with-pixel (pix (sdl:fp image))
@@ -57,11 +57,12 @@
        do (setf pointer (getf pointer keyword))
      finally (return pointer)))
 
-(defmacro with-node-images (images plist &body body)
-  `(symbol-macrolet
-       ,(loop
-           for image in images
-           collect (list image
-                         `(getf ,plist
-                                (intern ,(symbol-name image) "KEYWORD"))))
-     ,@body))
+(defmacro with-node-images (images form &body body)
+  (let ((image-node (gensym "IMAGE-NODE")))
+    `(let* ((,image-node ,form)
+             ,@(loop
+                  for image in images collect
+                    (list image
+                          `(getf ,image-node
+                                 (intern ,(symbol-name image) "KEYWORD")))))
+       ,@body)))
