@@ -9,6 +9,7 @@
 (defparameter *theme-path* nil)
 (defparameter *window-manager* nil)
 (defparameter *theme-image-tree* nil)
+;(defparameter *current-event* nil)
 
 (defun load-settings ()
   (let ((clickrc-file
