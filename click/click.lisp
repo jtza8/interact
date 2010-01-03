@@ -29,7 +29,4 @@
   (setf *window-manager* (make-instance 'window-manager)
         *theme-image-tree* (make-image-tree (getf *settings* :theme-path))))
 
-(defun quit-click ()
-  (free-image-tree))
-
 (load-settings)

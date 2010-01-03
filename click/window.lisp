@@ -20,24 +20,41 @@
           :initarg :width)
    (height :initform 100
            :initarg :height)
-   (themed :initform (not (null *theme-path*)))
-   (textures :initform '())))
+   (themed :initform (not (null *theme-path*)))))
 
 (defmethod initialize-instance :after ((window window) &key)
   (assert-window-manager-exists)
+  (make-sprite window)
   (add-window *window-manager* window))
 
-;(defmethod load-textures ((window window))
-;  (with-slots (themed textures) window
-;    (unless themed (return-from load-textures))
-;    (
+(defmethod draw-at ((window window) x y)
+  (with-slots (texture width height) window
+    (gl:enable :blend)
+    (gl:blend-func :src-alpha :one-minus-src-alpha)
+    (gl:enable :texture-2d)
+    (gl:bind-texture :texture-2d texture)
+    (gl:with-primitive :quads
+      (gl:tex-coord 0 0)
+      (gl:vertex x y)
+      (gl:tex-coord 1 0)
+      (gl:vertex (+ x width) y)
+      (gl:tex-coord 1 1)
+      (gl:vertex (+ x width) (+ y height))
+      (gl:tex-coord 0 1)
+      (gl:vertex x (+ y height)))))
 
 (defmethod draw ((window window))
-  (with-slots (x y width height) window
-    (with-node-images (corner-left-top top-01 corner-right-top)
-        (fetch-image-node :window :shadow)
-      (draw-at corner-left-top
-               (- x (width corner-left-top))
-               (- y (height corner-left-top)))
-      (draw-at top-01 x (- y (height top-01)))
-      (draw-at corner-right-top (+ x width) (- y (height corner-right-top))))))
+  (with-slots (x y) window
+    (draw-at window x y)))
+
+(defmethod make-sprite ((window window))
+  (with-slots (x y width height texture) window
+    (let ((surface (sdl:create-surface width height)))
+      (with-node-images (tester)
+          (fetch-image-node :window :shadow)
+        (sdl:blit-surface tester surface))
+      (setf texture (surface-to-texture surface))
+      (print texture))))
+
+;        (draw-at top-01 x (- y (height top-01)))
+;        (draw-at corner-right-top (+ x width) (- y (height corner-right-top)))))))

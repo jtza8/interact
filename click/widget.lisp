@@ -12,7 +12,9 @@
   ((listeners :initform '()
               :reader listeners)
    (listenable-events :initform '()
-                      :initarg :listenable-events)))
+                      :initarg :listenable-events)
+   (texture :initform nil
+            :reader texture)))
 
 (defmethod add-listener ((widget widget) listener event)
   (with-slots (listeners listenable-events) widget

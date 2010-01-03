@@ -34,5 +34,4 @@
                 (draw *window-manager*)
                 (gl:flush)
                 (sdl:update-display)))
-    (quit-click)
     (sdl:quit-video)))

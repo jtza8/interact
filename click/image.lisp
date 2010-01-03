@@ -18,9 +18,9 @@
 
 (defmethod draw-at ((image image) x y)
   (with-slots (texture width height) image
+    (gl:enable :texture-2d)
     (gl:enable :blend)
     (gl:blend-func :src-alpha :one-minus-src-alpha)
-    (gl:enable :texture-2d)
     (gl:bind-texture :texture-2d texture)
     (gl:with-primitive :quads
       (gl:tex-coord 0 0)

@@ -5,27 +5,23 @@
 
 (in-package :click)
 
-(defun load-image (file)
-  (let ((texture (car (gl:gen-textures 1)))
-        (image (sdl-image:load-image file)))
+(defun surface-to-texture (surface)
+  (let ((texture (car (gl:gen-textures 1))))
     (gl:bind-texture :texture-2d texture)
     (gl:tex-parameter :texture-2d :texture-min-filter :linear)
-    (sdl-base::with-pixel (pix (sdl:fp image))
+    (sdl-base::with-pixel (pix (sdl:fp surface))
       (let ((texture-format (ecase (sdl-base::pixel-bpp pix)
                               (3 :rgb)
                               (4 :rgba))))
         (assert (and (= (sdl-base::pixel-pitch pix)
-                        (* (sdl:width image) (sdl-base::pixel-bpp pix)))
+                        (* (sdl:width surface) (sdl-base::pixel-bpp pix)))
                      (zerop (rem (sdl-base::pixel-pitch pix) 4))))
         (gl:tex-image-2d :texture-2d 0 :rgba
-                         (sdl:width image) (sdl:height image)
+                         (sdl:width surface) (sdl:height surface)
                          0
                          texture-format
                          :unsigned-byte (sdl-base::pixel-data pix))))
-    (make-instance 'image
-                   :texture texture
-                   :width (sdl:width image)
-                   :height (sdl:height image))))
+    texture))
 
 (defun make-image-tree (base-dir)
   (flet ((make-keyword (string)
@@ -40,15 +36,15 @@
                  (let ((type (pathname-type item)))
                    (and type (string-equal (string-downcase type) "png"))))
          collect (make-keyword (pathname-name item))
-         and collect (load-image item))))
+         and collect (sdl-image:load-image item))))
 
-(defun free-image-tree (&optional (tree *theme-image-tree*))
-  (loop
-     for (nil item) on tree by #'cddr
-     if (consp item)
-       do (free-image-tree item)
-     else
-       do (gl:delete-textures (list (texture item)))))
+;(defun free-image-tree (&optional (tree *theme-image-tree*))
+;  (loop
+;     for (nil item) on tree by #'cddr
+;     if (consp item)
+;       do (free-image-tree item)
+;     else
+;       do (gl:delete-textures (list (texture item)))))
 
 (defun fetch-image-node (&rest path)
   (loop
