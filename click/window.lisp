@@ -52,7 +52,7 @@
     (sdl:with-surface (surface (sdl:create-surface width height))
       (with-node-images (tester)
           (fetch-image-node :window :shadow)
-        (sdl:blit-surface tester))
+        (sdl:blit-surface tester)) ; Dysfunctional blit.
       (setf texture (surface-to-texture surface)))))
 
 ;        (draw-at top-01 x (- y (height top-01)))
