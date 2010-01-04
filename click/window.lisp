@@ -49,12 +49,11 @@
 
 (defmethod make-sprite ((window window))
   (with-slots (x y width height texture) window
-    (let ((surface (sdl:create-surface width height)))
+    (sdl:with-surface (surface (sdl:create-surface width height))
       (with-node-images (tester)
           (fetch-image-node :window :shadow)
-        (sdl:blit-surface tester surface))
-      (setf texture (surface-to-texture surface))
-      (print texture))))
+        (sdl:blit-surface tester))
+      (setf texture (surface-to-texture surface)))))
 
 ;        (draw-at top-01 x (- y (height top-01)))
 ;        (draw-at corner-right-top (+ x width) (- y (height corner-right-top)))))))
