@@ -49,10 +49,9 @@
 
 (defmethod make-sprite ((window window))
   (with-slots (x y width height texture) window
-    (sdl:with-surface (surface (sdl:create-surface width height))
-      (with-node-images (tester)
-          (fetch-image-node :window :shadow)
-        (sdl:blit-surface tester)) ; <- Dysfunctional blit.
+    (sdl:with-surface (surface (sdl:create-surface width height :pixel-alpha t))
+      (with-node-images (tester) (fetch-image-node :window :shadow)
+        (sdl:blit-surface tester))
       (setf texture (surface-to-texture surface)))))
 
 ;        (draw-at top-01 x (- y (height top-01)))
