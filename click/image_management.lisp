@@ -38,20 +38,15 @@
          collect (make-keyword (pathname-name item))
          and collect (sdl-image:load-image item))))
 
-;(defun free-image-tree (&optional (tree *theme-image-tree*))
-;  (loop
-;     for (nil item) on tree by #'cddr
-;     if (consp item)
-;       do (free-image-tree item)
-;     else
-;       do (gl:delete-textures (list (texture item)))))
-
 (defun fetch-image-node (&rest path)
-  (loop
-     with pointer = *theme-image-tree*
-     for keyword in path
-       do (setf pointer (getf pointer keyword))
-     finally (return pointer)))
+  (let ((node (loop
+                 with pointer = *theme-image-tree*
+                 for keyword in path
+                   do (setf pointer (getf pointer keyword))
+                 finally (return pointer))))
+    (when (null node)
+      (error "Invalid image node."))
+    node))
 
 (defmacro with-node-images (images form &body body)
   (let ((image-node (gensym "IMAGE-NODE")))
