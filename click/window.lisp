@@ -39,16 +39,45 @@
             (surface (sdl:create-surface surface-width
                                          surface-height
                                          :pixel-alpha t))
-          (setf (sdl:x top-01) left-margin
-                (sdl:y left-01) top-margin
-                (sdl:x corner-right-top) (- surface-width right-margin)
-                (sdl:x corner-right-bottom) (- surface-width right-margin)
-                (sdl:y corner-right-bottom) (- surface-height bottom-margin)
-                (sdl:y corner-left-bottom) (- surface-height bottom-margin))
-          (dolist (image (list corner-left-top corner-right-top
-                               corner-right-bottom corner-left-bottom
-                               top-01 left-01))
-            (sdl:blit-surface image))
+          (with-auto-free sdl:free track-surface
+            (let ((top-02-tile
+                   (track-surface
+                    (tile-for top-02
+                              :width (- width (sdl:width top-01)))))
+                  (right-02-tile
+                   (track-surface
+                    (tile-for right-02
+                              :height (- height (sdl:height right-01)))))
+                  (bottom-02-tile
+                   (track-surface
+                    (tile-for bottom-02
+                              :width (- width (sdl:width bottom-01)))))
+                  (left-02-tile
+                   (track-surface
+                    (tile-for left-02
+                              :height (- height (sdl:height left-01))))))
+              (setf (sdl:x top-01) left-margin
+                    (sdl:x top-02-tile) (+ (sdl:x top-01) (sdl:width top-01))
+                    (sdl:x right-01) (+ left-margin width)
+                    (sdl:y right-01) top-margin
+                    (sdl:x right-02-tile) (+ left-margin width)
+                    (sdl:y right-02-tile) (+ (sdl:y right-01) (sdl:height right-01))
+                    (sdl:x bottom-01) left-margin
+                    (sdl:y bottom-01) (+ top-margin height)
+                    (sdl:x bottom-02-tile) (+ left-margin (sdl:width bottom-01))
+                    (sdl:y bottom-02-tile) (+ top-margin height)
+                    (sdl:y left-01) top-margin
+                    (sdl:y left-02-tile) (+ (sdl:y left-01) (sdl:height left-01))
+                    (sdl:x corner-right-top) (- surface-width right-margin)
+                    (sdl:x corner-right-bottom) (- surface-width right-margin)
+                    (sdl:y corner-right-bottom) (- surface-height bottom-margin)
+                    (sdl:y corner-left-bottom) (- surface-height bottom-margin))
+              (dolist (image (list corner-left-top corner-right-top
+                                   corner-right-bottom corner-left-bottom
+                                   top-01 top-02-tile left-01 left-02-tile
+                                   right-01 right-02-tile
+                                   bottom-01 bottom-02-tile))
+                (sdl:blit-surface image))))
           (setf texture (surface-to-texture surface)))))))
 
 ;        (draw-at top-01 x (- y (height top-01)))

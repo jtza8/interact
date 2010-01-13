@@ -57,3 +57,26 @@
                           `(getf ,image-node
                                  (intern ,(symbol-name image) "KEYWORD")))))
        ,@body)))
+
+(defmethod tile-for ((source sdl:surface) &key
+                     (width (sdl:width source))
+                     (height (sdl:height source)))
+  (sdl:with-surface (dest (sdl:create-surface
+                           width height
+                           :pixel-alpha (sdl:pixel-alpha-enabled-p source))
+                          nil)
+    (sdl:enable-alpha (sdl:alpha-enabled-p source))
+    (dotimes (column (ceiling (/ width (sdl:width source))) dest)
+      (dotimes (row (ceiling (/ height (sdl:height source))))
+        (setf (sdl:x source) (* column (sdl:width source))
+              (sdl:y source) (* row (sdl:height source)))
+        (sdl:blit-surface source dest)))))
+
+(defmacro with-auto-free (free marker-name &body body)
+  (let ((collection (gensym)))
+    `(let ((,collection '()))
+       (flet ((,marker-name (surface)
+                (car (push surface ,collection))))
+         (unwind-protect (progn ,@body)
+           (dolist (item ,collection)
+             (,free item)))))))
