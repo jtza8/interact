@@ -25,4 +25,12 @@
   (add-window *window-manager* window))
 
 (defmethod draw ((window window))
-  ())
+  (with-slots (x y width height left-margin right-margin
+               top-margin bottom-margin) window
+    (with-node-images (:window :shadow)
+        (corner-left-top top-01 top-02)
+      (enable-alpha-textures)
+      (draw-at corner-left-top (- x left-margin) (- y top-margin))
+      (draw-at top-01 x (- y top-margin))
+      (draw-tiled top-02 (+ x (width top-01)) (- y top-margin)
+                  :width (- width (width top-01))))))

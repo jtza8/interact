@@ -6,6 +6,7 @@
   :depends-on ("lispbuilder-sdl" "lispbuilder-sdl-image" "cl-opengl" "cl-fad")
   :components ((:file "package")
                (:file "click" :depends-on ("package"))
+               (:file "image" :depends-on ("click"))
                (:file "image_management" :depends-on ("click"))
                (:file "widget" :depends-on ("image_management"))
                (:file "window_manager" :depends-on ("click"))

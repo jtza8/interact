@@ -28,35 +28,7 @@
    (width :initform 50
           :initarg :width)
    (height :initform 20
-           :initarg :height)
-   (texture :initform nil
-            :reader texture)))
-
-(defmethod draw-at ((widget widget) x y)
-  (with-slots (texture width height left-margin right-margin top-margin
-               bottom-margin) widget
-    (gl:enable :blend)
-    (gl:enable :texture-2d)
-    (gl:blend-func :src-alpha :one-minus-src-alpha)
-    (gl:clear :color-buffer-bit)
-    (gl:bind-texture :texture-2d texture)
-    (let ((total-width (+ width left-margin right-margin))
-          (total-height (+ height top-margin bottom-margin)))
-      (let ((x (- x left-margin))
-            (y (- y top-margin)))
-        (gl:with-primitive :quads
-          (gl:tex-coord 0 0)
-          (gl:vertex x y)
-          (gl:tex-coord 1 0)
-          (gl:vertex (+ x total-width) y)
-          (gl:tex-coord 1 1)
-          (gl:vertex (+ x total-width) (+ y total-height))
-          (gl:tex-coord 0 1)
-          (gl:vertex x (+ y total-height)))))))
-
-(defmethod draw ((widget widget))
-  (with-slots (x y) widget
-    (draw-at widget x y)))
+           :initarg :height)))
 
 (defmethod add-listener ((widget widget) listener event)
   (with-slots (listeners listenable-events) widget
