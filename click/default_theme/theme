@@ -1,0 +1,3 @@
+(standard
+ (font :size 10 :name "bitsream vera sans")
+ (bg-colour (255 255 0 0)))

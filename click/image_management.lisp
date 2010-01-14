@@ -5,8 +5,9 @@
 
 (in-package :click)
 
-(defun surface-to-texture (surface)
-  (let ((texture (car (gl:gen-textures 1))))
+(defun file-to-texture (file)
+  (let ((texture (car (gl:gen-textures 1)))
+        (surface (sdl-image:load-image file)))
     (gl:bind-texture :texture-2d texture)
     (gl:tex-parameter :texture-2d :texture-min-filter :linear)
     (sdl-base::with-pixel (pix (sdl:fp surface))
@@ -21,7 +22,13 @@
                          0
                          texture-format
                          :unsigned-byte (sdl-base::pixel-data pix))))
-    texture))
+    (let ((image (make-instance 'image
+                                :texture texture
+                                :width (sdl:width surface)
+                                :height (sdl:height surface))))
+      (sdl:free surface)
+      image)))
+
 
 (defun make-image-tree (base-dir)
   (flet ((make-keyword (string)
@@ -36,7 +43,7 @@
                  (let ((type (pathname-type item)))
                    (and type (string-equal (string-downcase type) "png"))))
          collect (make-keyword (pathname-name item))
-         and collect (sdl-image:load-image item))))
+         and collect (file-to-texture item))))
 
 (defun fetch-image-node (&rest path)
   (let ((node (loop
@@ -48,35 +55,11 @@
       (error "Invalid image node."))
     node))
 
-(defmacro with-node-images (images form &body body)
+(defmacro with-node-images (path images &body body)
   (let ((image-node (gensym "IMAGE-NODE")))
-    `(let* ((,image-node ,form)
-             ,@(loop
-                  for image in images collect
-                    (list image
-                          `(getf ,image-node
-                                 (intern ,(symbol-name image) "KEYWORD")))))
+    `(let* ((,image-node (fetch-image-node ,@path))
+            ,@(loop for image in images collect
+                   (list image
+                         `(getf ,image-node
+                                (intern ,(symbol-name image) "KEYWORD")))))
        ,@body)))
-
-(defmethod tile-for ((source sdl:surface) &key
-                     (width (sdl:width source))
-                     (height (sdl:height source)))
-  (sdl:with-surface (dest (sdl:create-surface
-                           width height
-                           :pixel-alpha (sdl:pixel-alpha-enabled-p source))
-                          nil)
-    (sdl:enable-alpha (sdl:alpha-enabled-p source))
-    (dotimes (column (ceiling (/ width (sdl:width source))) dest)
-      (dotimes (row (ceiling (/ height (sdl:height source))))
-        (setf (sdl:x source) (* column (sdl:width source))
-              (sdl:y source) (* row (sdl:height source)))
-        (sdl:blit-surface source dest)))))
-
-(defmacro with-auto-free (free marker-name &body body)
-  (let ((collection (gensym)))
-    `(let ((,collection '()))
-       (flet ((,marker-name (surface)
-                (car (push surface ,collection))))
-         (unwind-protect (progn ,@body)
-           (dolist (item ,collection)
-             (,free item)))))))
