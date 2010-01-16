@@ -12,6 +12,7 @@
   ())
 
 (defmethod initialize-instance :after ((test image-management-test) &key)
+  (sdl:init-sdl)
   (sdl:with-init (sdl:sdl-init-video)
     (setf *theme-image-tree* (make-image-tree *test-theme-path*))))
 
@@ -32,6 +33,14 @@
   (assert-true (not (null (fetch-image-node :window :shadow :left-01))))
   (assert-condition 'invalid-image-node
                     (fetch-image-node :window :shadow :blah)))
+
+(def-test-method test-fetch-image-node ((test image-management-test))
+  (let ((tree (fetch-image-node :window :shadow)))
+    (assert-condition 'invalid-image-node
+                      (fetch-from-image-node tree :blah :foo))
+    (assert-equal (find-class 'image)
+                  (class-of (fetch-from-image-node tree
+                                                   :left-01)))))
 
 (def-test-method test-with-node-images ((test image-management-test))
   (assert-condition

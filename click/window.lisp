@@ -17,7 +17,7 @@
 (defmethod initialize-instance :after ((window window) &key)
   (assert-window-manager-exists)
   (with-slots (left-margin right-margin top-margin bottom-margin) window
-    (with-node-images (:window :shadow) (corner-left-top corner-right-bottom)
+    (with-node-images (:window :shadows) (corner-left-top corner-right-bottom)
       (setf left-margin (width corner-left-top)
             right-margin (width corner-right-bottom)
             top-margin (height corner-left-top)
@@ -25,9 +25,13 @@
   (add-window *window-manager* window))
 
 (defmethod draw ((window window))
+  (draw-shadows window)
+  (draw-border window))
+
+(defmethod draw-shadows ((window window))
   (with-slots (x y width height left-margin right-margin
                top-margin bottom-margin) window
-    (with-node-images (:window :shadow)
+    (with-node-images (:window :shadows)
         (corner-left-top top-left top-centre top-right
          corner-right-top right-top right-centre right-bottom
          corner-right-bottom bottom-right bottom-centre bottom-left
@@ -51,9 +55,16 @@
                   :width (- width (width bottom-left) (width bottom-right)))
       (draw-at bottom-left x (+ y height))
       (draw-at corner-left-bottom (- x left-margin) (+ y height))
-      (draw-at left-bottom 
+      (draw-at left-bottom
                (- x left-margin)
                (+ y (- height (height left-bottom))))
       (draw-tiled left-centre (- x left-margin) (+ y (height left-top))
                   :height (- height (height left-bottom) (height left-top)))
       (draw-at left-top (- x left-margin) y))))
+
+(defmethod draw-border ((window window))
+  ())
+;  (with-slots (x y width height) window
+;    (with-node-images (:window :shadows)
+;        (left-top)
+;      )))

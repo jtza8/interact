@@ -6,7 +6,10 @@
 (in-package :click)
 
 (define-condition invalid-image-node (error)
-  (requested-node))
+  ((invalid-node :initarg :invalid-node
+                 :reader invalid-node))
+  (:report (lambda (condition stream)
+            (format stream "Invalid node: ~S" (invalid-node condition)))))
 
 (defun file-to-texture (file)
   (let ((texture (car (gl:gen-textures 1))))
@@ -52,7 +55,13 @@
                  for keyword in path
                    do (setf pointer (getf pointer keyword))
                  finally (return pointer))))
-      (assert (not (null node)) () 'invalid-image-node)
+      (assert (not (null node)) () 'invalid-image-node :invalid-node path)
+    node))
+
+(defun fetch-from-image-node (sub-tree &rest path)
+  (let ((node (apply #'getf (cons sub-tree path))))
+    (assert (not (null node)) ()
+            'invalid-image-node :invalid-node path)
     node))
 
 (defmacro with-node-images (path images &body body)
@@ -60,10 +69,7 @@
     `(let* ((,image-node (fetch-image-node ,@path))
             ,@(loop for image in images collect
                    (list image
-                         `(let ((image (getf ,image-node
-                                             (intern ,(symbol-name image)
-                                                     "KEYWORD"))))
-                            (assert (not (null image)) ()
-                                    'invalid-image-node)
-                            image))))
+                         `(fetch-from-image-node ,image-node
+                                                 ,(intern (symbol-name image)
+                                                         "KEYWORD")))))
        ,@body)))
