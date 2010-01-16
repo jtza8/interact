@@ -8,4 +8,5 @@
                (:file "dummy_widget" :depends-on ("test_package"))
                (:file "dummy_listener")
                (:file "widget_test"
-                :depends-on ("test_package" "dummy_widget"))))
+                :depends-on ("test_package" "dummy_widget"))
+               (:file "image_management_test" :depends-on ("test_package"))))

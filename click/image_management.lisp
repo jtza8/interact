@@ -5,29 +5,30 @@
 
 (in-package :click)
 
+(define-condition invalid-image-node (error)
+  (requested-node))
+
 (defun file-to-texture (file)
-  (let ((texture (car (gl:gen-textures 1)))
-        (surface (sdl-image:load-image file)))
-    (gl:bind-texture :texture-2d texture)
-    (gl:tex-parameter :texture-2d :texture-min-filter :linear)
-    (sdl-base::with-pixel (pix (sdl:fp surface))
-      (let ((texture-format (ecase (sdl-base::pixel-bpp pix)
-                              (3 :rgb)
-                              (4 :rgba))))
-        (assert (and (= (sdl-base::pixel-pitch pix)
-                        (* (sdl:width surface) (sdl-base::pixel-bpp pix)))
-                     (zerop (rem (sdl-base::pixel-pitch pix) 4))))
-        (gl:tex-image-2d :texture-2d 0 :rgba
-                         (sdl:width surface) (sdl:height surface)
-                         0
-                         texture-format
-                         :unsigned-byte (sdl-base::pixel-data pix))))
-    (let ((image (make-instance 'image
-                                :texture texture
-                                :width (sdl:width surface)
-                                :height (sdl:height surface))))
-      (sdl:free surface)
-      image)))
+  (let ((texture (car (gl:gen-textures 1))))
+    (sdl:with-surface (surface (sdl-image:load-image file))
+      (gl:bind-texture :texture-2d texture)
+      (gl:tex-parameter :texture-2d :texture-min-filter :linear)
+      (sdl-base::with-pixel (pix (sdl:fp surface))
+        (let ((texture-format (ecase (sdl-base::pixel-bpp pix)
+                                (3 :rgb)
+                                (4 :rgba))))
+          (assert (and (= (sdl-base::pixel-pitch pix)
+                          (* (sdl:width surface) (sdl-base::pixel-bpp pix)))
+                       (zerop (rem (sdl-base::pixel-pitch pix) 4))))
+          (gl:tex-image-2d :texture-2d 0 :rgba
+                           (sdl:width surface) (sdl:height surface)
+                           0
+                           texture-format
+                           :unsigned-byte (sdl-base::pixel-data pix))))
+      (make-instance 'image
+                     :texture texture
+                     :width (sdl:width surface)
+                     :height (sdl:height surface)))))
 
 
 (defun make-image-tree (base-dir)
@@ -51,8 +52,7 @@
                  for keyword in path
                    do (setf pointer (getf pointer keyword))
                  finally (return pointer))))
-    (when (null node)
-      (error "Invalid image node."))
+      (assert (not (null node)) () 'invalid-image-node)
     node))
 
 (defmacro with-node-images (path images &body body)
@@ -60,6 +60,10 @@
     `(let* ((,image-node (fetch-image-node ,@path))
             ,@(loop for image in images collect
                    (list image
-                         `(getf ,image-node
-                                (intern ,(symbol-name image) "KEYWORD")))))
+                         `(let ((image (getf ,image-node
+                                             (intern ,(symbol-name image)
+                                                     "KEYWORD"))))
+                            (assert (not (null image)) ()
+                                    'invalid-image-node)
+                            image))))
        ,@body)))
