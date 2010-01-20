@@ -26,7 +26,7 @@
 
 (defmethod draw ((window window))
   (draw-shadows window)
-  (draw-border window))
+  (draw-panel window))
 
 (defmethod draw-shadows ((window window))
   (with-slots (x y width height left-margin right-margin
@@ -62,9 +62,25 @@
                   :height (- height (height left-bottom) (height left-top)))
       (draw-at left-top (- x left-margin) y))))
 
-(defmethod draw-border ((window window))
-  ())
-;  (with-slots (x y width height) window
-;    (with-node-images (:window :shadows)
-;        (left-top)
-;      )))
+(defmethod draw-panel ((window window))
+  (with-slots (x y width height) window
+    (with-node-images (:window :panel)
+        (left corner-left-bottom bottom corner-right-bottom right background)
+      (draw-tiled left x y :height (- height (height corner-left-bottom)))
+      (draw-at corner-left-bottom
+               x (+ y (- height (height corner-left-bottom))))
+      (draw-tiled bottom
+                  (+ x (width corner-left-bottom))
+                  (+ y (- height (height bottom)))
+                  :width (- width
+                            (width corner-left-bottom)
+                            (width corner-right-bottom)))
+      (draw-at corner-right-bottom
+               (+ x (- width (width corner-right-bottom)))
+               (+ y (- height (height corner-right-bottom))))
+      (draw-tiled right (+ x (- width (width right))) y
+                  :height (- height (height corner-right-bottom)))
+      (draw-tiled background
+                  (+ x (width left)) y
+                  :height (- height (height bottom))
+                  :width (- width (width left) (width right))))))
