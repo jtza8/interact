@@ -17,6 +17,12 @@
       :initarg :x)
    (y :initform 0
       :initarg :y)
+   (x-offset :initform 0
+             :initarg :x-offset
+             :accessor x-offset)
+   (y-offset :initform 0
+             :initarg :y-offset
+             :accessor y-offset)
    (left-margin :initform 0
                :initarg :left-margin)
    (right-margin :initform 0
@@ -26,9 +32,11 @@
    (bottom-margin :initform 0
                  :initarg :bottom-margin)
    (width :initform 50
-          :initarg :width)
+          :initarg :width
+          :reader width)
    (height :initform 20
-           :initarg :height)))
+           :initarg :height
+           :reader height)))
 
 (defmethod add-listener ((widget widget) listener event)
   (with-slots (listeners listenable-events) widget
@@ -55,3 +63,11 @@
 (defmethod notify-listeners ((widget widget) event &rest args)
   (dolist (listener (getf (slot-value widget 'listeners) event))
     (apply 'event-update `(,listener ,event ,@args))))
+
+(defmethod abs-x ((widget widget))
+  (with-slots (x x-offset) widget
+    (+ x x-offset)))
+
+(defmethod abs-y ((widget widget))
+  (with-slots (y y-offset) widget
+    (+ y y-offset)))
