@@ -6,13 +6,19 @@
 (in-package :click)
 
 (define-condition invalid-event (error)
-  ((event-type :initarg :event-type)))
+  ((event-type :initarg :event-type
+               :reader event-type))
+  (:report (lambda (condition stream)
+             (format stream "Invalid event: ~S" (event-type condition)))))
 
 (defclass widget ()
   ((listeners :initform '()
               :reader listeners)
    (listenable-events :initform '()
-                      :initarg :listenable-events)
+                      :initarg :listenable-events
+                      :reader listenable-events)
+   (subscribe-window-events :initform '()
+                            :reader subscribe-window-events)
    (x :initform 0
       :initarg :x)
    (y :initform 0
@@ -40,11 +46,8 @@
 
 (defmethod add-listener ((widget widget) listener event)
   (with-slots (listeners listenable-events) widget
-    (unless (find event listenable-events)
-      (restart-case (error 'invalid-event :event-type event)
-        (ignore ()
-          :report "Ignore and return from add-listener."
-          (return-from add-listener))))
+    (assert (find event listenable-events) (event)
+            'invalid-event :event-type event)
     (if (eq (getf listeners event) nil)
         (progn (push (list listener) listeners)
                (push event listeners))
@@ -53,10 +56,8 @@
 (defmethod remove-listener ((widget widget) listener event)
   (with-slots (listeners) widget
     (let ((event-listeners (getf listeners event)))
-      (unless event-listeners 
-        (restart-case (error 'invalid-event :event-type event)
-          (ignore ()
-            :report "Ignore and return from remove-listener")))
+      (assert (not (null event-listeners)) (event)
+              'invalid-event :event-type event)
       (setf (getf listeners event)
             (delete listener (getf listeners event))))))
 

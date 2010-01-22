@@ -37,7 +37,7 @@
 (def-test-method test-fetch-image-node ((test image-management-test))
   (let ((tree (fetch-image-node :window :shadow)))
     (assert-condition 'invalid-image-node
-                      (fetch-from-image-node tree :blah :foo))
+                      (fetch-from-image-node tree :blah))
     (assert-equal (find-class 'image)
                   (class-of (fetch-from-image-node tree
                                                    :left-01)))))

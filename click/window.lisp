@@ -8,10 +8,10 @@
 (defclass window (widget)
   ((visible :initarg :visible
             :initform t)
-   (widgets :initform '())
+   (widgets :initform '()
+            :reader widgets)
    (title-bar)
-   (tags :initform '())
-   (themed :initform (not (null *theme-path*)))))
+   (tags :initform '())))
 
 (defmethod initialize-instance :after ((window window) &key)
   (assert-window-manager-exists)
@@ -27,6 +27,16 @@
                                    :x-offset x
                                    :y-offset y))
     (add-window *window-manager* window)))
+
+(defmethod add-widget ((window window) new-widget)
+  (check-type new-widget widget)
+  (with-slots (widgets) window
+    (pushnew new-widget widgets)))
+
+(defmethod remove-widget ((window window) target-widget)
+  (with-slots (widgets) window
+    (setf widgets (delete-if (lambda (widget) (eq target-widget widget))
+                             widgets))))
 
 (defmethod draw ((window window))
   (with-slots (title-bar) window

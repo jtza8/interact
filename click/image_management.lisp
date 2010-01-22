@@ -58,10 +58,10 @@
       (assert (not (null node)) () 'invalid-image-node :invalid-node path)
     node))
 
-(defun fetch-from-image-node (sub-tree &rest path)
-  (let ((node (apply #'getf (cons sub-tree path))))
+(defun fetch-from-image-node (sub-tree node-tag)
+  (let ((node (funcall #'getf sub-tree node-tag)))
     (assert (not (null node)) ()
-            'invalid-image-node :invalid-node path)
+            'invalid-image-node :invalid-node node-tag)
     node))
 
 (defmacro with-node-images (path images &body body)
