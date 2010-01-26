@@ -9,7 +9,8 @@
   ())
 
 (defmethod set-up ((test window-test))
-  (init-basic-gui))
+  (sdl:init-video)
+  (init-click))
 
 (defmethod tear-down ((test window-test))
   (sdl:quit-sdl))

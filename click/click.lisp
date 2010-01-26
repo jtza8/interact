@@ -24,8 +24,8 @@
         (list :theme-path 
               (asdf:system-relative-pathname :click "default_theme"))))
 
-(defun init-click ()
+(defun init-click (&key (settings *settings*))
   (setf *window-manager* (make-instance 'window-manager)
-        *theme-image-tree* (make-image-tree (getf *settings* :theme-path))))
+        *theme-image-tree* (make-image-tree (getf settings :theme-path))))
 
 (load-settings)

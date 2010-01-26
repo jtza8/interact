@@ -9,7 +9,6 @@
                (:file "dummy_listener")
                (:file "widget_test"
                 :depends-on ("test_package" "dummy_widget"))
-               (:file "window_test")
-;               (:file "image_management_test"
-;                :depends-on ("test_package" "dummy_widget"))
-))
+               (:file "window_test" :depends-on ("dummy_widget"))
+               (:file "image_management_test"
+                :depends-on ("test_package" "dummy_widget"))))

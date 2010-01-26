@@ -11,13 +11,9 @@
 (defclass image-management-test (test-case)
   ())
 
-(defmethod initialize-instance :after ((test image-management-test) &key)
-  (sdl:init-sdl)
-  (sdl:with-init (sdl:sdl-init-video)
-    (setf *theme-image-tree* (make-image-tree *test-theme-path*))))
-
 (defmethod set-up ((test image-management-test))
-  (sdl:init-video))
+  (sdl:init-video)
+  (init-click :settings (list :theme-path *test-theme-path*)))
 
 (defmethod tear-down ((test image-management-test))
   (sdl:quit-video))

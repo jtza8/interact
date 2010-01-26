@@ -23,7 +23,7 @@
   (gl:viewport 0 0 screen-width screen-height)
   (gl:clear-color 1 1 1 0.0)
   (gl:clear :color-buffer-bit)
- (init-click))
+  (init-click))
 
 
 (defun run-basic-gui ()
