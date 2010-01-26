@@ -8,13 +8,8 @@
 (defclass window-test (test-case)
   ())
 
-(defmethod initialize-instance :after ((test window-test) &key)
-  (sdl:init-sdl)
-  (sdl:with-init (sdl:sdl-init-video)
-    (init-click)))
-
 (defmethod set-up ((test window-test))
-  (sdl:init-sdl :flags sdl:sdl-init-video))
+  (init-basic-gui))
 
 (defmethod tear-down ((test window-test))
   (sdl:quit-sdl))
@@ -27,6 +22,14 @@
     (assert-true (find widget (widgets window)))
     (remove-widget window widget)
     (assert-false (find widget (widgets window)))))
+
+(def-test-method test-event-system ((test window-test))
+  (let ((widget (make-instance 'dummy-widget))
+        (window (make-instance 'window)))
+    (assert-equal nil (latest-event widget))
+    (add-widget window widget)
+    (handle-event window '(:mouse-move :x 20 :y 40))
+    (assert-equal '(:mouse-move :x 20 :y 40) (latest-event widget))))
 
 (defun interactive-window-test ()
   (init-basic-gui)

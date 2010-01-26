@@ -8,6 +8,7 @@
 (defclass window (widget)
   ((visible :initarg :visible
             :initform t)
+   (listenable-events :initform '(:mouse-move))
    (widgets :initform '()
             :reader widgets)
    (title-bar)
@@ -31,7 +32,9 @@
 (defmethod add-widget ((window window) new-widget)
   (check-type new-widget widget)
   (with-slots (widgets) window
-    (pushnew new-widget widgets)))
+    (pushnew new-widget widgets))
+  (dolist (event (subscribe-events new-widget))
+    (add-listener window new-widget event)))
 
 (defmethod remove-widget ((window window) target-widget)
   (with-slots (widgets) window
@@ -112,3 +115,18 @@
                     (+ ax (width left)) (+ ay title-bar-height)
                     :height (- height title-bar-height (height bottom))
                     :width (- width (width left) (width right)))))))
+
+(defmethod get-event-handler ((window window) event)
+  (case (event-type event)
+    (:mouse-move #'event-mouse-move)
+    (:mouse-down #'event-mouse-down)
+    (:mouse-up #'event-mouse-up)))
+
+(defmethod event-mouse-move ((window window) event)
+  (print event))
+
+(defmethod event-mouse-down ((window window) event)
+  (print event))
+
+(defmethod event-mouse-up ((window window) event)
+  (print event))

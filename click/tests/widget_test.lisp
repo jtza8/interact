@@ -27,6 +27,6 @@
                       (remove-listener dummy listener-1 :dumy-event))
     (assert-equal `(:dummy-event (,listener-2)) (listeners dummy))
     (add-listener dummy listener-1 :dummy-event)
-    (notify-listeners dummy :dummy-event 1 4 2)
+    (handle-event dummy '(:dummy-event 1 4 2))
     (assert-equal '(:dummy-event 1 4 2) (latest-event listener-1))
     (assert-equal '(:dummy-event 1 4 2) (latest-event listener-2))))

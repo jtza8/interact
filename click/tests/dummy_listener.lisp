@@ -9,5 +9,5 @@
   ((latest-event :initform nil
                  :reader latest-event)))
 
-(defmethod event-update ((listener dummy-listener) event &rest args)
-  (setf (slot-value listener 'latest-event) `(,event ,@args)))
+(defmethod event-dummy ((listener dummy-listener) event)
+  (setf (slot-value listener 'latest-event) event))
