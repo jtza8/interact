@@ -7,7 +7,7 @@
 
 (defclass dummy-widget (widget)
   ((listenable-events :initform '(:dummy-event))
-   (subscribe-events :initform '(:mouse-move))
+   (listen-for-events :initform '(:mouse-move))
    (latest-event :initform nil
                  :reader latest-event)))
 

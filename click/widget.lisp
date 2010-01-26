@@ -5,21 +5,8 @@
 
 (in-package :click)
 
-(define-condition invalid-event (error)
-  ((event :initarg :event
-          :reader event))
-  (:report (lambda (condition stream)
-             (format stream "Invalid event: ~S" (event condition)))))
-
-(defclass widget ()
-  ((listeners :initform '()
-              :reader listeners)
-   (listenable-events :initform '()
-                      :initarg :listenable-events
-                      :reader listenable-events)
-   (subscribe-events :initform '()
-                     :reader subscribe-events)
-   (x :initform 0
+(defclass widget (listenable listener)
+  ((x :initform 0
       :initarg :x)
    (y :initform 0
       :initarg :y)
@@ -51,32 +38,3 @@
 (defmethod abs-y ((widget widget))
   (with-slots (y y-offset) widget
     (+ y y-offset)))
-
-(defmacro event-type (event) `(car ,event))
-(defmacro event-data (event) `(cdr ,event))
-
-(defmethod add-listener ((widget widget) listener event-type)
-  (with-slots (listeners listenable-events) widget
-    (assert (find event-type listenable-events) (event-type)
-            'invalid-event :event (list event-type))
-    (if (eq (getf listeners event-type) nil)
-        (progn (push (list listener) listeners)
-               (push event-type listeners))
-        (pushnew listener (getf listeners event-type)))))
-
-(defmethod remove-listener ((widget widget) listener event-type)
-  (with-slots (listeners) widget
-    (let ((event-listeners (getf listeners event-type)))
-      (assert event-listeners (event-type)
-              'invalid-event :event (list event-type))
-      (setf (getf listeners event-type)
-            (delete listener (getf listeners event-type))))))
-
-(defmethod get-event-handler ((widget widget) event) nil)
-
-(defmethod handle-event ((widget widget) event)
-  (with-slots (listenable-events) widget
-    (assert (find (event-type event) listenable-events) ()
-            'invalid-event :event event))  
-  (dolist (listener (getf (slot-value widget 'listeners) (car event)))
-    (funcall (get-event-handler widget event) listener event)))
