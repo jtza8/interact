@@ -34,5 +34,5 @@
 
 (defun interactive-window-test ()
   (init-basic-gui)
-  (make-instance 'window :x 50 :y 50 :width 400 :height 200)
+  (make-instance 'window :x 50 :y 50 :width 150 :height 200)
   (run-basic-gui))

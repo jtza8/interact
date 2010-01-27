@@ -9,4 +9,4 @@
   ((listen-for-events :initform '()
                       :reader listen-for-events)))
 
-(defmethod select-handler ((listener listener) event) nil)
+(defmethod select-handler ((listener listener) event-type) nil)

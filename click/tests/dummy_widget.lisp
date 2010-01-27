@@ -11,9 +11,9 @@
    (latest-event :initform nil
                  :reader latest-event)))
 
-(defmethod get-event-handler ((widget dummy-widget) event)
-  (when (eq (event-type event) :dummy-event)
-    #'event-dummy))
+(defmethod select-handler ((dummy dummy-widget) event-type)
+  (when (eq event-type :mouse-move)
+    #'event-mouse-move))
   
 (defmethod event-mouse-move ((dummy dummy-widget) event)
   (setf (slot-value dummy 'latest-event) event))

@@ -29,6 +29,9 @@
             'invalid-event
             :reason "Unlistenable event"
             :event (list event-type))
+    (unless (select-handler listener event-type)
+      (warn "~S requested to listen to event ~S but doesn't provide a handler"
+            listener event-type))
     (if (eq (getf listeners event-type) nil)
         (progn (push (list listener) listeners)
                (push event-type listeners))
@@ -50,5 +53,5 @@
             'invalid-event
             :reason "Unsupported event"
             :event event)
-  (dolist (listener (getf listeners (car event)))
-    (funcall (select-handler listener event) listener event))))
+  (dolist (listener (getf listeners (event-type event)))
+    (funcall (select-handler listener (event-type event)) listener event))))

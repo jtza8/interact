@@ -9,8 +9,8 @@
   ((latest-event :initform nil
                  :reader latest-event)))
 
-(defmethod select-handler ((listener dummy-listener) event)
-  (when (eq (event-type event) :dummy-event)
+(defmethod select-handler ((listener dummy-listener) event-type)
+  (when (eq event-type :dummy-event)
     #'event-dummy))
 
 (defmethod event-dummy ((listener dummy-listener) event)
