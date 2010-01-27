@@ -5,29 +5,67 @@
 
 (in-package :click)
 
+(define-condition tag-error (error)
+  ((fault :initarg :fault
+          :initform :fault)
+   (tag :initarg :tag
+        :initform nil)
+   (widget :initarg :widget
+           :initform nil))
+  (:report (lambda (condition stream)
+             (with-slots (fault tag widget) condition
+               (case fault
+                 (:tag (format stream "Tag ~s for widget ~s must be unique"
+                               tag widget))
+                 (:widget (format stream "Widget ~s already has tag ~s"
+                                  widget tag))
+                 (:invalid-tag (format stream "Couldn't find tag ~s" tag))
+                 (otherwise (format stream "Unknown fault: ~s" fault)))))))
+
 (defclass window (widget)
   ((visible :initarg :visible
             :initform t)
-   (listenable-events :initform '(:mouse-move))
+   (listenable-events :initform '(:mouse-move :mouse-down :mouse-up))
    (widgets :initform '()
             :reader widgets)
-   (title-bar)
    (tags :initform '())))
 
 (defmethod initialize-instance :after ((window window) &key)
   (assert-window-manager-exists)
   (with-slots (left-margin right-margin top-margin bottom-margin
-               width title-bar x y) window
+               width x y) window
     (with-node-images (:window :shadows) (corner-left-top corner-right-bottom)
       (setf left-margin (width corner-left-top)
             right-margin (width corner-right-bottom)
             top-margin (height corner-left-top)
             bottom-margin (height corner-right-bottom)))
-    (setf title-bar (make-instance 'title-bar 
-                                   :width width
-                                   :x-offset x
-                                   :y-offset y))
+    (let ((title-bar (make-instance 'title-bar 
+                                    :width width
+                                    :x-offset x
+                                    :y-offset y)))
+      (add-widget window title-bar)
+      (tag-widget window title-bar :title-bar))
     (add-window *window-manager* window)))
+
+(defmethod tag-widget ((window window) (widget widget) tag)
+  (with-slots (tags) window
+    (multiple-value-bind (fault tag widget)
+        (loop
+           with past = nil
+           for present in tags
+             do (cond 
+                  ((eq present widget) (return (values :widget past present)))
+                  ((eq past tag) (return (values :tag past present))))
+             do (setf past present)
+           finally (return (values nil nil nil)))
+      (assert (not fault) (tag widget) 
+              'tag-error :fault fault :tag tag :widget widget))
+    (setf (getf tags tag) widget)))
+
+(defmethod widget ((window window) tag)
+  (let ((value (getf (slot-value window 'tags) tag)))
+    (assert value (value) 'tag-error :fault :invalid-tag :tag tag)
+    value))
 
 (defmethod add-widget ((window window) new-widget)
   (check-type new-widget widget)
@@ -42,12 +80,10 @@
                              widgets))))
 
 (defmethod draw ((window window))
-  (with-slots (title-bar) window
-    (draw-shadows window)
-    (draw-panel window)
-    (draw title-bar)
-    (dolist (widget (slot-value window 'widgets))
-      (draw widget))))
+  (draw-shadows window)
+  (draw-panel window)
+  (dolist (widget (slot-value window 'widgets))
+    (draw widget)))
 
 (defmethod draw-shadows ((window window))
   (with-slots (width height left-margin right-margin
@@ -91,7 +127,7 @@
   (with-slots (width height title-bar) window
     (let ((ax (abs-x window))
           (ay (abs-y window))
-          (title-bar-height (height title-bar)))
+          (title-bar-height (height (widget window :title-bar))))
       (with-node-images (:window :panel)
           (left corner-left-bottom bottom corner-right-bottom right background)
         (draw-tiled left ax (+ ay title-bar-height)

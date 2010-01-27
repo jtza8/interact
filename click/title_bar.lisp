@@ -9,6 +9,7 @@
   ((title :initarg :title
           :initform "Untitled"
           :accessor title)
+   (listen-for-events :initform '(:mouse-move :mouse-down :mouse-up))
    (draging :initform nil
             :accessor draging)))
 

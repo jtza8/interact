@@ -5,10 +5,10 @@
 
 (in-package :click)
 
-(defclass widget-test (test-case)
+(defclass listening-test (test-case)
   ())
 
-(def-test-method test-listenable ((test widget-test))
+(def-test-method test-listenable ((test listening-test))
   (let ((dummy (make-instance 'dummy-widget))
         (listener-1 (make-instance 'dummy-listener))
         (listener-2 (make-instance 'dummy-listener)))
@@ -16,6 +16,8 @@
     (add-listener dummy listener-1 :dummy-event)
     (assert-equal `(:dummy-event ,(list listener-1))
                   (listeners dummy))
+    (assert-condition 'invalid-event-type
+                      (add-listener dummy listener-1 :nonexistent-event))
     (add-listener dummy listener-2 :dummy-event)
     (assert-equal `(:dummy-event (,listener-2 ,listener-1))
                   (listeners dummy))
