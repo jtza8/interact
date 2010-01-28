@@ -9,8 +9,11 @@
   ((window-manager :initform *window-manager*)))
 
 (defclass window-manager ()
-  ((windows :initform '())
-   (focus :initform nil)))
+  ((windows :initform '()
+            :reader windows)))
+
+(defmacro active-window ()
+  (car (windows *window-manager*)))
 
 (defmacro assert-window-manager-exists ()
   '(assert (not (eq *window-manager* nil)) ()
@@ -32,3 +35,7 @@
   (with-slots (windows) manager
     (dolist (window windows)
       (draw window))))
+
+(defmethod handle-event ((manager window-manager) event)
+  (with-slots (windows) manager
+    (handle-event (car windows) event)))

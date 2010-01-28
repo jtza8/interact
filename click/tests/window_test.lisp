@@ -42,10 +42,11 @@
     (assert-condition 'tag-error (tag-widget window widget-2 :widget-1))
     (assert-condition 'tag-error (tag-widget window widget-1 :widget-2))
     (assert-equal widget-1 (widget window :widget-1))
-    (tag-widget window widget-2)
+    (tag-widget window widget-2 :widget-2)
     (assert-condition 'tag-error (widget window :widget-3))))
 
 (defun interactive-window-test ()
   (init-basic-gui)
-  (make-instance 'window :x 50 :y 50 :width 150 :height 200)
+  (make-instance 'window :x 20 :y 20 :width 400 :height 300)
+;  (make-instance 'window :x 50 :y 50 :width 150 :height 200)
   (run-basic-gui))

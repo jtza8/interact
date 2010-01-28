@@ -44,20 +44,22 @@
                                     :x-offset x
                                     :y-offset y)))
       (add-widget window title-bar)
-      (tag-widget window title-bar :title-bar))
+      (tag-widget window title-bar :title-bar)
+      (add-listener title-bar window :dragging))
     (add-window *window-manager* window)))
 
 (defmethod tag-widget ((window window) (widget widget) tag)
   (with-slots (tags) window
     (multiple-value-bind (fault tag widget)
         (loop
-           with past = nil
-           for present in tags
-             do (cond 
-                  ((eq present widget) (return (values :widget past present)))
-                  ((eq past tag) (return (values :tag past present))))
-             do (setf past present)
-           finally (return (values nil nil nil)))
+           for (tag-key tag-value) on tags by #'cddr do
+             (cond
+               ((eq tag-key tag)
+                (return (values :tag tag-key tag-value)))
+               ((eq tag-value widget)
+                (return (values :widget tag-key tag-value))))
+           finally
+             (return (values nil nil nil)))
       (assert (not fault) (tag widget) 
               'tag-error :fault fault :tag tag :widget widget))
     (setf (getf tags tag) widget)))
@@ -151,3 +153,13 @@
                     (+ ax (width left)) (+ ay title-bar-height)
                     :height (- height title-bar-height (height bottom))
                     :width (- width (width left) (width right)))))))
+
+(defmethod select-handler ((window window) event-type)
+  (when (eq event-type :dragging)
+    #'event-dragging))
+
+(defmethod event-dragging ((window window) event)
+  (with-slots (x y) window
+    (with-event-keys (x-offset y-offset) event
+      (setf x x-offset
+            y y-offset))))

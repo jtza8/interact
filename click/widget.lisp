@@ -38,3 +38,8 @@
 (defmethod abs-y ((widget widget))
   (with-slots (y y-offset) widget
     (+ y y-offset)))
+
+(defmethod within ((widget widget) x y)
+  (with-slots (x-offset y-offset width height) widget
+    (and (< x-offset x (+ x-offset width))
+         (< y-offset y (+ y-offset height)))))

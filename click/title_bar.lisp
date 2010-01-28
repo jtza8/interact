@@ -10,8 +10,11 @@
           :initform "Untitled"
           :accessor title)
    (listen-for-events :initform '(:mouse-move :mouse-down :mouse-up))
-   (draging :initform nil
-            :accessor draging)))
+   (listenable-events :initform '(:dragging))
+   (dragging :initform nil
+             :accessor dragging)
+   (x-drag-offset :initform 0)
+   (y-drag-offset :initform 0)))
 
 (defmethod initialize-instance :after ((title-bar title-bar) &key)
   (with-node-images (:window :title-bar) (left centre right)
@@ -35,10 +38,24 @@
     (:mouse-up #'event-mouse-up)))
 
 (defmethod event-mouse-move ((title-bar title-bar) event)
-  (print event))
+  (with-slots (x-offset y-offset x-drag-offset y-drag-offset dragging) title-bar
+    (unless dragging (return-from event-mouse-move))
+    (with-event-keys (x y) event
+      (setf x-offset (- x x-drag-offset)
+            y-offset (- y y-drag-offset))
+      (handle-event title-bar
+                    (list :dragging
+                          :x-offset x-offset
+                          :y-offset y-offset)))))
 
 (defmethod event-mouse-down ((title-bar title-bar) event)
-  (print event))
+  (with-slots (x-offset y-offset x-drag-offset y-drag-offset dragging) title-bar
+    (with-event-keys (x y) event
+      (when (within title-bar x y)
+        (setf x-drag-offset (- x x-offset)
+              y-drag-offset (- y y-offset)
+              dragging t)))))
 
 (defmethod event-mouse-up ((title-bar title-bar) event)
-  (print event))
+  (with-slots (dragging) title-bar
+    (when dragging (setf dragging nil))))

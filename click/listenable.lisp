@@ -27,6 +27,13 @@
 (defmacro event-type (event) `(car ,event))
 (defmacro event-data (event) `(cdr ,event))
 
+(defmacro with-event-keys (keys event &body body)
+  (let ((data (gensym "event")))
+    `(let* ((,data (cdr ,event))
+            ,@(loop for key in keys collect
+                   `(,key (getf ,data ,(intern (symbol-name key) "KEYWORD")))))
+       ,@body)))
+
 (defmethod add-listener ((listenable listenable) listener event-type)
   (with-slots (listeners listenable-events) listenable
     (assert (find event-type listenable-events) (event-type)
