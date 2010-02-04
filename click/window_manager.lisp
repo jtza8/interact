@@ -13,7 +13,7 @@
             :reader windows)))
 
 (defmacro active-window ()
-  (car (windows *window-manager*)))
+  (car (last (windows *window-manager*))))
 
 (defmacro assert-window-manager-exists ()
   '(assert (not (eq *window-manager* nil)) ()
@@ -38,4 +38,4 @@
 
 (defmethod handle-event ((manager window-manager) event)
   (with-slots (windows) manager
-    (handle-event (car windows) event)))
+    (handle-event (car (last windows)) event)))

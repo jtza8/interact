@@ -22,6 +22,9 @@
   (gl:load-identity)
   (gl:viewport 0 0 screen-width screen-height)
   (gl:clear-color 1 1 1 0.0)
+  (gl:enable :blend)
+  (gl:enable :texture-2d)
+  (gl:blend-func :src-alpha :one-minus-src-alpha)
   (gl:clear :color-buffer-bit)
   (init-click))
 
@@ -40,8 +43,15 @@
            (handle-event *window-manager*
                          (list :mouse-up :button button
                                :state state :x x :y y)))
+         (:key-down-event (:key key)
+           (cond ((sdl:key= key :sdl-key-escape) (sdl:push-quit-event))
+                 ((sdl:key= key :sdl-key-F12)
+                  (sdl:resize-window (sdl:width sdl:*default-display*)
+                                     (sdl:height sdl:*default-display*)
+                                     :fullscreen (not (sdl:fullscreen-p))))))
          (:quit-event () t)
          (:idle ()
+                (gl:clear :color-buffer-bit)
                 (draw *window-manager*)
                 (gl:flush)
                 (sdl:update-display)))

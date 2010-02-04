@@ -97,7 +97,6 @@
            corner-right-top right-top right-centre right-bottom
            corner-right-bottom bottom-right bottom-centre bottom-left
            corner-left-bottom left-bottom left-centre left-top)
-        (enable-alpha-textures)
         (draw-at corner-left-top (- ax left-margin) (- ay top-margin))
         (draw-at top-left ax (- ay top-margin))
         (draw-tiled top-centre (+ ax (width top-left)) (- ay top-margin)
