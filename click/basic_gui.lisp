@@ -5,8 +5,8 @@
 
 (in-package :click)
 
-(defun init-basic-gui (&optional (screen-width 800) (screen-height 600)
-                       (full-screen nil))
+(defun init-basic-gui (&optional (screen-width 1024) (screen-height 768)
+                       (full-screen t))
   (sdl:init-video)
   (let ((flags (list sdl:sdl-opengl)))
     (when full-screen (push sdl:sdl-fullscreen flags))
@@ -48,7 +48,8 @@
                  ((sdl:key= key :sdl-key-F12)
                   (sdl:resize-window (sdl:width sdl:*default-display*)
                                      (sdl:height sdl:*default-display*)
-                                     :fullscreen (not (sdl:fullscreen-p))))))
+                                     :fullscreen (not (sdl:fullscreen-p)))
+                  (gl:clear :color-buffer-bit))))
          (:quit-event () t)
          (:idle ()
                 (gl:clear :color-buffer-bit)

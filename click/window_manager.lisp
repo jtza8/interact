@@ -10,26 +10,29 @@
 
 (defclass window-manager ()
   ((windows :initform '()
-            :reader windows)))
-
-(defmacro active-window ()
-  (car (last (windows *window-manager*))))
+            :reader windows)
+   (active-window :initform nil
+                  :reader active-window)))
 
 (defmacro assert-window-manager-exists ()
   '(assert (not (eq *window-manager* nil)) ()
     'no-window-manager-condition))
 
-(defmethod add-window ((manager window-manager) window)
-  (with-slots (windows) manager
+(defmethod add-window ((manager window-manager) window &key (set-active t))
+  (with-slots (windows active-window) manager
     (when (find window windows)
       (return-from add-window))
     (if (> (length windows) 0)
         (setf (cdr (last windows)) (cons window nil))
-        (push window windows))))
+        (push window windows))
+    (when set-active
+      (setf active-window window))))
 
 (defmethod remove-window ((manager window-manager) window)
-  (with-slots (windows) manager
-    (setf windows (delete window windows))))
+  (with-slots (windows active-window) manager
+    (setf windows (delete window windows))
+    (when (eq window active-window)
+      (setf active-window (car (last windows))))))
 
 (defmethod draw ((manager window-manager))
   (with-slots (windows) manager
@@ -37,5 +40,5 @@
       (draw window))))
 
 (defmethod handle-event ((manager window-manager) event)
-  (with-slots (windows) manager
-    (handle-event (car (last windows)) event)))
+  (with-slots (active-window windows) manager
+    (handle-event active-window event)))
