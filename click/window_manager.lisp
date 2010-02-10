@@ -5,8 +5,14 @@
 
 (in-package :click)
 
-(define-condition no-window-manager-condition (error)
+(define-condition no-window-manager (error)
   ((window-manager :initform *window-manager*)))
+
+(define-condition invalid-window (error)
+  ((window :initarg :window
+           :reader window)
+   (manager :initarg :manager
+            :reader manager)))
 
 (defclass window-manager ()
   ((windows :initform '()
@@ -15,8 +21,7 @@
                   :reader active-window)))
 
 (defmacro assert-window-manager-exists ()
-  '(assert (not (eq *window-manager* nil)) ()
-    'no-window-manager-condition))
+  '(assert (not (eq *window-manager* nil)) () 'no-window-manager))
 
 (defmethod add-window ((manager window-manager) window &key (set-active t))
   (with-slots (windows active-window) manager
@@ -39,6 +44,20 @@
     (dolist (window windows)
       (draw window))))
 
+(defmethod (setf active-window) (window (manager window-manager))
+  (with-slots (active-window windows) manager
+    (unless (find window windows :test #'eq)
+      (error 'invalid-window :window window :manager manager))
+    (setf windows (delete window windows)
+          (cdr (last windows)) (list window)
+          active-window window)))
+
 (defmethod send-event ((manager window-manager) event)
   (with-slots (active-window windows) manager
+    (when (eq (event-type event) :mouse-down)
+      (with-event-keys (x y) event
+        (unless (within active-window x y)
+          (dolist (window (copy-seq windows))
+            (when (within window x y)
+              (setf (active-window manager) window))))))
     (send-event active-window event)))

@@ -22,7 +22,7 @@
           (apply #'max (mapcar #'height (list left centre right))))))
 
 (defmethod draw ((title-bar title-bar))
-  (with-slots (width height) title-bar
+  (with-slots (width height title) title-bar
     (let ((ax (abs-x title-bar))
           (ay (abs-y title-bar)))
       (with-node-images (:window :title-bar) (left centre right)

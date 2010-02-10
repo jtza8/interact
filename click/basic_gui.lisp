@@ -5,8 +5,8 @@
 
 (in-package :click)
 
-(defun init-basic-gui (&optional (screen-width 1680) (screen-height 1050)
-                       (full-screen t))
+(defun init-basic-gui (&optional (screen-width 800) (screen-height 600)
+                       (full-screen nil))
   (sdl:init-video)
   (let ((flags (list sdl:sdl-opengl)))
     (when full-screen (push sdl:sdl-fullscreen flags))

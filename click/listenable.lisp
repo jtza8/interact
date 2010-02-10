@@ -66,5 +66,7 @@
             :event event)
     (dolist (listener (getf listeners (event-type event)))
       (let ((handler (select-handler listener (event-type event))))
-        (unless (null handler)
-          (funcall handler listener event))))))
+        (if (not (null handler))
+            (funcall handler listener event)
+            (warn "~S listens for event ~S but doesn't specify a handler"
+                  listener (event-type event)))))))

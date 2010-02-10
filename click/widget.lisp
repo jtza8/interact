@@ -41,5 +41,7 @@
 
 (defmethod within ((widget widget) x y)
   (with-slots (x-offset y-offset width height) widget
-    (and (< x-offset x (+ x-offset width))
-         (< y-offset y (+ y-offset height)))))
+    (let ((ax (abs-x widget))
+          (ay (abs-y widget)))
+      (and (< ax x (+ ax width))
+           (< ay y (+ ay height))))))
