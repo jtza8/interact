@@ -58,7 +58,7 @@
       (setf (getf listeners event-type)
             (delete listener (getf listeners event-type))))))
 
-(defmethod handle-event ((listenable listenable) event)
+(defmethod send-event ((listenable listenable) event)
   (with-slots (listenable-events listeners) listenable
     (assert (find (event-type event) listenable-events) ()
             'invalid-event

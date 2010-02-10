@@ -5,7 +5,7 @@
 
 (in-package :click)
 
-(defun init-basic-gui (&optional (screen-width 1024) (screen-height 768)
+(defun init-basic-gui (&optional (screen-width 1680) (screen-height 1050)
                        (full-screen t))
   (sdl:init-video)
   (let ((flags (list sdl:sdl-opengl)))
@@ -32,17 +32,17 @@
   (unwind-protect
        (sdl:with-events (:poll)
          (:mouse-motion-event (:state state :x x :y y :x-rel x-rel :y-rel y-rel)
-           (handle-event *window-manager*
-                         (list :mouse-move :state state :x x :y y
-                               :x-rel x-rel :y-rel y-rel)))
+           (send-event *window-manager*
+                       (list :mouse-move :state state :x x :y y
+                             :x-rel x-rel :y-rel y-rel)))
          (:mouse-button-down-event (:button button :state state :x x :y y)  
-           (handle-event *window-manager*
-                         (list :mouse-down :button button
-                               :state state :x x :y y)))
+           (send-event *window-manager*
+                       (list :mouse-down :button button
+                             :state state :x x :y y)))
          (:mouse-button-up-event (:button button :state state :x x :y y)  
-           (handle-event *window-manager*
-                         (list :mouse-up :button button
-                               :state state :x x :y y)))
+           (send-event *window-manager*
+                       (list :mouse-up :button button
+                             :state state :x x :y y)))
          (:key-down-event (:key key)
            (cond ((sdl:key= key :sdl-key-escape) (sdl:push-quit-event))
                  ((sdl:key= key :sdl-key-F12)

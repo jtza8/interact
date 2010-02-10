@@ -29,7 +29,7 @@
         (window (make-instance 'window)))
     (assert-equal nil (latest-event widget))
     (add-widget window widget)
-    (handle-event window '(:mouse-move :x 20 :y 40))
+    (send-event window '(:mouse-move :x 20 :y 40))
     (assert-equal '(:mouse-move :x 20 :y 40) (latest-event widget))))
 
 (def-test-method test-tagging ((test window-test))

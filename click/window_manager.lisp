@@ -39,6 +39,6 @@
     (dolist (window windows)
       (draw window))))
 
-(defmethod handle-event ((manager window-manager) event)
+(defmethod send-event ((manager window-manager) event)
   (with-slots (active-window windows) manager
-    (handle-event active-window event)))
+    (send-event active-window event)))

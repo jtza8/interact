@@ -43,10 +43,10 @@
     (with-event-keys (x y) event
       (setf x-offset (- x x-drag-offset)
             y-offset (- y y-drag-offset))
-      (handle-event title-bar
-                    (list :dragging
-                          :x-offset x-offset
-                          :y-offset y-offset)))))
+      (send-event title-bar
+                  (list :dragging
+                        :x-offset x-offset
+                        :y-offset y-offset)))))
 
 (defmethod event-mouse-down ((title-bar title-bar) event)
   (with-slots (x-offset y-offset x-drag-offset y-drag-offset dragging) title-bar
