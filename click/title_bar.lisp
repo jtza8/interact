@@ -17,7 +17,7 @@
    (y-drag-offset :initform 0)))
 
 (defmethod initialize-instance :after ((title-bar title-bar) &key)
-  (with-node-images (:window :title-bar) (left centre right)
+  (with-node-sprites (:window :title-bar) (left centre right)
     (setf (slot-value title-bar 'height)
           (apply #'max (mapcar #'height (list left centre right))))))
 
@@ -25,7 +25,7 @@
   (with-slots (width height title) title-bar
     (let ((ax (abs-x title-bar))
           (ay (abs-y title-bar)))
-      (with-node-images (:window :title-bar) (left centre right)
+      (with-node-sprites (:window :title-bar) (left centre right)
         (draw-at left ax ay)
         (draw-tiled centre (+ ax (width left)) ay
                     :width (- width (width left) (width right)))

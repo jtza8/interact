@@ -57,7 +57,8 @@
     (when (eq (event-type event) :mouse-down)
       (with-event-keys (x y) event
         (unless (within active-window x y)
-          (dolist (window (copy-seq windows))
+          (dolist (window (reverse windows))
             (when (within window x y)
-              (setf (active-window manager) window))))))
+              (setf (active-window manager) window)
+              (return))))))
     (send-event active-window event)))

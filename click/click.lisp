@@ -26,6 +26,6 @@
 
 (defun init-click (&key (settings *settings*))
   (setf *window-manager* (make-instance 'window-manager)
-        *theme-image-tree* (make-image-tree (getf settings :theme-path))))
+        *theme-image-tree* (make-sprite-tree (getf settings :theme-path))))
 
 (load-settings)

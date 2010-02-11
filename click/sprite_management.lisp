@@ -5,7 +5,7 @@
 
 (in-package :click)
 
-(define-condition invalid-image-node (error)
+(define-condition invalid-sprite-node (error)
   ((invalid-node :initarg :invalid-node
                  :reader invalid-node))
   (:report (lambda (condition stream)
@@ -28,13 +28,13 @@
                            0
                            texture-format
                            :unsigned-byte (sdl-base::pixel-data pix))))
-      (make-instance 'image
+      (make-instance 'image-sprite
                      :texture texture
                      :width (sdl:width surface)
                      :height (sdl:height surface)))))
 
 
-(defun make-image-tree (base-dir)
+(defun make-sprite-tree (base-dir)
   (flet ((make-keyword (string)
            (intern (nsubstitute #\- #\_ (string-upcase string))
                    "KEYWORD")))
@@ -42,34 +42,34 @@
        for item in (cl-fad:list-directory base-dir)
        when (cl-fad:directory-exists-p item)
          collect (make-keyword (car (last (pathname-directory item))))
-         and collect (make-image-tree item)
+         and collect (make-sprite-tree item)
        when (and (cl-fad:file-exists-p item)
                  (let ((type (pathname-type item)))
                    (and type (string-equal (string-downcase type) "png"))))
          collect (make-keyword (pathname-name item))
          and collect (file-to-texture item))))
 
-(defun fetch-image-node (&rest path)
+(defun fetch-sprite-node (&rest path)
   (let ((node (loop
                  with pointer = *theme-image-tree*
                  for keyword in path
                    do (setf pointer (getf pointer keyword))
                  finally (return pointer))))
-      (assert (not (null node)) () 'invalid-image-node :invalid-node path)
+      (assert (not (null node)) () 'invalid-sprite-node :invalid-node path)
     node))
 
-(defun fetch-from-image-node (sub-tree node-tag)
+(defun fetch-from-sprite-node (sub-tree node-tag)
   (let ((node (funcall #'getf sub-tree node-tag)))
     (assert (not (null node)) ()
-            'invalid-image-node :invalid-node node-tag)
+            'invalid-sprite-node :invalid-node node-tag)
     node))
 
-(defmacro with-node-images (path images &body body)
-  (let ((image-node (gensym "IMAGE-NODE")))
-    `(let* ((,image-node (fetch-image-node ,@path))
-            ,@(loop for image in images collect
-                   (list image
-                         `(fetch-from-image-node ,image-node
-                                                 ,(intern (symbol-name image)
+(defmacro with-node-sprites (path sprites &body body)
+  (let ((sprite-node (gensym "SPRITE-NODE")))
+    `(let* ((,sprite-node (fetch-sprite-node ,@path))
+            ,@(loop for sprite in sprites collect
+                   (list sprite
+                         `(fetch-from-sprite-node ,sprite-node
+                                                 ,(intern (symbol-name sprite)
                                                          "KEYWORD")))))
        ,@body)))
