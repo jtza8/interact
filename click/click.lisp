@@ -11,7 +11,7 @@
 (defparameter *sprite-tree* nil)
 
 (defun reset-settings ()
-  "Sets <tt>&#42;SETTINGS&#42;</tt> to hard-coded defaults."
+  "Sets `*SETTINGS*` to hard-coded defaults."
   (setf *settings* 
         (list 
          :theme-path (asdf:system-relative-pathname :click "default_theme")
@@ -19,27 +19,27 @@
 
 (defun load-settings ()
   "Loads the general settings for the Click GUI which override the
-hard-coded defaults. However, these settings are mearly the new
-defaults which may stil be overridden by code using the Click
-library. Settings are specifide in a _p-list_ format and are loaded
-from a file named <tt>.clickrc</tt> in the user's home folder.
+hard-coded defaults. However might still be overridden by code using
+the Click library. Settings are specifide in a _p-list_ which is
+loaded from a file named `.clickrc` in the user's home folder.
 
-h3. Settable Variables
+### Settable Variables
 
-h4. <tt>:THEME-PATH</tt> 
+#### `:THEME-PATH` 
 
 Sets the default theme for the Click GUI. By default the theme path is
-relative to the output of the function:
-<tt>(asdf:system-relative-path-name :click \"default_theme\")</tt>.
+relative to the return value of the function:
+`(asdf:system-relative-path-name :click \"default_theme\")`.
 
-h4. <tt>:SCREEN-SIZE</tt>
+#### `:SCREEN-SIZE`
 
 Sets the default screen size as a two item list. If not specified, the
-hard-coded default is <tt>(800 600)</tt>. For convenience, here are
+hard-coded default is `(800 600)`. For convenience, here are
 some other commonly used screen sizes:
-* <tt>(1024 768)</tt>
-* <tt>(1280 1024)</tt>
-* <tt>(1680 1050)</tt>"
+
+* `(1024 768)`
+* `(1280 1024)`
+* `(1680 1050)`"
   (let ((clickrc-file
          (merge-pathnames ".clickrc" (user-homedir-pathname))))
     (unless (cl-fad:file-exists-p clickrc-file)
@@ -48,10 +48,10 @@ some other commonly used screen sizes:
       (setf *settings* (read settings)))))
 
 (defun init-click (&key (settings *settings*))
-  "Initialises Click. Sets the <tt>&#42;WINDOW-MANAGER&#42;</tt>
-global variable to a new instance of <tt>WINDOW-MANAGER</tt>. Also
-sets the <tt>&#42;SPRITE-TREE&#42;</tt> global variable via the
-function <tt>MAKE-SPRITE-TREE</tt>."
+  "Initialises Click. Sets the `*WINDOW-MANAGER*`
+global variable to a new instance of `WINDOW-MANAGER`. Also
+sets the `*SPRITE-TREE*` global variable via the
+function `MAKE-SPRITE-TREE`."
   (setf *window-manager* (make-instance 'window-manager)
         *sprite-tree* (make-sprite-tree (getf settings :theme-path))))
 
