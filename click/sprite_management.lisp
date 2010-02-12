@@ -51,25 +51,24 @@
 
 (defun fetch-sprite-node (&rest path)
   (let ((node (loop
-                 with pointer = *theme-image-tree*
+                 with pointer = *sprite-tree*
                  for keyword in path
                    do (setf pointer (getf pointer keyword))
                  finally (return pointer))))
       (assert (not (null node)) () 'invalid-sprite-node :invalid-node path)
     node))
 
-(defun fetch-from-sprite-node (sub-tree node-tag)
-  (let ((node (funcall #'getf sub-tree node-tag)))
-    (assert (not (null node)) ()
-            'invalid-sprite-node :invalid-node node-tag)
-    node))
-
 (defmacro with-node-sprites (path sprites &body body)
   (let ((sprite-node (gensym "SPRITE-NODE")))
-    `(let* ((,sprite-node (fetch-sprite-node ,@path))
-            ,@(loop for sprite in sprites collect
-                   (list sprite
-                         `(fetch-from-sprite-node ,sprite-node
-                                                 ,(intern (symbol-name sprite)
-                                                         "KEYWORD")))))
-       ,@body)))
+    `(flet ((fetch-from-node (sub-tree node-tag)
+              (let ((node (getf sub-tree node-tag)))
+                (assert (not (null node)) ()
+                        'invalid-sprite-node :invalid-node node-tag)
+                node)))
+       (let* ((,sprite-node (fetch-sprite-node ,@path))
+              ,@(loop for sprite in sprites collect
+                     (list sprite
+                           `(fetch-from-node ,sprite-node
+                                             ,(intern (symbol-name sprite)
+                                                      "KEYWORD")))))
+       ,@body))))

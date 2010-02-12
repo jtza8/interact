@@ -7,6 +7,7 @@
 
 (defun init-basic-gui (&optional (screen-width 800) (screen-height 600)
                        (full-screen nil))
+  "Initialises the basic stand-alone Click GUI."
   (sdl:init-video)
   (let ((flags (list sdl:sdl-opengl)))
     (when full-screen (push sdl:sdl-fullscreen flags))
@@ -29,6 +30,8 @@
   (init-click))
 
 (defun run-basic-gui ()
+  "Runs the \"control loop\" of the basic Click GUI. INIT-BASIC-GUI
+needs to be called first."
   (unwind-protect
        (sdl:with-events (:poll)
          (:mouse-motion-event (:state state :x x :y y :x-rel x-rel :y-rel y-rel)

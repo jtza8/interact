@@ -15,6 +15,7 @@
 
 (defun rectangle (x y width height &key
                   (tex-coords '(0 0 1 0 1 1 0 1)))
+  "Draws the currently bound texture as a 2D \"surface\""
   (let ((coords tex-coords))
     (gl:with-primitive :quads
       (gl:tex-coord (pop coords) (pop coords))
@@ -27,9 +28,10 @@
       (gl:vertex x (+ y height)))))
 
 (defgeneric draw (sprite)
-  (:documentation "When called, a sprite should draw itself using OpenGL."))
+  (:documentation
+   "Sprites draw themselves using OpenGL."))
 
 (defgeneric draw-at (sprite x y)
   (:documentation
-   "Exactly like draw, except that the x and y coordinates are
-specified manually"))
+   "Like draw, except sprites draw themselves at the specified
+coordinates."))
