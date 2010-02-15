@@ -30,14 +30,6 @@
   (assert-condition 'invalid-sprite-node
                     (fetch-sprite-node :window :shadow :blah)))
 
-(def-test-method test-fetch-sprite-node ((test sprite-management-test))
-  (let ((tree (fetch-sprite-node :window :shadow)))
-    (assert-condition 'invalid-sprite-node
-                      (fetch-from-sprite-node tree :blah))
-    (assert-equal (find-class 'image-sprite)
-                  (class-of (fetch-from-sprite-node tree
-                                                   :left-01)))))
-
 (def-test-method test-with-node-sprites ((test sprite-management-test))
   (assert-condition
    'invalid-sprite-node
