@@ -23,15 +23,22 @@
                    :direction :output :if-exists :supersede)
     (format out-stream data)))
 
+(def-test-method test-merge-plists ((test click-test))
+  (assert-equal '(:c 30 :a 10 :b 20)
+		(merge-plists '(:a 10 :b 20) '(:a 72 :c 30))))
+
 (def-test-method test-load-settings ((test click-test))
   (let ((clickrc-file (merge-pathnames ".clickrc" (user-homedir-pathname)))
         (backup-file #+unix #P"/tmp/za.jens.clickrc"
-                     #+windows #P"c:\\za.jens.clickrc"))
+                     #+windows #P"c:\\za.jens.clickrc")
+	theme-path)
     (with-stand-in clickrc-file backup-file
       (forge-file clickrc-file
-                  "(:theme-path \"some_path\" :screen-size (1024 768))")
+                  "(:screen-size (1024 768))")
       (reset-settings)
+      (setf theme-path (getf *settings* :theme-path))
       (assert-equal '(800 600) (getf *settings* :screen-size))
       (load-settings)
       (assert-equal '(1024 768) (getf *settings* :screen-size))
+      (assert-equal theme-path (getf *settings* :theme-path))
       (reset-settings))))

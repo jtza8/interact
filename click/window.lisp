@@ -31,6 +31,16 @@
    (tags :initform '())))
 
 (defmethod initialize-instance :after ((window window) &key)
+  "Initialises an instance of a `window` object as follows:
+
+1. Assert that a default window manager exists.
+2. Calculates the margins of the window, namely the whitespace around
+the window. Margins allow shadows to be drawn outside of the window
+without disturbing the actual dimensions of the window.
+3. Creates an instance of the `task-bar` widget which it adds to its
+collection of widgets and tags as `:title-bar`.
+4. Finally, the window is added to the default window manager, as
+specified by the global variable `*window-manager*`."
   (assert-window-manager-exists)
   (with-slots (left-margin right-margin top-margin bottom-margin
                width x y) window
@@ -46,9 +56,15 @@
       (add-widget window title-bar)
       (tag-widget window title-bar :title-bar)
       (add-listener title-bar window :dragging))
+    ;; Should an alternative window manager be specifiable via a key?
     (add-window *window-manager* window)))
 
 (defmethod tag-widget ((window window) (widget widget) tag)
+  "Tags a widget with the specified tag. A tag alows for the easy
+recall of a widget without having to name every widget present in the
+window. Tags can only be specified in a window (This is due the the
+design philosophy that, \"Flat is better than nested\"). Widgets may
+only be tagged once within a window."
   (with-slots (tags) window
     (multiple-value-bind (fault tag widget)
         (loop
@@ -65,19 +81,27 @@
     (setf (getf tags tag) widget)))
 
 (defmethod widget ((window window) tag)
+  "Returns the widget specified by `tag`."
   (let ((value (getf (slot-value window 'tags) tag)))
     (assert value (value) 'tag-error :fault :invalid-tag :tag tag)
     value))
 
-(defmethod add-widget ((window window) new-widget)
-  (check-type new-widget widget)
+(defmethod add-widget ((window window) widget)
+  "Adds a widget to the window. Adds event listeners as requested by
+the widget. Event listeners are specified as a list of `:symbols` in
+the instance variable `listen-for-events`. The content of this
+variable are accessable via a reader of the same name. For more
+information, see the documentation for the `listener` class."
+  (check-type widget widget)
   (with-slots (widgets) window
-    (pushnew new-widget widgets))
-  (dolist (event-type (listen-for-events new-widget))
-    (add-listener window new-widget event-type)))
+    (pushnew widget widgets))
+  (dolist (event-type (listen-for-events widget))
+    (add-listener window widget event-type)))
 
-(defmethod remove-widget ((window window) target-widget)
-  (with-slots (widgets) window
+(defmethod remove-widget ((window window) target-widget &key (remove-listeners t))
+  "Removes the specified widget from the window. Automatically removes
+tags and, unless told not to, event listeners."
+  (with-slots (widgets tags) window
     (setf widgets (delete-if (lambda (widget) (eq target-widget widget))
                              widgets))))
 

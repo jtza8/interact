@@ -17,6 +17,16 @@
          :theme-path (asdf:system-relative-pathname :click "default_theme")
          :screen-size '(800 600))))
 
+(defun merge-plists (dominant subserviant)
+  (let ((default (gensym "DEFAULT"))
+	(merged (copy-seq dominant)))
+    (loop
+       for (key value) on subserviant by #'cddr
+       when (eq default (getf merged key default)) do
+	 (setf (getf merged key) value)
+       finally
+	 (return merged))))
+
 (defun load-settings ()
   "Loads the general settings for the Click GUI which override the
 hard-coded defaults. However might still be overridden by code using
@@ -45,7 +55,7 @@ some other commonly used screen sizes:
     (unless (cl-fad:file-exists-p clickrc-file)
       (return-from load-settings))
     (with-open-file (settings clickrc-file)
-      (setf *settings* (read settings)))))
+      (setf *settings* (merge-plists (read settings) *settings*)))))
 
 (defun init-click (&key (settings *settings*))
   "Initialises Click. Sets the `*WINDOW-MANAGER*`
