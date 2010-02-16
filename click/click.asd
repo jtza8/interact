@@ -11,7 +11,7 @@
                (:file "sprite" :depends-on ("click"))
                (:file "image_sprite" :depends-on ("sprite"))
                (:file "sprite_management" :depends-on ("click"))
-               (:file "window_manager" :depends-on ("click"))
+               (:file "window_manager" :depends-on ("listenable"))
                (:file "widget" :depends-on ("listenable" "listener"
                                             "sprite_management"))
                (:file "title_bar" :depends-on ("widget"))

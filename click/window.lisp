@@ -76,9 +76,20 @@ only be tagged once within a window."
                 (return (values :widget tag-key tag-value))))
            finally
              (return (values nil nil nil)))
-      (assert (not fault) (tag widget) 
+      (assert (not fault) (tag widget)
               'tag-error :fault fault :tag tag :widget widget))
     (setf (getf tags tag) widget)))
+
+(defmethod remove-tag ((window window) identifier)
+  "Removes a tag from a window. Identifier may be either a symbol or a
+widget."
+  (with-slots (tags) window
+    (when (null tags) (return-from remove-tag))
+    (symbol-macrolet ((variable
+                       (if (subtypep (type-of identifier) 'widget) value key)))
+      (setf tags (loop for (key value) on tags by #'cddr
+                    unless (eq variable identifier)
+                    collect key and collect value)))))
 
 (defmethod widget ((window window) tag)
   "Returns the widget specified by `tag`."
@@ -98,12 +109,17 @@ information, see the documentation for the `listener` class."
   (dolist (event-type (listen-for-events widget))
     (add-listener window widget event-type)))
 
-(defmethod remove-widget ((window window) target-widget &key (remove-listeners t))
-  "Removes the specified widget from the window. Automatically removes
-tags and, unless told not to, event listeners."
+(defmethod remove-widget ((window window) widget &key (remove-listeners t))
+  "Removes `widget` from `window`. Automatically removes tags and,
+unless told not to, event listeners as specified by the
+`listen-for-events` reader belonging to `widget`."
   (with-slots (widgets tags) window
-    (setf widgets (delete-if (lambda (widget) (eq target-widget widget))
-                             widgets))))
+    (setf widgets (delete-if (lambda (other-widget) (eq widget other-widget))
+                             widgets))
+    (remove-tag window widget)
+    (when remove-listeners
+      (dolist (event-type (listen-for-events widget))
+        (remove-listener window widget event-type)))))
 
 (defmethod draw ((window window))
   (draw-shadows window)
