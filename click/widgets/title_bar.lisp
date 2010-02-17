@@ -10,7 +10,7 @@
           :initform "Untitled"
           :accessor title)
    (listen-for-events :initform '(:mouse-move :mouse-down :mouse-up))
-   (listenable-events :initform '(:dragging))
+   (listenable-events :initform '(:title-bar-drag))
    (dragging :initform nil
              :accessor dragging)
    (x-drag-offset :initform 0)
@@ -44,7 +44,7 @@
       (setf x-offset (- x x-drag-offset)
             y-offset (- y y-drag-offset))
       (send-event title-bar
-                  (list :dragging
+                  (list :title-bar-drag
                         :x-offset x-offset
                         :y-offset y-offset)))))
 

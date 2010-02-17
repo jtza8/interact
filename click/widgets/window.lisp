@@ -32,6 +32,7 @@
 
 (defmethod initialize-instance :after ((window window) &key)
   "Initialises an instance of a `window` object as follows:
+
 1. Assert that a default window manager exists.
 2. Calculates the margins of the window, namely the whitespace around
 the window. Margins allow shadows to be drawn outside of the window
@@ -54,8 +55,8 @@ specified by the global variable, `*window-manager*`."
                                     :y-offset y)))
       (add-widget window title-bar)
       (tag-widget window title-bar :title-bar)
-      (add-listener title-bar window :dragging))
-    ;; Should an alternative window manager be specifiable via a key?
+      (add-listener title-bar window :title-bar-drag))
+    ; Should an alternative window manager be specifiable via a key?
     (add-window *window-manager* window)))
 
 (defmethod tag-widget ((window window) (widget widget) tag)
@@ -121,12 +122,14 @@ unless told not to, event listeners as specified by the
         (remove-listener window widget event-type)))))
 
 (defmethod draw ((window window))
+  "Draws the shadows, then the panel, then the widgets."
   (draw-shadows window)
   (draw-panel window)
   (dolist (widget (slot-value window 'widgets))
     (draw widget)))
 
 (defmethod draw-shadows ((window window))
+  "Draws the window's shadows."
   (with-slots (width height left-margin right-margin
                top-margin bottom-margin) window
     (let ((ax (abs-x window))
@@ -164,6 +167,7 @@ unless told not to, event listeners as specified by the
         (draw-at left-top (- ax left-margin) ay)))))
 
 (defmethod draw-panel ((window window))
+  "Draws the panel, that is, the background on which widgets will be drawn."
   (with-slots (width height title-bar) window
     (let ((ax (abs-x window))
           (ay (abs-y window))
@@ -193,10 +197,12 @@ unless told not to, event listeners as specified by the
                     :width (- width (width left) (width right)))))))
 
 (defmethod select-handler ((window window) event-type)
-  (when (eq event-type :dragging)
+  (when (eq event-type :title-bar-drag)
     #'event-dragging))
 
-(defmethod event-dragging ((window window) event)
+(defmethod event-title-bar-drag ((window window) event)
+  "Adjusts `window`'s x and y coordinates relative to the
+`:title-bar` widget."
   (with-slots (x y) window
     (with-event-keys (x-offset y-offset) event
       (setf x x-offset
