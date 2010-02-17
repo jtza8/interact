@@ -28,7 +28,8 @@
    (listenable-events :initform '(:mouse-move :mouse-down :mouse-up))
    (widgets :initform '()
             :reader widgets)
-   (tags :initform '())))
+   (tags :initform '()))
+  (:documentation "Windows are widgets which contain other widgets."))
 
 (defmethod initialize-instance :after ((window window) &key)
   "Initialises an instance of a `window` object as follows:
@@ -91,11 +92,19 @@ widget."
                     unless (eq variable identifier)
                     collect key and collect value)))))
 
-(defmethod widget ((window window) tag)
-  "Returns the widget specified by `tag`."
+(defmethod widget-of ((window window) tag)
+  "Returns the widget specified by `tag`. If widget isn't found, then
+a `tag-error` condition is signaled. It is expected that a tag always points to a widget, but it's not expected that a widget always has a tag."
   (let ((value (getf (slot-value window 'tags) tag)))
     (assert value (value) 'tag-error :fault :invalid-tag :tag tag)
     value))
+
+(defmethod tag-of ((window window) (widget widget))
+  "Returns the tag associated with `widget`, or `null` if the window
+didn't have a tag pointing to `widget`."
+  (loop for (key value) on (slot-value window 'tags) by #'cddr
+       when (eql value widget) do (return key)
+       finally (return nil)))
 
 (defmethod add-widget ((window window) widget)
   "Adds a widget to the window. Adds event listeners as requested by
@@ -111,7 +120,7 @@ information, see the documentation for the `listener` class."
 
 (defmethod remove-widget ((window window) widget &key (remove-listeners t))
   "Removes `widget` from `window`. Automatically removes tags and,
-unless told not to, event listeners as specified by the
+unless told not to, removes event listeners as specified by the
 `listen-for-events` reader belonging to `widget`."
   (with-slots (widgets tags) window
     (setf widgets (delete-if (lambda (other-widget) (eq widget other-widget))
