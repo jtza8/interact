@@ -32,15 +32,14 @@
 
 (defmethod initialize-instance :after ((window window) &key)
   "Initialises an instance of a `window` object as follows:
-
 1. Assert that a default window manager exists.
 2. Calculates the margins of the window, namely the whitespace around
 the window. Margins allow shadows to be drawn outside of the window
 without disturbing the actual dimensions of the window.
 3. Creates an instance of the `task-bar` widget which it adds to its
-collection of widgets and tags as `:title-bar`.
+collection of widgets and then tags as `:title-bar`.
 4. Finally, the window is added to the default window manager, as
-specified by the global variable `*window-manager*`."
+specified by the global variable, `*window-manager*`."
   (assert-window-manager-exists)
   (with-slots (left-margin right-margin top-margin bottom-margin
                width x y) window

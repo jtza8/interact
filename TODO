@@ -1,2 +1,1 @@
 * Re-examine abs-x and abs-y methods of widget class.
-* Correct `window`'s `remove-widget` method.
