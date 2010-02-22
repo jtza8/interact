@@ -18,6 +18,9 @@
          :screen-size '(800 600))))
 
 (defun merge-plists (dominant subserviant)
+  "Merges p-lists. A new p-list is returned after collecting all the
+pairs in `dominant`, as well as pairs in `subserviant` which have
+unique keys (i.e. not used in `dominant`)."
   (let ((default (gensym "DEFAULT"))
 	(merged (copy-seq dominant)))
     (loop

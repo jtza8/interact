@@ -20,7 +20,14 @@
                  (:widget (format stream "Widget ~s already has tag ~s"
                                   widget tag))
                  (:invalid-tag (format stream "Couldn't find tag ~s" tag))
-                 (otherwise (format stream "Unknown fault: ~s" fault)))))))
+                 (otherwise (format stream "Unknown fault: ~s" fault))))))
+  (:documentation 
+   "Signals a tag error and generates reports as specified by the
+`:fault` key. `:fault` Can have one of the following values:
+
+**`:tag`** - The tag is not unique to the window.  
+**`:widget`** - A widget already has another tag.  
+**`:invalid-tag`** - The tag doesn't exist in the window."))
 
 (defclass window (widget)
   ((visible :initarg :visible
@@ -94,7 +101,9 @@ widget."
 
 (defmethod widget-of ((window window) tag)
   "Returns the widget specified by `tag`. If widget isn't found, then
-a `tag-error` condition is signaled. It is expected that a tag always points to a widget, but it's not expected that a widget always has a tag."
+a `tag-error` condition is signaled. It is expected that a tag always
+points to a widget, but it's not expected that a widget always has a
+tag."
   (let ((value (getf (slot-value window 'tags) tag)))
     (assert value (value) 'tag-error :fault :invalid-tag :tag tag)
     value))
@@ -180,7 +189,7 @@ unless told not to, removes event listeners as specified by the
   (with-slots (width height title-bar) window
     (let ((ax (abs-x window))
           (ay (abs-y window))
-          (title-bar-height (height (widget window :title-bar))))
+          (title-bar-height (height (widget-of window :title-bar))))
       (with-node-sprites (:window :panel)
           (left corner-left-bottom bottom corner-right-bottom right background)
         (draw-tiled left ax (+ ay title-bar-height)
@@ -207,7 +216,7 @@ unless told not to, removes event listeners as specified by the
 
 (defmethod select-handler ((window window) event-type)
   (when (eq event-type :title-bar-drag)
-    #'event-dragging))
+    #'event-title-bar-drag))
 
 (defmethod event-title-bar-drag ((window window) event)
   "Adjusts `window`'s x and y coordinates relative to the
