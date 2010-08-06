@@ -23,11 +23,13 @@
                  (otherwise (format stream "Unknown fault: ~s" fault))))))
   (:documentation 
    "Signals a tag error and generates reports as specified by the
-`:fault` key. `:fault` Can have one of the following values:
+`:fault` key as follows:
 
-**`:tag`** - The tag is not unique to the window.  
-**`:widget`** - A widget already has another tag.  
-**`:invalid-tag`** - The tag doesn't exist in the window."))
+`:fault` Value | Meaning
+-------------- | -------------------------------------
+`:tag`         | The tag is not unique to the window.  
+`:widget`      | A widget already has another tag.  
+`:invalid-tag` | The tag doesn't exist in the window."))
 
 (defclass window (widget)
   ((visible :initarg :visible
@@ -93,11 +95,11 @@ only be tagged once within a window."
 widget."
   (with-slots (tags) window
     (when (null tags) (return-from remove-tag))
-    (symbol-macrolet ((variable
-                       (if (subtypep (type-of identifier) 'widget) value key)))
-      (setf tags (loop for (key value) on tags by #'cddr
-                    unless (eq variable identifier)
-                    collect key and collect value)))))
+    (setf tags (loop for (key value) on tags by #'cddr
+                  unless (eq (if (subtypep (type-of identifier) 'widget) 
+                                 value key)
+                             identifier)
+                  collect key and collect value))))
 
 (defmethod widget-of ((window window) tag)
   "Returns the widget specified by `tag`. If widget isn't found, then
