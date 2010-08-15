@@ -1,4 +1,4 @@
-(defsystem "click"
+(asdf:defsystem "click"
   :description "Click OpenGL GUI."
   :version "0.1"
   :author "Jens Thiede"

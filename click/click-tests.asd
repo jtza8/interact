@@ -1,4 +1,4 @@
-(defsystem "click-tests"
+(asdf:defsystem "click-tests"
   :description "Click OpenGL GUI Tests"
   :version "0.1"
   :author "Jens Thiede"
