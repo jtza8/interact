@@ -6,14 +6,14 @@
 (in-package :click)
 
 (defclass dummy-widget (widget)
-  ((listenable-events :initform '(:dummy-event))
-   (listen-for-events :initform '(:mouse-move))
+  ((provided-events :initform '(:dummy-event))
+   (desired-events :initform '(:mouse-move event-mouse-move))
    (latest-event :initform nil
                  :reader latest-event)))
 
-(defmethod select-handler ((dummy dummy-widget) event-type)
-  (when (eq event-type :mouse-move)
-    #'event-mouse-move))
+;; (defmethod select-handler ((dummy dummy-widget) event-type)
+;;   (when (eq event-type :mouse-move)
+;;     #'event-mouse-move))
   
 (defmethod event-mouse-move ((dummy dummy-widget) event)
   (setf (slot-value dummy 'latest-event) event))

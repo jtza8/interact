@@ -6,7 +6,9 @@
 (in-package :click)
 
 (defclass listener ()
-  ((listen-for-events :initform '()
-                      :reader listen-for-events)))
+  ((desired-events :initform '()
+                   :reader desired-events)))
 
-(defmethod select-handler ((listener listener) event-type) nil)
+
+(defmethod select-handler ((listener listener) event-type)
+  (getf (slot-value listener 'desired-events) event-type))

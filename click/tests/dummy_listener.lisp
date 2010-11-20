@@ -5,13 +5,10 @@
 
 (in-package :click)
 
-(defclass dummy-listener ()
+(defclass dummy-listener (listener)
   ((latest-event :initform nil
-                 :reader latest-event)))
-
-(defmethod select-handler ((listener dummy-listener) event-type)
-  (when (eq event-type :dummy-event)
-    #'event-dummy))
+                 :reader latest-event)
+   (desired-events :initform '(:dummy-event event-dummy))))
 
 (defmethod event-dummy ((listener dummy-listener) event)
   (setf (slot-value listener 'latest-event) event))

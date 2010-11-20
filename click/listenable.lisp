@@ -20,9 +20,9 @@
 (defclass listenable ()
   ((listeners :initform '()
               :reader listeners)
-   (listenable-events :initform '()
-                      :initarg :listenable-events
-                      :reader listenable-events)))
+   (provided-events :initform '()
+                    :initarg :provided-events
+                    :reader provided-events)))
 
 (defmacro event-type (event) `(car ,event))
 (defmacro event-data (event) `(cdr ,event))
@@ -35,8 +35,8 @@
        ,@body)))
 
 (defmethod add-listener ((listenable listenable) listener event-type)
-  (with-slots (listeners listenable-events) listenable
-    (assert (find event-type listenable-events) (event-type)
+  (with-slots (listeners provided-events) listenable
+    (assert (find event-type provided-events) (event-type)
             'invalid-event-type
             :reason "Unlistenable event type"
             :event event-type)
@@ -59,8 +59,8 @@
             (delete listener (getf listeners event-type))))))
 
 (defmethod send-event ((listenable listenable) event)
-  (with-slots (listenable-events listeners) listenable
-    (assert (find (event-type event) listenable-events) ()
+  (with-slots (provided-events listeners) listenable
+    (assert (find (event-type event) provided-events) ()
             'invalid-event
             :reason "Unsupported event"
             :event event)

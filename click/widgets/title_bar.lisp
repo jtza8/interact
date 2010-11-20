@@ -9,8 +9,10 @@
   ((title :initarg :title
           :initform "Untitled"
           :accessor title)
-   (listen-for-events :initform '(:mouse-move :mouse-down :mouse-up))
-   (listenable-events :initform '(:title-bar-drag))
+   (desired-events :initform '(:mouse-move event-mouse-move
+                               :mouse-down event-mouse-down
+                               :mouse-up event-mouse-up))
+   (provided-events :initform '(:title-bar-drag))
    (dragging :initform nil
              :accessor dragging)
    (x-drag-offset :initform 0)
@@ -31,11 +33,11 @@
                     :width (- width (width left) (width right)))
         (draw-at right (+ ax (- width (width right))) ay)))))
 
-(defmethod select-handler ((title-bar title-bar) event-type)
-  (case event-type
-    (:mouse-move #'event-mouse-move)
-    (:mouse-down #'event-mouse-down)
-    (:mouse-up #'event-mouse-up)))
+;; (defmethod select-handler ((title-bar title-bar) event-type)
+;;   (case event-type
+;;     (:mouse-move #'event-mouse-move)
+;;     (:mouse-down #'event-mouse-down)
+;;     (:mouse-up #'event-mouse-up)))
 
 (defmethod event-mouse-move ((title-bar title-bar) event)
   (with-slots (x-offset y-offset x-drag-offset y-drag-offset dragging) title-bar

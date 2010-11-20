@@ -34,7 +34,8 @@
 (defclass window (widget)
   ((visible :initarg :visible
             :initform t)
-   (listenable-events :initform '(:mouse-move :mouse-down :mouse-up))
+   (provided-events :initform '(:mouse-move :mouse-down :mouse-up))
+   (desired-events :initform '(:title-bar-drag event-title-bar-drag))
    (widgets :initform '()
             :reader widgets)
    (tags :initform '()))
@@ -120,25 +121,25 @@ didn't have a tag pointing to `widget`."
 (defmethod add-widget ((window window) widget)
   "Adds a widget to the window. Adds event listeners as requested by
 the widget. Event listeners are specified as a list of `:symbols` in
-the instance variable `listen-for-events`. The content of this
+the instance variable `desired-events`. The content of this
 variable are accessable via a reader of the same name. For more
 information, see the documentation for the `listener` class."
   (check-type widget widget)
   (with-slots (widgets) window
     (pushnew widget widgets))
-  (dolist (event-type (listen-for-events widget))
-    (add-listener window widget event-type)))
+  (loop for event-type in (desired-events widget) by #'cddr
+        do (add-listener window widget event-type)))
 
 (defmethod remove-widget ((window window) widget &key (remove-listeners t))
   "Removes `widget` from `window`. Automatically removes tags and,
 unless told not to, removes event listeners as specified by the
-`listen-for-events` reader belonging to `widget`."
+`desired-events` reader belonging to `widget`."
   (with-slots (widgets tags) window
     (setf widgets (delete-if (lambda (other-widget) (eq widget other-widget))
                              widgets))
     (remove-tag window widget)
     (when remove-listeners
-      (dolist (event-type (listen-for-events widget))
+      (dolist (event-type (desired-events widget))
         (remove-listener window widget event-type)))))
 
 (defmethod draw ((window window))
@@ -216,13 +217,12 @@ unless told not to, removes event listeners as specified by the
                     :height (- height title-bar-height (height bottom))
                     :width (- width (width left) (width right)))))))
 
-(defmethod select-handler ((window window) event-type)
-  (when (eq event-type :title-bar-drag)
-    #'event-title-bar-drag))
+;; (defmethod select-handler ((window window) event-type)
+;;   (when (eq event-type :title-bar-drag)
+;;     #'event-title-bar-drag))
 
 (defmethod event-title-bar-drag ((window window) event)
-  "Adjusts `window`'s x and y coordinates relative to the
-`:title-bar` widget."
+  "Adjusts `window`'s x and y coordinates relative to the `:title-bar` widget."
   (with-slots (x y) window
     (with-event-keys (x-offset y-offset) event
       (setf x x-offset
