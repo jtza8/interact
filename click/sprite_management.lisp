@@ -12,42 +12,33 @@
             (format stream "Invalid node: ~S" (invalid-node condition)))))
 
 (defun file-to-texture (file)
-  (let ((texture (car (gl:gen-textures 1))))
-    (sdl:with-surface (surface (sdl-image:load-image file))
-      (gl:bind-texture :texture-2d texture)
-      (gl:tex-parameter :texture-2d :texture-min-filter :linear)
-      (sdl-base::with-pixel (pix (sdl:fp surface))
-        (let ((texture-format (ecase (sdl-base::pixel-bpp pix)
-                                (3 :rgb)
-                                (4 :rgba))))
-          (assert (and (= (sdl-base::pixel-pitch pix)
-                          (* (sdl:width surface) (sdl-base::pixel-bpp pix)))
-                       (zerop (rem (sdl-base::pixel-pitch pix) 4))))
-          (gl:tex-image-2d :texture-2d 0 :rgba
-                           (sdl:width surface) (sdl:height surface)
-                           0
-                           texture-format
-                           :unsigned-byte (sdl-base::pixel-data pix))))
-      (make-instance 'image-sprite
-                     :texture texture
-                     :width (sdl:width surface)
-                     :height (sdl:height surface)))))
+  (ilut:renderer :opengl)
+  (ilut:enable :opengl-conv)
+  (let ((texture (ilut:gl-load-image (namestring file))) sprite)
+    (il:check-error)
+    (setf sprite (make-instance 'image-sprite
+                                :texture texture
+                                :width (il:get-integer :image-width)
+                                :height (il:get-integer :image-height)))
+    (gl:bind-texture :texture-2d 0)
+    (il:bind-image 0)
+    (il:check-error)
+    sprite))
 
 
 (defun make-sprite-tree (base-dir)
   (flet ((make-keyword (string)
            (intern (nsubstitute #\- #\_ (string-upcase string))
                    "KEYWORD")))
-    (loop
-       for item in (cl-fad:list-directory base-dir)
-       when (cl-fad:directory-exists-p item)
-         collect (make-keyword (car (last (pathname-directory item))))
-         and collect (make-sprite-tree item)
-       when (and (cl-fad:file-exists-p item)
-                 (let ((type (pathname-type item)))
-                   (and type (string-equal (string-downcase type) "png"))))
-         collect (make-keyword (pathname-name item))
-         and collect (file-to-texture item))))
+    (loop for item in (cl-fad:list-directory base-dir)
+          when (cl-fad:directory-exists-p item)
+            collect (make-keyword (car (last (pathname-directory item))))
+            and collect (make-sprite-tree item)
+          when (and (cl-fad:file-exists-p item)
+                    (let ((type (pathname-type item)))
+                      (and type (string-equal (string-downcase type) "png"))))
+          collect (make-keyword (pathname-name item))
+            and collect (file-to-texture item))))
 
 (defun fetch-sprite-node (&rest path)
   (let ((node (loop
@@ -72,3 +63,6 @@
                                              ,(intern (symbol-name sprite)
                                                       "KEYWORD")))))
        ,@body))))
+;; Just for the moment, will move to click:init-click.
+(il:init)
+(ilut:init)

@@ -15,7 +15,7 @@
     (assert-equal (listeners dummy) '())
     (add-listener dummy listener-1 :dummy-event)
     (assert-equal `(:dummy-event ,(list listener-1))
-                  (listeners dummy))
+                   (listeners dummy))
     (assert-condition 'invalid-event-type
                       (add-listener dummy listener-1 :nonexistent-event))
     (add-listener dummy listener-2 :dummy-event)
