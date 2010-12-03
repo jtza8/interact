@@ -13,8 +13,7 @@
            :initform (error "No height given.")
            :reader height)))
 
-(defun rectangle (x y width height &key
-                  (tex-coords '(0 0 1 0 1 1 0 1)))
+(defun rectangle (x y width height &key (tex-coords '(0 0 1 0 1 1 0 1)))
   "Draws the currently bound texture as a 2D \"surface\""
   (let ((coords tex-coords))
     (gl:with-primitive :quads
@@ -33,5 +32,4 @@
 
 (defgeneric draw-at (sprite x y)
   (:documentation
-   "Like draw, except sprites draw themselves at the specified
-coordinates."))
+   "Like draw, except sprites draw themselves at the specified coordinates."))

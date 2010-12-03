@@ -11,19 +11,27 @@
   (:report (lambda (condition stream)
             (format stream "Invalid node: ~S" (invalid-node condition)))))
 
-(defun file-to-texture (file)
-  (ilut:renderer :opengl)
-  (ilut:enable :opengl-conv)
-  (let ((texture (ilut:gl-load-image (namestring file))) sprite)
-    (il:check-error)
-    (setf sprite (make-instance 'image-sprite
-                                :texture texture
-                                :width (il:get-integer :image-width)
-                                :height (il:get-integer :image-height)))
-    (gl:bind-texture :texture-2d 0)
-    (il:bind-image 0)
-    (il:check-error)
-    sprite))
+(defun root-of-two-p (n)
+  (or (and (> n 0) (= (nth-value 1 (truncate (log n 2))) 0.0))
+      (= n 1)))
+
+(defun load-image-sprite (file)
+  (macrolet ((data-format-key (arg)
+               `(cffi:foreign-enum-keyword 'il::data-format ,arg)))
+    (il:with-bound-image (il:gen-image)
+      (il:load-image (namestring file))
+      (il:check-error)
+      (let ((img-mode (data-format-key (il:get-integer :image-format)))
+            (width (il:get-integer :image-width))
+            (height (il:get-integer :image-height))
+            (texture (car (gl:gen-textures 1))))
+        (gl:bind-texture :texture-2d texture)
+        (gl:tex-parameter :texture-2d :texture-min-filter :linear)
+        (gl:tex-image-2d :texture-2d 0 :rgba width height 0 img-mode
+                         :unsigned-byte (il:get-data))
+        (il:check-error)
+        (make-instance 'image-sprite :texture texture :width width
+                       :height height)))))
 
 
 (defun make-sprite-tree (base-dir)
@@ -37,15 +45,14 @@
           when (and (cl-fad:file-exists-p item)
                     (let ((type (pathname-type item)))
                       (and type (string-equal (string-downcase type) "png"))))
-          collect (make-keyword (pathname-name item))
-            and collect (file-to-texture item))))
+            collect (make-keyword (pathname-name item))
+            and collect (load-image-sprite item))))
 
 (defun fetch-sprite-node (&rest path)
-  (let ((node (loop
-                 with pointer = *sprite-tree*
-                 for keyword in path
-                   do (setf pointer (getf pointer keyword))
-                 finally (return pointer))))
+  (let ((node (loop with pointer = *sprite-tree*
+                    for keyword in path
+                      do (setf pointer (getf pointer keyword))
+                    finally (return pointer))))
       (assert (not (null node)) () 'invalid-sprite-node :invalid-node path)
     node))
 
@@ -63,6 +70,6 @@
                                              ,(intern (symbol-name sprite)
                                                       "KEYWORD")))))
        ,@body))))
+
 ;; Just for the moment, will move to click:init-click.
 (il:init)
-(ilut:init)

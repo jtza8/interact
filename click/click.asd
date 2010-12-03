@@ -3,7 +3,7 @@
   :version "0.1"
   :author "Jens Thiede"
   :licence "BSD-Style License"
-  :depends-on ("lispbuilder-sdl" "lispbuilder-sdl-image" "cl-opengl" "cl-fad")
+  :depends-on ("cffi" "lispbuilder-sdl" "cl-opengl" "cl-devil" "cl-fad")
   :components ((:file "package")
                (:file "click" :depends-on ("package"))
                (:file "listenable" :depends-on ("package"))
