@@ -34,7 +34,7 @@
 (defclass window (widget)
   ((visible :initarg :visible
             :initform t)
-   (provided-events :initform '(:mouse-move :mouse-down :mouse-up))
+   (provided-events :initform '(:mouse-move :mouse-down :mouse-up :window-move))
    (desired-events :initform '(:title-bar-drag event-title-bar-drag))
    (widgets :initform '()
             :reader widgets)
@@ -217,13 +217,12 @@ unless told not to, removes event listeners as specified by the
                     :height (- height title-bar-height (height bottom))
                     :width (- width (width left) (width right)))))))
 
-;; (defmethod select-handler ((window window) event-type)
-;;   (when (eq event-type :title-bar-drag)
-;;     #'event-title-bar-drag))
-
 (defmethod event-title-bar-drag ((window window) event)
   "Adjusts `window`'s x and y coordinates relative to the `:title-bar` widget."
   (with-slots (x y) window
     (with-event-keys (x-offset y-offset) event
       (setf x x-offset
-            y y-offset))))
+            y y-offset)
+      (send-event window (list :window-move
+                               :x (abs-x window)
+                               :y (abs-y window))))))
