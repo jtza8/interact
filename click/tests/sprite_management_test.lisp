@@ -12,11 +12,7 @@
   ())
 
 (defmethod set-up ((test sprite-management-test))
-  (sdl:init-video)
   (init-click :settings (list :theme-path *test-theme-path*)))
-
-(defmethod tear-down ((test sprite-management-test))
-  (sdl:quit-video))
 
 (def-test-method test-make-sprite-tree ((test sprite-management-test))
   (let ((tree (make-sprite-tree *test-theme-path*)))
@@ -26,11 +22,17 @@
      (not (null (getf (getf (getf tree :window) :shadow) :left-01))))))
 
 (def-test-method test-fetch-sprite-node ((test sprite-management-test))
-  (assert-true (not (null (fetch-sprite-node :window :shadow :left-01))))
+  (assert-true (not (null (fetch-sprite-node '(:window :shadow :left-01)))))
   (assert-condition 'invalid-sprite-node
-                    (fetch-sprite-node :window :shadow :blah)))
+                    (fetch-sprite-node '(:window :shadow :blah)))
+  (let ((tree (fetch-sprite-node '(:window :shadow))))
+    (assert-true (typep (fetch-sprite-node '(:left-01) tree) 'image-sprite)
+                 (format nil "~a~%~s"
+                         "FETCH-SPRITE-NODE failed with the following tree:"
+                         tree))))
 
 (def-test-method test-with-node-sprites ((test sprite-management-test))
+  (make-sprite-tree *test-theme-path*)
   (assert-condition
    'invalid-sprite-node
    (with-node-sprites (:window :no-such-node) (blah)
@@ -38,4 +40,7 @@
   (assert-condition
    'invalid-sprite-node
    (with-node-sprites (:window :shadow) (blah)
-     (declare (ignore blah)))))
+     (declare (ignore blah))))
+  (with-node-sprites (:window :shadow) (left-01)
+    (let ((left (fetch-sprite-node '(:window :shadow :left-01))))
+      (assert-eql left left-01))))

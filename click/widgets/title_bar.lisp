@@ -33,12 +33,6 @@
                     :width (- width (width left) (width right)))
         (draw-at right (+ ax (- width (width right))) ay)))))
 
-;; (defmethod select-handler ((title-bar title-bar) event-type)
-;;   (case event-type
-;;     (:mouse-move #'event-mouse-move)
-;;     (:mouse-down #'event-mouse-down)
-;;     (:mouse-up #'event-mouse-up)))
-
 (defmethod event-mouse-move ((title-bar title-bar) event)
   (with-slots (x-offset y-offset x-drag-offset y-drag-offset dragging) title-bar
     (unless dragging (return-from event-mouse-move))

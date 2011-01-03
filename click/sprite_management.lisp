@@ -11,10 +11,6 @@
   (:report (lambda (condition stream)
             (format stream "Invalid node: ~S" (invalid-node condition)))))
 
-(defun root-of-two-p (n)
-  (or (and (> n 0) (= (nth-value 1 (truncate (log n 2))) 0.0))
-      (= n 1)))
-
 (defun load-image-sprite (file)
   (macrolet ((data-format-key (arg)
                `(cffi:foreign-enum-keyword 'il::data-format ,arg)))
@@ -48,8 +44,8 @@
             collect (make-keyword (pathname-name item))
             and collect (load-image-sprite item))))
 
-(defun fetch-sprite-node (&rest path)
-  (let ((node (loop with pointer = *sprite-tree*
+(defun fetch-sprite-node (path &optional (tree *sprite-tree*))
+  (let ((node (loop with pointer = tree
                     for keyword in path
                       do (setf pointer (getf pointer keyword))
                     finally (return pointer))))
@@ -58,18 +54,12 @@
 
 (defmacro with-node-sprites (path sprites &body body)
   (let ((sprite-node (gensym "SPRITE-NODE")))
-    `(flet ((fetch-from-node (sub-tree node-tag)
-              (let ((node (getf sub-tree node-tag)))
-                (assert (not (null node)) ()
-                        'invalid-sprite-node :invalid-node node-tag)
-                node)))
-       (let* ((,sprite-node (fetch-sprite-node ,@path))
-              ,@(loop for sprite in sprites collect
-                     (list sprite
-                           `(fetch-from-node ,sprite-node
-                                             ,(intern (symbol-name sprite)
-                                                      "KEYWORD")))))
-       ,@body))))
+    `(let* ((,sprite-node (fetch-sprite-node ',path))
+            ,@(loop for sprite in sprites collect
+                   (list sprite
+                         `(fetch-sprite-node '(,(intern (symbol-name sprite)
+                                                        "KEYWORD"))
+                                             ,sprite-node))))
+       ,@body)))
 
-;; Just for the moment, will move to click:init-click.
-(il:init)
+;; (il:init)

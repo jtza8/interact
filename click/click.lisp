@@ -65,6 +65,7 @@ some other commonly used screen sizes:
 global variable to a new instance of `WINDOW-MANAGER`. Also
 sets the `*SPRITE-TREE*` global variable via the
 function `MAKE-SPRITE-TREE`."
+  (il:init)
   (setf *window-manager* (make-instance 'window-manager)
         *sprite-tree* (make-sprite-tree (getf settings :theme-path))))
 

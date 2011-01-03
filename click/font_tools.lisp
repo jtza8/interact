@@ -15,10 +15,10 @@
                                  :justify justify :surface surface
                                  :font type-face :color colour)
       (sdl-base::with-pixel (pix (sdl:fp surface))
-        (make-instance 'image-sprite
-                       :texture (gl:tex-image-2d :texture-2d 0 :rgba
-                                                 width height 0
-                                                 :rgba :unsigned-byte 
-                                                 (sdl-base::pixel-data pix))
-                       :width width
-                       :height height)))))
+        (let ((texture (car (gl:gen-textures 1))))
+          (gl:bind-texture :texture-2d texture)
+          (gl:tex-parameter :texture-2d :texture-min-filter :linear)
+          (gl:tex-image-2d :texture-2d 0 :rgba width height 0 :rgba
+                           :unsigned-byte (sdl-base::pixel-data pix))
+          (make-instance 'image-sprite :texture texture
+                         :width width :height height))))))

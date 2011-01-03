@@ -41,6 +41,11 @@
   (with-slots (y y-offset) widget
     (+ y y-offset)))
 
+(defmethod set-offset ((widget widget) x y)
+  (with-slots (x-offset y-offset) widget
+    (setf x-offset x
+          y-offset y)))
+
 (defmethod within ((widget widget) x y)
   "Determains whether the coordinate specified is within the widget."
   (with-slots (x-offset y-offset width height) widget

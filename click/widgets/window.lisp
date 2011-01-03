@@ -20,16 +20,7 @@
                  (:widget (format stream "Widget ~s already has tag ~s"
                                   widget tag))
                  (:invalid-tag (format stream "Couldn't find tag ~s" tag))
-                 (otherwise (format stream "Unknown fault: ~s" fault))))))
-  (:documentation 
-   "Signals a tag error and generates reports as specified by the
-`:fault` key as follows:
-
-`:fault` Value | Meaning
--------------- | -------------------------------------
-`:tag`         | The tag is not unique to the window.  
-`:widget`      | A widget already has another tag.  
-`:invalid-tag` | The tag doesn't exist in the window."))
+                 (otherwise (format stream "Unknown fault: ~s" fault)))))))
 
 (defclass window (widget)
   ((visible :initarg :visible
@@ -38,20 +29,10 @@
    (desired-events :initform '(:title-bar-drag event-title-bar-drag))
    (widgets :initform '()
             :reader widgets)
-   (tags :initform '()))
-  (:documentation "Windows are widgets which contain other widgets."))
+   (tags :initform '())))
 
-(defmethod initialize-instance :after ((window window) &key)
-  "Initialises an instance of a `window` object as follows:
-
-1. Assert that a default window manager exists.
-2. Calculates the margins of the window, namely the whitespace around
-the window. Margins allow shadows to be drawn outside of the window
-without disturbing the actual dimensions of the window.
-3. Creates an instance of the `task-bar` widget which it adds to its
-collection of widgets and then tags as `:title-bar`.
-4. Finally, the window is added to the default window manager, as
-specified by the global variable, `*window-manager*`."
+(defmethod initialize-instance :after ((window window) &key
+                                       (manager *window-manager*))
   (assert-window-manager-exists)
   (with-slots (left-margin right-margin top-margin bottom-margin
                width x y) window
@@ -64,18 +45,12 @@ specified by the global variable, `*window-manager*`."
                                     :width width
                                     :x-offset x
                                     :y-offset y)))
-      (add-widget window title-bar)
-      (tag-widget window title-bar :title-bar)
+      (add-widget window title-bar :title-bar)
       (add-listener title-bar window :title-bar-drag))
     ; Should an alternative window manager be specifiable via a key?
     (add-window *window-manager* window)))
 
 (defmethod tag-widget ((window window) (widget widget) tag)
-  "Tags a widget with the specified tag. A tag alows for the easy
-recall of a widget without having to name every widget present in the
-window. Tags can only be specified in a window (This is due the the
-design philosophy that, \"Flat is better than nested\"). Widgets may
-only be tagged once within a window."
   (with-slots (tags) window
     (multiple-value-bind (fault tag widget)
         (loop
@@ -92,8 +67,6 @@ only be tagged once within a window."
     (setf (getf tags tag) widget)))
 
 (defmethod remove-tag ((window window) identifier)
-  "Removes a tag from a window. Identifier may be either a symbol or a
-widget."
   (with-slots (tags) window
     (when (null tags) (return-from remove-tag))
     (setf tags (loop for (key value) on tags by #'cddr
@@ -103,37 +76,25 @@ widget."
                   collect key and collect value))))
 
 (defmethod widget-of ((window window) tag)
-  "Returns the widget specified by `tag`. If widget isn't found, then
-a `tag-error` condition is signaled. It is expected that a tag always
-points to a widget, but it's not expected that a widget always has a
-tag."
   (let ((value (getf (slot-value window 'tags) tag)))
     (assert value (value) 'tag-error :fault :invalid-tag :tag tag)
     value))
 
 (defmethod tag-of ((window window) (widget widget))
-  "Returns the tag associated with `widget`, or `null` if the window
-didn't have a tag pointing to `widget`."
   (loop for (key value) on (slot-value window 'tags) by #'cddr
        when (eql value widget) do (return key)
        finally (return nil)))
 
-(defmethod add-widget ((window window) widget)
-  "Adds a widget to the window. Adds event listeners as requested by
-the widget. Event listeners are specified as a list of `:symbols` in
-the instance variable `desired-events`. The content of this
-variable are accessable via a reader of the same name. For more
-information, see the documentation for the `listener` class."
+(defmethod add-widget ((window window) widget &optional tag)
   (check-type widget widget)
   (with-slots (widgets) window
     (pushnew widget widgets))
   (loop for event-type in (desired-events widget) by #'cddr
-        do (add-listener window widget event-type)))
+     do (add-listener window widget event-type))
+  (when (keywordp tag)
+    (tag-widget window widget tag)))
 
 (defmethod remove-widget ((window window) widget &key (remove-listeners t))
-  "Removes `widget` from `window`. Automatically removes tags and,
-unless told not to, removes event listeners as specified by the
-`desired-events` reader belonging to `widget`."
   (with-slots (widgets tags) window
     (setf widgets (delete-if (lambda (other-widget) (eq widget other-widget))
                              widgets))
@@ -143,14 +104,12 @@ unless told not to, removes event listeners as specified by the
         (remove-listener window widget event-type)))))
 
 (defmethod draw ((window window))
-  "Draws the shadows, then the panel, then the widgets."
   (draw-shadows window)
   (draw-panel window)
   (dolist (widget (slot-value window 'widgets))
     (draw widget)))
 
 (defmethod draw-shadows ((window window))
-  "Draws the window's shadows."
   (with-slots (width height left-margin right-margin
                top-margin bottom-margin) window
     (let ((ax (abs-x window))
@@ -188,7 +147,6 @@ unless told not to, removes event listeners as specified by the
         (draw-at left-top (- ax left-margin) ay)))))
 
 (defmethod draw-panel ((window window))
-  "Draws the panel, that is, the background on which widgets will be drawn."
   (with-slots (width height title-bar) window
     (let ((ax (abs-x window))
           (ay (abs-y window))
@@ -218,7 +176,6 @@ unless told not to, removes event listeners as specified by the
                     :width (- width (width left) (width right)))))))
 
 (defmethod event-title-bar-drag ((window window) event)
-  "Adjusts `window`'s x and y coordinates relative to the `:title-bar` widget."
   (with-slots (x y) window
     (with-event-keys (x-offset y-offset) event
       (setf x x-offset
