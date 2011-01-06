@@ -12,23 +12,23 @@
             (format stream "Invalid node: ~S" (invalid-node condition)))))
 
 (defun load-image-sprite (file)
-  (macrolet ((data-format-key (arg)
-               `(cffi:foreign-enum-keyword 'il::data-format ,arg)))
-    (il:with-bound-image (il:gen-image)
-      (il:load-image (namestring file))
+  (il:with-bound-image (il:gen-image)
+    (il:load-image (namestring file))
+    (il:convert-image :rgba :unsigned-byte)
+    (il:check-error)
+    (let ((img-mode (cffi:foreign-enum-keyword 
+                     'il::data-format 
+                     (il:get-integer :image-format)))
+          (width (il:get-integer :image-width))
+          (height (il:get-integer :image-height))
+          (texture (car (gl:gen-textures 1))))
+      (gl:bind-texture :texture-2d texture)
+      (gl:tex-parameter :texture-2d :texture-min-filter :linear)
+      (gl:tex-image-2d :texture-2d 0 :rgba width height 0 img-mode
+                       :unsigned-byte (il:get-data))
       (il:check-error)
-      (let ((img-mode (data-format-key (il:get-integer :image-format)))
-            (width (il:get-integer :image-width))
-            (height (il:get-integer :image-height))
-            (texture (car (gl:gen-textures 1))))
-        (gl:bind-texture :texture-2d texture)
-        (gl:tex-parameter :texture-2d :texture-min-filter :linear)
-        (gl:tex-image-2d :texture-2d 0 :rgba width height 0 img-mode
-                         :unsigned-byte (il:get-data))
-        (il:check-error)
-        (make-instance 'image-sprite :texture texture :width width
-                       :height height)))))
-
+      (make-instance 'image-sprite :texture texture :width width
+                     :height height))))
 
 (defun make-sprite-tree (base-dir)
   (flet ((make-keyword (string)

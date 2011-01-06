@@ -6,12 +6,12 @@
 (in-package :click)
 
 (defclass button (widget)
-  ((desired-events :initform '(:mouse-down event-mouse-down
-                               :mouse-up event-mouse-up
-                               :window-move event-window-move))))
+  ())
 
 (defmethod initialize-instance :after ((button button) &key)
-  ())
+  (desire-events button
+                 :mouse-down #'event-mouse-down
+                 :mouse-up #'event-mouse-up))
 
 (defmethod draw ((button button))
   (with-slots (x y width height) button
@@ -25,9 +25,3 @@
 
 (defmethod event-mouse-down ((button button) event) ())
 (defmethod event-mouse-up ((button button) event) ())
-
-(defmethod event-window-move ((button button) event)
-  (with-slots (x-offset y-offset) button
-    (with-event-keys (x y) event
-      (setf x-offset x
-            y-offset y))))

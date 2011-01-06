@@ -25,7 +25,7 @@
 (defclass window (widget)
   ((visible :initarg :visible
             :initform t)
-   (provided-events :initform '(:mouse-move :mouse-down :mouse-up :window-move))
+   (provided-events :initform '(:mouse-move :mouse-down :mouse-up :parent-move))
    (desired-events :initform '(:title-bar-drag event-title-bar-drag))
    (widgets :initform '()
             :reader widgets)
@@ -180,6 +180,6 @@
     (with-event-keys (x-offset y-offset) event
       (setf x x-offset
             y y-offset)
-      (send-event window (list :window-move
+      (send-event window (list :parent-move
                                :x (abs-x window)
                                :y (abs-y window))))))

@@ -6,7 +6,7 @@
 (in-package :click)
 
 (defclass label (widget)
-  ((desired-events :initform '(:window-move event-window-move))
+  ((desired-events :initform '(:parent-move event-parent-move))
    (text :initarg :text
          :initform (error "no text specified")
          :reader text)
@@ -22,7 +22,7 @@
           (ay (abs-y label)))
       (draw-at sprite ax ay))))
 
-(defmethod event-window-move ((label label) event)
+(defmethod event-parent-move ((label label) event)
   (with-slots (x-offset y-offset) label
     (with-event-keys (x y) event
       (setf x-offset x

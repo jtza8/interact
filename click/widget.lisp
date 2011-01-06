@@ -31,6 +31,9 @@
            :initarg :height
            :reader height)))
 
+(defmethod initialize-instance :after ((widget widget) &key)
+  (desire-events widget :parent-move #'event-parent-move))
+
 (defmethod abs-x ((widget widget))
   "Returns the absolute x-coordinate of the widget."
   (with-slots (x x-offset) widget
@@ -53,3 +56,9 @@
           (ay (abs-y widget)))
       (and (< ax x (+ ax width))
            (< ay y (+ ay height))))))
+
+(defmethod event-parent-move ((widget widget) event)
+  (with-slots (x-offset y-offset) widget
+    (with-event-keys (x y) event
+      (setf x-offset x
+            y-offset y))))
