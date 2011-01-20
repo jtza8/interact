@@ -5,17 +5,17 @@
 
 (in-package :click)
 
-(defclass image-sprite (sprite)
+(defclass texture-sprite (sprite)
   ((texture :initarg :texture
             :initform (error "No texture name given.")
             :reader texture)))
 
-(defmethod draw-at ((sprite image-sprite) x y)
+(defmethod draw-at ((sprite texture-sprite) x y)
   (with-slots (texture width height) sprite
     (gl:bind-texture :texture-2d texture)
     (rectangle x y width height)))
 
-(defmethod draw-tiled ((sprite image-sprite) x y &key width height)
+(defmethod draw-tiled ((sprite texture-sprite) x y &key width height)
   (with-slots ((normal-width width) (normal-height height) texture) sprite
     (gl:bind-texture :texture-2d texture)
     (gl:tex-parameter :texture-2d :texture-wrap-s :repeat)

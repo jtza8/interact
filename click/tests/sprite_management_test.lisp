@@ -29,7 +29,7 @@
   (assert-condition 'invalid-sprite-node
                     (fetch-sprite-node '(:window :shadow :blah)))
   (let ((tree (fetch-sprite-node '(:window :shadow))))
-    (assert-true (typep (fetch-sprite-node '(:left-01) tree) 'image-sprite)
+    (assert-true (typep (fetch-sprite-node '(:left-01) tree) 'texture-sprite)
                  (format nil "~a~%~s"
                          "FETCH-SPRITE-NODE failed with the following tree:"
                          tree))))

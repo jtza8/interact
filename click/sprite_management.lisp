@@ -11,7 +11,7 @@
   (:report (lambda (condition stream)
             (format stream "Invalid node: ~S" (invalid-node condition)))))
 
-(defun load-image-sprite (file)
+(defun load-texture-sprite (file)
   (il:with-bound-image (il:gen-image)
     (il:load-image (namestring file))
     (il:convert-image :rgba :unsigned-byte)
@@ -27,7 +27,7 @@
       (gl:tex-image-2d :texture-2d 0 :rgba width height 0 img-mode
                        :unsigned-byte (il:get-data))
       (il:check-error)
-      (make-instance 'image-sprite :texture texture :width width
+      (make-instance 'texture-sprite :texture texture :width width
                      :height height))))
 
 (defun make-sprite-tree (base-dir)
@@ -42,7 +42,7 @@
                     (let ((type (pathname-type item)))
                       (and type (string-equal (string-downcase type) "png"))))
             collect (make-keyword (pathname-name item))
-            and collect (load-image-sprite item))))
+            and collect (load-texture-sprite item))))
 
 (defun fetch-sprite-node (path &optional (tree *sprite-tree*))
   (let ((node (loop with pointer = tree

@@ -20,5 +20,5 @@
           (gl:tex-parameter :texture-2d :texture-min-filter :linear)
           (gl:tex-image-2d :texture-2d 0 :rgba width height 0 :rgba
                            :unsigned-byte (sdl-base::pixel-data pix))
-          (make-instance 'image-sprite :texture texture
+          (make-instance 'texture-sprite :texture texture
                          :width width :height height))))))

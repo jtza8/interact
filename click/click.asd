@@ -10,9 +10,9 @@
                (:file "listenable" :depends-on ("package"))
                (:file "listener" :depends-on ("package"))
                (:file "sprite" :depends-on ("click"))
-               (:file "image_sprite" :depends-on ("sprite"))
+               (:file "texture_sprite" :depends-on ("sprite"))
                (:file "sprite_management" :depends-on ("click"))
-               (:file "font_tools" :depends-on ("image_sprite"))
+               (:file "font_tools" :depends-on ("texture_sprite"))
                (:file "screen_manager" :depends-on ("listenable"))
                (:file "widget"
                 :depends-on ("listenable" "listener" "sprite_management"))
