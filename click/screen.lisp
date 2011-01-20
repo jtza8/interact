@@ -100,4 +100,4 @@
     (let ((ax (abs-x screen))
           (ay (abs-y screen))
           (background (fetch-sprite-node '(:window :panel :background))))
-        (draw-tiled background ax ay :height height :width width))))
+      (draw-tiled background ax ay :height height :width width))))

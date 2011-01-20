@@ -12,7 +12,4 @@
                              (:file "listening_test"
                               :depends-on ("test_package" "dummy_widget"))
                              (:file "sprite_management_test"
-                              :depends-on ("test_package" "dummy_widget"))))
-               (:module "widgets/tests"
-                :depends-on ("tests")
-                :components ((:file "window_test")))))
+                              :depends-on ("test_package" "dummy_widget"))))))

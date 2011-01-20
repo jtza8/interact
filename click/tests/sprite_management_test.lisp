@@ -5,17 +5,20 @@
 
 (in-package :click)
 
-(defparameter *test-theme-path* (asdf:system-relative-pathname
-                                 :click "tests/test_theme"))
+(init-screen-system)
+(sdl:quit-video)
+
+(defparameter *test-sprites-path* (asdf:system-relative-pathname
+                                 :click "tests/test_sprites"))
 
 (defclass sprite-management-test (test-case)
   ())
 
 (defmethod set-up ((test sprite-management-test))
-  (init-click :settings (list :theme-path *test-theme-path*)))
+  (init-click :settings (list :theme-path *test-sprites-path*)))
 
 (def-test-method test-make-sprite-tree ((test sprite-management-test))
-  (let ((tree (make-sprite-tree *test-theme-path*)))
+  (let ((tree (make-sprite-tree *test-sprites-path*)))
     (assert-true (not (null (getf tree :window))))
     (assert-true (not (null (getf (getf tree :window) :shadow))))
     (assert-true 
@@ -32,7 +35,7 @@
                          tree))))
 
 (def-test-method test-with-node-sprites ((test sprite-management-test))
-  (make-sprite-tree *test-theme-path*)
+  (make-sprite-tree *test-sprites-path*)
   (assert-condition
    'invalid-sprite-node
    (with-node-sprites (:window :no-such-node) (blah)

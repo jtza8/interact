@@ -84,10 +84,10 @@
     (assert-eql window-2 (active-window *screen-manager*))))
 
 (defun interactive-window-test ()
-  (init-basic-gui 1024 640 nil)
+  (init-screen-system 1024 640 nil)
   (let ((window (make-instance 'window :x 20 :y 20 :width 400 :height 300)))
     (add-widget window
                 (make-instance 'button :height 32 :width 64 :x 20 :y 20)))
   (make-instance 'window :x 50 :y 50 :width 150 :height 200)
   (make-instance 'window :x 100 :y 80 :width 200 :height 150)
-  (run-basic-gui))
+  (run-screen-system))

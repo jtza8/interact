@@ -5,33 +5,31 @@
 
 (in-package :click)
 
-(defun init-basic-gui (&optional (screen-width 800) (screen-height 600)
-                       (full-screen nil))
-  "Initialises the basic stand-alone Click GUI."
+(defun init-screen-system (&key (width 800) (height 600) (full-screen nil)
+                           (bg-colour '(1 1 1 0)) (window-title "Lisp"))
   (sdl:init-video)
   (let ((flags (list sdl:sdl-opengl)))
     (when full-screen (push sdl:sdl-fullscreen flags))
-    (sdl:window screen-width screen-height
+    (sdl:window width height
                 :bpp 32
-                :flags flags))
+                :flags flags
+                :title-caption window-title))
   (setf cl-opengl-bindings:*gl-get-proc-address*
         #'sdl-cffi::sdl-gl-get-proc-address)
   (gl:matrix-mode :projection)
   (gl:load-identity)
-  (gl:ortho 0 screen-width screen-height 0 0 1)
+  (gl:ortho 0 width height 0 0 1)
   (gl:matrix-mode :modelview)
   (gl:load-identity)
-  (gl:viewport 0 0 screen-width screen-height)
-  (gl:clear-color 1 1 1 0.0)
+  (gl:viewport 0 0 width height)
+  (apply #'gl:clear-color bg-colour)
   (gl:enable :blend)
   (gl:enable :texture-2d)
   (gl:blend-func :src-alpha :one-minus-src-alpha)
   (gl:clear :color-buffer-bit)
   (init-click))
 
-(defun run-basic-gui ()
-  "Runs the \"control loop\" of the basic Click GUI. INIT-BASIC-GUI
-needs to be called first."
+(defun run-screen-system ()
   (unwind-protect
        (sdl:with-events (:poll)
          (:mouse-motion-event (:state state :x x :y y :x-rel x-rel :y-rel y-rel)

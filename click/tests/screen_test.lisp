@@ -6,9 +6,9 @@
 (in-package :click)
 
 (defun screen-test ()
-  (init-basic-gui)
+  (init-screen-system)
   (let ((screen (make-instance 'screen :height 100 :width 100 :x 10 :y 10))
         (button (make-instance 'button :x 10 :y 10)))
     (add-widget screen button :button))
-  (run-basic-gui))
+  (run-screen-system))
 
