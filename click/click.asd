@@ -16,6 +16,7 @@
                (:file "screen_manager" :depends-on ("listenable"))
                (:file "widget"
                 :depends-on ("listenable" "listener" "sprite_management"))
+               (:file "screen" :depends-on ("widget"))
                (:module "widgets" :depends-on ("widget" "screen_manager")
                 :components ((:file "title_bar")
                              (:file "window" :depends-on ("title_bar"))
