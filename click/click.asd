@@ -13,10 +13,10 @@
                (:file "image_sprite" :depends-on ("sprite"))
                (:file "sprite_management" :depends-on ("click"))
                (:file "font_tools" :depends-on ("image_sprite"))
-               (:file "window_manager" :depends-on ("listenable"))
+               (:file "screen_manager" :depends-on ("listenable"))
                (:file "widget"
                 :depends-on ("listenable" "listener" "sprite_management"))
-               (:module "widgets" :depends-on ("widget" "window_manager")
+               (:module "widgets" :depends-on ("widget" "screen_manager")
                 :components ((:file "title_bar")
                              (:file "window" :depends-on ("title_bar"))
                              (:file "button")))

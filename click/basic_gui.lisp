@@ -35,15 +35,15 @@ needs to be called first."
   (unwind-protect
        (sdl:with-events (:poll)
          (:mouse-motion-event (:state state :x x :y y :x-rel x-rel :y-rel y-rel)
-           (send-event *window-manager*
+           (send-event *screen-manager*
                        (list :mouse-move :state state :x x :y y
                              :x-rel x-rel :y-rel y-rel)))
          (:mouse-button-down-event (:button button :state state :x x :y y)  
-           (send-event *window-manager*
+           (send-event *screen-manager*
                        (list :mouse-down :button button
                              :state state :x x :y y)))
          (:mouse-button-up-event (:button button :state state :x x :y y)  
-           (send-event *window-manager*
+           (send-event *screen-manager*
                        (list :mouse-up :button button
                              :state state :x x :y y)))
          (:key-down-event (:key key)
@@ -56,7 +56,7 @@ needs to be called first."
          (:quit-event () t)
          (:idle ()
                 (gl:clear :color-buffer-bit)
-                (draw *window-manager*)
+                (draw *screen-manager*)
                 (gl:flush)
                 (sdl:update-display)))
     (sdl:quit-video)))

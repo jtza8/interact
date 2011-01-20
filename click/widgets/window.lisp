@@ -32,8 +32,8 @@
    (tags :initform '())))
 
 (defmethod initialize-instance :after ((window window) &key
-                                       (manager *window-manager*))
-  (assert-window-manager-exists)
+                                       (manager *screen-manager*))
+  (check-type manager screen-manager)
   (with-slots (left-margin right-margin top-margin bottom-margin
                width x y) window
     (with-node-sprites (:window :shadows) (corner-left-top corner-right-bottom)
@@ -48,7 +48,7 @@
       (add-widget window title-bar :title-bar)
       (add-listener title-bar window :title-bar-drag))
     ; Should an alternative window manager be specifiable via a key?
-    (add-window *window-manager* window)))
+    (add-window *screen-manager* window)))
 
 (defmethod tag-widget ((window window) (widget widget) tag)
   (with-slots (tags) window

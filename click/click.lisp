@@ -7,7 +7,7 @@
 
 (defparameter *settings* nil)
 (defparameter *theme-path* nil)
-(defparameter *window-manager* nil)
+(defparameter *screen-manager* nil)
 (defparameter *sprite-tree* nil)
 
 (defun reset-settings ()
@@ -66,7 +66,7 @@ global variable to a new instance of `WINDOW-MANAGER`. Also
 sets the `*SPRITE-TREE*` global variable via the
 function `MAKE-SPRITE-TREE`."
   (il:init)
-  (setf *window-manager* (make-instance 'window-manager)
+  (setf *screen-manager* (make-instance 'screen-manager)
         *sprite-tree* (make-sprite-tree (getf settings :theme-path))))
 
 (reset-settings)

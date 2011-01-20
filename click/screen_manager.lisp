@@ -5,8 +5,8 @@
 
 (in-package :click)
 
-(define-condition no-window-manager (error)
-  ((window-manager :initform *window-manager*)))
+(define-condition no-screen-manager (error)
+  ((screen-manager :initform *screen-manager*)))
 
 (define-condition invalid-window (error)
   ((window :initarg :window
@@ -14,16 +14,18 @@
    (manager :initarg :manager
             :reader manager)))
 
-(defclass window-manager ()
+(defclass screen-manager ()
   ((windows :initform '()
             :reader windows)
+   (screens :initform '()
+            :reader screens)
    (active-window :initform nil
                   :reader active-window)))
 
-(defmacro assert-window-manager-exists ()
-  '(assert (not (eq *window-manager* nil)) () 'no-window-manager))
+(defmacro assert-screen-manager-exists ()
+  '(assert (not (eq *screen-manager* nil)) () 'no-screen-manager))
 
-(defmethod add-window ((manager window-manager) window &key (set-active t))
+(defmethod add-window ((manager screen-manager) window &key (set-active t))
   (with-slots (windows active-window) manager
     (when (find window windows)
       (return-from add-window))
@@ -33,27 +35,35 @@
     (when set-active
       (setf active-window window))))
 
-(defmethod remove-window ((manager window-manager) window)
+(defmethod add-screen ((manager screen-manager) screen)
+  (with-slots (screens) manager
+    (pushnew screen screens :test #'eql)))
+
+(defmethod remove-window ((manager screen-manager) window)
   (with-slots (windows active-window) manager
     (setf windows (delete window windows))
     (when (eq window active-window)
       (setf active-window (car (last windows))))))
 
-(defmethod draw ((manager window-manager))
-  (with-slots (windows) manager
+(defmethod draw ((manager screen-manager))
+  (with-slots (screens windows) manager
+    (dolist (screen screens)
+      (draw screen))
     (dolist (window windows)
       (draw window))))
 
-(defmethod (setf active-window) (window (manager window-manager))
+(defmethod (setf active-window) (window (manager screen-manager))
   (with-slots (active-window windows) manager
     (unless (find window windows :test #'eq)
       (error 'invalid-window :window window :manager manager))
     (setf windows (delete window windows)
-          (cdr (last windows)) (list window)
           active-window window)))
+          (cdr (last windows)) (list window)
 
-(defmethod send-event ((manager window-manager) event)
+(defmethod send-event ((manager screen-manager) event)
   (with-slots (active-window windows) manager
+    (unless active-window
+      (return-from send-event))
     (when (eq (event-type event) :mouse-down)
       (with-event-keys (x y) event
         (unless (within active-window x y)
