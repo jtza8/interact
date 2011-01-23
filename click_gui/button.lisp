@@ -15,7 +15,7 @@
 
 (defmethod draw ((button button))
   (with-slots (x y width height) button
-    (with-node-sprites (:button :up) (left middle right)
+    (with-sprites (:button :up) (left middle right)
       (let ((ax (abs-x button))
             (ay (abs-y button)))
         (draw-at left ax ay)

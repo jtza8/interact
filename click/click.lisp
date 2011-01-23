@@ -6,7 +6,7 @@
 (in-package :click)
 
 (defparameter *settings* nil)
-(defparameter *theme-path* nil)
+(defparameter *sprite-path* nil)
 (defparameter *screen-manager* nil)
 (defparameter *sprite-tree* nil)
 
@@ -14,7 +14,7 @@
   "Sets `*SETTINGS*` to hard-coded defaults."
   (setf *settings* 
         (list 
-         :theme-path (asdf:system-relative-pathname :click "default_theme")
+         :sprite-path (asdf:system-relative-pathname :click "default_theme")
          :screen-size '(800 600))))
 
 (defun merge-plists (dominant subserviant)
@@ -67,6 +67,6 @@ sets the `*SPRITE-TREE*` global variable via the
 function `MAKE-SPRITE-TREE`."
   (il:init)
   (setf *screen-manager* (make-instance 'screen-manager)
-        *sprite-tree* (make-sprite-tree (getf settings :theme-path))))
+        *sprite-tree* (make-sprite-tree (getf settings :sprite-path))))
 
 (reset-settings)

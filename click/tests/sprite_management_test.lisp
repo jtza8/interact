@@ -8,42 +8,39 @@
 (init-screen-system)
 (sdl:quit-video)
 
-(defparameter *test-sprites-path* (asdf:system-relative-pathname
-                                 :click "tests/test_sprites"))
-
 (defclass sprite-management-test (test-case)
   ())
 
 (defmethod set-up ((test sprite-management-test))
-  (init-click :settings (list :theme-path *test-sprites-path*)))
+  (set-test-sprite-path))
 
 (def-test-method test-make-sprite-tree ((test sprite-management-test))
-  (let ((tree (make-sprite-tree *test-sprites-path*)))
-    (assert-true (not (null (getf tree :window))))
-    (assert-true (not (null (getf (getf tree :window) :shadow))))
+  (let ((tree  *sprite-tree*))
+    (assert-true (not (null (getf tree :1))))
+    (assert-true (not (null (getf (getf tree :1) :2))))
     (assert-true 
-     (not (null (getf (getf (getf tree :window) :shadow) :left-01))))))
+     (not (null (getf (getf (getf tree :1) :2) :b))))))
 
 (def-test-method test-fetch-sprite-node ((test sprite-management-test))
-  (assert-true (not (null (fetch-sprite-node '(:window :shadow :left-01)))))
+  (assert-true (not (null (fetch-sprite-node '(:1 :2 :b)))))
   (assert-condition 'invalid-sprite-node
-                    (fetch-sprite-node '(:window :shadow :blah)))
-  (let ((tree (fetch-sprite-node '(:window :shadow))))
-    (assert-true (typep (fetch-sprite-node '(:left-01) tree) 'texture-sprite)
+                    (fetch-sprite-node '(:1 :2 :blah)))
+  (let ((tree (fetch-sprite-node '(:1 :2))))
+    (assert-true (typep (fetch-sprite-node '(:b) tree) 'texture-sprite)
                  (format nil "~a~%~s"
                          "FETCH-SPRITE-NODE failed with the following tree:"
                          tree))))
 
-(def-test-method test-with-node-sprites ((test sprite-management-test))
-  (make-sprite-tree *test-sprites-path*)
+(def-test-method test-with-sprites ((test sprite-management-test))
   (assert-condition
    'invalid-sprite-node
-   (with-node-sprites (:window :no-such-node) (blah)
+   (with-sprites (:1 :no-such-node) (blah)
      (declare (ignore blah))))
   (assert-condition
    'invalid-sprite-node
-   (with-node-sprites (:window :shadow) (blah)
+   (with-sprites (:1 :2) (blah)
      (declare (ignore blah))))
-  (with-node-sprites (:window :shadow) (left-01)
-    (let ((left (fetch-sprite-node '(:window :shadow :left-01))))
-      (assert-eql left left-01))))
+  (with-sprites (:1 :2) (b)
+    (assert-eql b (fetch-sprite-node '(:1 :2 :b))))
+  (with-sprites () (target)
+    (assert-eql target (fetch-sprite-node '(:target)))))

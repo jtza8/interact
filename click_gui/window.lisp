@@ -36,7 +36,7 @@
   (check-type manager screen-manager)
   (with-slots (left-margin right-margin top-margin bottom-margin
                width x y) window
-    (with-node-sprites (:window :shadows) (corner-left-top corner-right-bottom)
+    (with-sprites (:window :shadows) (corner-left-top corner-right-bottom)
       (setf left-margin (width corner-left-top)
             right-margin (width corner-right-bottom)
             top-margin (height corner-left-top)
@@ -114,7 +114,7 @@
                top-margin bottom-margin) window
     (let ((ax (abs-x window))
           (ay (abs-y window)))
-      (with-node-sprites (:window :shadows)
+      (with-sprites (:window :shadows)
           (corner-left-top top-left top-centre top-right
            corner-right-top right-top right-centre right-bottom
            corner-right-bottom bottom-right bottom-centre bottom-left
@@ -151,7 +151,7 @@
     (let ((ax (abs-x window))
           (ay (abs-y window))
           (title-bar-height (height (widget-of window :title-bar))))
-      (with-node-sprites (:window :panel)
+      (with-sprites (:window :panel)
           (left corner-left-bottom bottom corner-right-bottom right background)
         (draw-tiled left ax (+ ay title-bar-height)
                     :height (- height title-bar-height

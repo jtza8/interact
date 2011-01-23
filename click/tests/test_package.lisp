@@ -6,3 +6,8 @@
 (in-package :click)
 
 (use-package :xlunit)
+
+(defun set-test-sprite-path ()
+  (setf (getf *settings* :sprite-path)
+        (asdf:system-relative-pathname :click "tests/test_sprites"))
+  (init-click))

@@ -52,7 +52,7 @@
       (assert (not (null node)) () 'invalid-sprite-node :invalid-node path)
     node))
 
-(defmacro with-node-sprites (path sprites &body body)
+(defmacro with-sprites (path sprites &body body)
   (let ((sprite-node (gensym "SPRITE-NODE")))
     `(let* ((,sprite-node (fetch-sprite-node ',path))
             ,@(loop for sprite in sprites collect

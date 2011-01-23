@@ -31,14 +31,14 @@
   (let ((clickrc-file (merge-pathnames ".clickrc" (user-homedir-pathname)))
         (backup-file #+unix #P"/tmp/za.jens.clickrc"
                      #+windows #P"c:\\za.jens.clickrc")
-	theme-path)
+	sprite-path)
     (with-stand-in clickrc-file backup-file
       (forge-file clickrc-file
                   "(:screen-size (1024 768))")
       (reset-settings)
-      (setf theme-path (getf *settings* :theme-path))
+      (setf sprite-path (getf *settings* :sprite-path))
       (assert-equal '(800 600) (getf *settings* :screen-size))
       (load-settings)
       (assert-equal '(1024 768) (getf *settings* :screen-size))
-      (assert-equal theme-path (getf *settings* :theme-path))
+      (assert-equal sprite-path (getf *settings* :sprite-path))
       (reset-settings))))
