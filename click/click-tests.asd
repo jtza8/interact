@@ -12,4 +12,8 @@
                              (:file "listening_test"
                               :depends-on ("test_package" "dummy_widget"))
                              (:file "sprite_management_test"
-                              :depends-on ("test_package" "dummy_widget"))))))
+                              :depends-on ("test_package" "dummy_widget"))
+                             (:file "simple_widget"
+                              :depends-on ("test_package"))
+                             (:file "screen_test"
+                              :depends-on ("test_package" "simple_widget"))))))

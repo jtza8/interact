@@ -11,3 +11,6 @@
   (setf (getf *settings* :sprite-path)
         (asdf:system-relative-pathname :click "tests/test_sprites"))
   (init-click))
+
+(init-screen-system)
+(sdl:quit-video)

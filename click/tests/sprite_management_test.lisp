@@ -5,9 +5,6 @@
 
 (in-package :click)
 
-(init-screen-system)
-(sdl:quit-video)
-
 (defclass sprite-management-test (test-case)
   ())
 

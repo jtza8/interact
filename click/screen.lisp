@@ -29,6 +29,7 @@
    (desired-events :initform '(:title-bar-drag event-title-bar-drag))
    (widgets :initform '()
             :reader widgets)
+   (background :initform nil)
    (tags :initform '())))
 
 (defmethod initialize-instance :after ((screen screen) &key
@@ -96,8 +97,9 @@
     (draw widget)))
 
 (defmethod draw-panel ((screen screen))
-  (with-slots (width height title-bar) screen
+  (with-slots (width height background) screen
+    (when (null background) 
+      (return-from draw-panel))
     (let ((ax (abs-x screen))
-          (ay (abs-y screen))
-          (background (fetch-sprite-node '(:window :panel :background))))
+          (ay (abs-y screen)))
       (draw-tiled background ax ay :height height :width width))))
