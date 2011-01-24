@@ -62,4 +62,17 @@
                                              ,sprite-node))))
        ,@body)))
 
-;; (il:init)
+(defun translate (x y)
+  (gl:matrix-mode :modelview)
+  (gl:push-matrix)
+  (gl:translate x y 0))
+
+(defun undo-translate ()
+  (gl:matrix-mode :modelview)
+  (gl:pop-matrix))
+
+(defmacro with-translate ((x y) &body body)
+  `(progn
+     (translate ,x ,y)
+     ,@body
+     (undo-translate)))

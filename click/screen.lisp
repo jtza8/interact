@@ -29,7 +29,8 @@
    (desired-events :initform '(:title-bar-drag event-title-bar-drag))
    (widgets :initform '()
             :reader widgets)
-   (background :initform nil)
+   (background :initform nil
+               :reader background)
    (tags :initform '())))
 
 (defmethod initialize-instance :after ((screen screen) &key
@@ -92,14 +93,14 @@
         (remove-listener screen widget event-type)))))
 
 (defmethod draw ((screen screen))
-  (draw-panel screen)
-  (dolist (widget (slot-value screen 'widgets))
-    (draw widget)))
+  (with-slots (x y) screen
+    (with-translate (x y)
+      (draw-panel screen)
+      (dolist (widget (slot-value screen 'widgets))
+        (draw widget)))))
 
 (defmethod draw-panel ((screen screen))
-  (with-slots (width height background) screen
-    (when (null background) 
+  (with-slots (x y width height background) screen
+    (when (null background)
       (return-from draw-panel))
-    (let ((ax (abs-x screen))
-          (ay (abs-y screen)))
-      (draw-tiled background ax ay :height height :width width))))
+    (draw-tiled background x y :width width :height height)))
