@@ -6,15 +6,15 @@
 (defpackage #:click-gui
   (:use #:common-lisp)
   (:import-from #:click
-                #:active
+                ; Accessors:
+                #:active-screens
                 #:background
-                #:desired
+                #:desired-events
                 #:event
                 #:height
-                #:invalid
-                #:latest
+                #:invalid-node
                 #:listeners
-                #:provided
+                #:provided-events
                 #:reason
                 #:screens
                 #:texture

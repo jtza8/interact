@@ -5,63 +5,69 @@
 
 (defpackage #:click
   (:use #:common-lisp)
-  (:export #:active-screens
+  (:export #:*screen-manager*
+           #:*settings*
+           #:*sprite-path*
+           #:*sprite-tree*
            #:add-listener
            #:add-screen
            #:add-widget
-           #:background
            #:desire-events
-           #:desired-events
            #:draw
            #:draw-at
            #:draw-tiled
-           #:event
            #:event-data
            #:event-type
            #:fetch-sprite-node
-           #:height
            #:init-click
            #:init-screen-system
            #:invalid-event
-           #:invalid-node
+           #:invalid-event-type
            #:invalid-sprite-node
-           #:latest-event
            #:listenable
            #:listener
-           #:listeners
            #:load-settings
-           #:load-texture-sprite
-           #:make-sprite-tree
-           #:provided-events
-           #:reason
            #:rectangle
            #:remove-listener
            #:remove-screen
            #:remove-tag
            #:remove-widget
+           #:render-text
            #:reset-settings
            #:run-screen-system
            #:screen
            #:screen-manager
-           #:screens
-           #:select-handler
+           #:send-event
            #:sprite
            #:tag-error
            #:tag-of
            #:tag-widget
-           #:texture
            #:texture-sprite
+           #:theme
            #:translate
            #:undesire-events
            #:undo-translate
            #:widget
            #:widget-of
-           #:widgets
-           #:width
-           #:windows
            #:with-event-keys
            #:with-sprites
            #:with-translate
            #:within
+
+           ; Accessors:
+           #:active-screens
+           #:background
+           #:desired-events
+           #:event
+           #:height
+           #:invalid-node
+           #:listeners
+           #:provided-events
+           #:reason
+           #:screens
+           #:texture
+           #:widgets
+           #:width
+           #:windows
            #:x
            #:y))
