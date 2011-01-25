@@ -3,8 +3,8 @@
 ; license that can be found in the license.txt file
 ; in the root directory of this project.
 
-(defpackage :click
-  (:use :common-lisp)
+(defpackage #:click
+  (:use #:common-lisp)
   (:export #:active-screens
            #:add-listener
            #:add-screen
