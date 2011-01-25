@@ -3,7 +3,7 @@
 ; license that can be found in the license.txt file
 ; in the root directory of this project.
 
-(in-package :click)
+(in-package :click-gui)
 
 (defclass button (widget)
   ())
@@ -16,12 +16,10 @@
 (defmethod draw ((button button))
   (with-slots (x y width height) button
     (with-sprites (:button :up) (left middle right)
-      (let ((ax (abs-x button))
-            (ay (abs-y button)))
-        (draw-at left ax ay)
-        (draw-tiled middle (+ ax (width left)) ay
-                    :width (- width (width left) (width right)))
-        (draw-at right (+ ax (- width (width right))) ay)))))
+      (draw-at left x y)
+      (draw-tiled middle (+ x (width left)) y
+                        :width (- width (width left) (width right)))
+      (draw-at right (+ x (- width (width right))) y))))
 
 (defmethod event-mouse-down ((button button) event) ())
 (defmethod event-mouse-up ((button button) event) ())

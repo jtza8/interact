@@ -5,6 +5,6 @@
   :licence "BSD-Style License"
   :depends-on ("click")
   :components ((:file "package")
-               (:file "title-bar" :depends-on ("package"))
-               (:file "window" :depends-on ("title-bar"))
                (:file "button" :depends-on ("package"))))
+;               (:file "title-bar" :depends-on ("package"))
+;               (:file "window" :depends-on ("title-bar"))

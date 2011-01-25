@@ -6,7 +6,12 @@
 (in-package :click)
 
 (defun init-screen-system (&key (width 800) (height 600) (full-screen nil)
-                           (bg-colour '(1 1 1 0)) (window-title "Lisp"))
+                           (bg-colour '(1 1 1 0)) (window-title "Lisp")
+                           sprite-path)
+  (cond ((null sprite-path) (error "No sprite path specified."))
+        ((not (cl-fad:directory-exists-p sprite-path))
+         (error "Sprite path invalid.")))
+  (setf (getf click:*settings* :sprite-path) sprite-path)
   (sdl:init-video)
   (let ((flags (list sdl:sdl-opengl)))
     (when full-screen (push sdl:sdl-fullscreen flags))
@@ -58,3 +63,4 @@
                 (gl:flush)
                 (sdl:update-display)))
     (sdl:quit-video)))
+

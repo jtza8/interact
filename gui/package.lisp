@@ -4,22 +4,4 @@
 ; in the root directory of this project.
 
 (defpackage #:click-gui
-  (:use #:common-lisp)
-  (:import-from #:click
-                ; Accessors:
-                #:active-screens
-                #:background
-                #:desired-events
-                #:event
-                #:height
-                #:invalid-node
-                #:listeners
-                #:provided-events
-                #:reason
-                #:screens
-                #:texture
-                #:widgets
-                #:width
-                #:windows
-                #:x
-                #:y))
+  (:use #:common-lisp #:click))
