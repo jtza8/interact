@@ -22,7 +22,7 @@ graphics engine.
   * An abstract class for new "widgets" (for event and sprite
     handling).
   * Uses a higher-level approach to avoid dependencies on lower
-    level code.
+    level code (e.g. uses it's own event system).
   * Is built on the following libraries:
     * cl-openGL (for OpenGL)
     * Lispbuilder-SDL (display and events)
@@ -39,9 +39,8 @@ graphics engine.
 3. On any Unix system, use the following command while in an ASDF
    systems directory:
    <blockquote>
-   `find /path/to/click/source -name '*.lisp' -exec ln -s '{}' \;`
+   `find /path/to/click/source -name '*.asd' -exec ln -s '{}' \;`
    </blockquote>
-
 4. For now, see the tests in the click source for examples. Enjoy (I
    hope) and tell me what you think over at GitHub
    (github.com/jtza8/Click).
