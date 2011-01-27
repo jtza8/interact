@@ -11,7 +11,7 @@
   (cond ((null sprite-path) (error "No sprite path specified."))
         ((not (cl-fad:directory-exists-p sprite-path))
          (error "Sprite path invalid.")))
-  (setf (getf click:*settings* :sprite-path) sprite-path)
+  (setf *sprite-path* sprite-path)
   (sdl:init-video)
   (let ((flags (list sdl:sdl-opengl)))
     (when full-screen (push sdl:sdl-fullscreen flags))
