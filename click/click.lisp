@@ -10,9 +10,9 @@
 (defparameter *screen-manager* nil)
 (defparameter *sprite-tree* nil)
 
-(defun init-click (&key (settings *settings*))
+(defun init-click ()
   (when (null *sprite-path*)
     (error "Sprite path not set."))
   (il:init)
   (setf *screen-manager* (make-instance 'screen-manager)
-        *sprite-tree* (make-sprite-tree (getf settings :sprite-path))))
+        *sprite-tree* (make-sprite-tree *sprite-path*)))

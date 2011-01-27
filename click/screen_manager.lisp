@@ -13,11 +13,12 @@
    (active-screens :initform nil
                    :reader active-screens)))
 
-(defmethod add-screen ((manager screen-manager) screen)
+(defmethod sm-add-screen ((manager screen-manager) screen)
+  (check-type screen screen)
   (with-slots (screens) manager
-    (pushnew screen screens :test #'eql)))
+    (pushnew screen screens :test #'eq)))
 
-(defmethod remove-screen ((manager screen-manager) screen)
+(defmethod sm-remove-screen ((manager screen-manager) screen)
   (with-slots (screens active-screens) manager
     (delete screen screens)
     (delete screen active-screens)))
@@ -31,3 +32,25 @@
   (with-slots (active-screens) manager
     (dolist (screen active-screens)
       (send-event screen event))))
+
+(defmethod sm-activate-screen ((manager screen-manager) screen)
+  (with-slots (screens active-screens) manager
+    (assert (find screen screens) () 
+            "Screen ~s not under the control of manager ~s" screen manager)
+    (pushnew screen active-screens :test #'eq)))
+
+(defmethod sm-deactivate-screen ((manager screen-manager) screen)
+  (with-slots (screens active-screens) manager
+    (delete screen active-screens)))
+
+(defun add-screen (screen)
+  (sm-add-screen click:*screen-manager* screen))
+
+(defun remove-screen (screen)
+  (sm-remove-screen click:*screen-manager* screen))
+
+(defun activate-screen (screen)
+  (sm-activate-screen click:*screen-manager* screen))
+
+(defun deactivate-screen (screen)
+  (sm-deactivate-screen click:*screen-manager* screen))

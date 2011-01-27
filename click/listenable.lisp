@@ -24,6 +24,10 @@
                     :initarg :provided-events
                     :reader provided-events)))
 
+(defmethod provide-events ((listenable listenable) &rest events)
+  (with-slots (provided-events) listenable
+    (setf provided-events (cons provided-events events))))
+
 (defmacro event-type (event) `(car ,event))
 (defmacro event-data (event) `(cdr ,event))
 

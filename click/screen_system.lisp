@@ -37,7 +37,8 @@
 (defun run-screen-system ()
   (unwind-protect
        (sdl:with-events (:poll)
-         (:mouse-motion-event (:state state :x x :y y :x-rel x-rel :y-rel y-rel)
+         (:mouse-motion-event (:state state :x x :y y
+                               :x-rel x-rel :y-rel y-rel)
            (send-event *screen-manager*
                        (list :mouse-move :state state :x x :y y
                              :x-rel x-rel :y-rel y-rel)))

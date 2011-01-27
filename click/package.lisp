@@ -11,6 +11,11 @@
            #:*sprite-tree*
            #:add-listener
            #:add-screen
+           #:sm-add-screen
+           #:activate-screen
+           #:sm-activate-sceen
+           #:deactivate-screen
+           #:sm-deactivate-screen
            #:add-widget
            #:desire-events
            #:draw
@@ -27,9 +32,11 @@
            #:listenable
            #:listener
            #:load-settings
+           #:provide-events
            #:rectangle
            #:remove-listener
            #:remove-screen
+           #:sm-remove-screen
            #:remove-tag
            #:remove-widget
            #:render-text

@@ -37,7 +37,7 @@
                                        (manager *screen-manager*))
   (unless (null manager)
     (check-type manager screen-manager)
-    (add-screen manager screen)))
+    (sm-add-screen manager screen)))
 
 (defmethod tag-widget ((screen screen) (widget widget) tag)
   (with-slots (tags) screen
