@@ -25,10 +25,26 @@
           :reader width)
    (height :initform 20
            :initarg :height
-           :reader height)))
+           :reader height)
+   (parent :initform nil
+           :initarg :parent
+           :accessor parent)))
 
-; Not working correctly yet in this commit. Change of implementation.
+(defmethod absolute-pos ((widget widget))
+  (with-slots (parent x y) widget
+    (if (typep parent 'widget)
+        (destructuring-bind (px py) (absolute-pos parent)
+          (list (+ x px) (+ y py)))
+        (list x y))))
+
+(defmethod absolute-x ((widget widget))
+  (car (absolute-pos widget)))
+
+(defmethod absolute-y ((widget widget))
+  (cadr (absolute-pos widget)))
+
 (defmethod within ((widget widget) x y)
-  (with-slots ((this-x x) (this-y y) width height) widget
-    (and (< this-x x (+ this-x width))
-         (< this-y y (+ this-y height)))))
+  (with-slots (width height) widget
+    (destructuring-bind (ax ay) (absolute-pos widget)
+      (and (< ax x (+ ax width))
+           (< ay y (+ ay height))))))

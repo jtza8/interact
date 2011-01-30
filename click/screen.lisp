@@ -76,6 +76,7 @@
 
 (defmethod add-widget ((screen screen) widget &optional tag)
   (check-type widget widget)
+  (setf (parent widget) screen)
   (with-slots (widgets) screen
     (pushnew widget widgets))
   (loop for event-type in (desired-events widget) by #'cddr

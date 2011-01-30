@@ -76,5 +76,8 @@
            #:widgets
            #:width
            #:windows
+           #:absolute-pos
+           #:absolute-x
+           #:absolute-y
            #:x
            #:y))
