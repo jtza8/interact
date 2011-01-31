@@ -10,5 +10,5 @@
 
 (defmethod draw ((widget simple-widget))
   (with-slots (x y) widget
-    (with-sprites () (target)
+    (with-sprites (target) (sprite-node)
       (draw-at target x y))))

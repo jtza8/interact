@@ -6,11 +6,8 @@
 (in-package :click)
 
 (use-package :xlunit)
+(defparameter *test-sprite-path*
+  (asdf:system-relative-pathname :click "tests/test_sprites"))
 
-(defun set-test-sprite-path ()
-  (setf (getf *settings* :sprite-path)
-        (asdf:system-relative-pathname :click "tests/test_sprites"))
-  (init-click))
-
-(init-screen-system)
+(init-screen-system :sprite-path *test-sprite-path*)
 (sdl:quit-video)

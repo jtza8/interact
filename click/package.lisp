@@ -23,7 +23,8 @@
            #:draw-tiled
            #:event-data
            #:event-type
-           #:fetch-sprite-node
+           #:sprite-node
+           #:sprite-node-from
            #:init-click
            #:init-screen-system
            #:invalid-event

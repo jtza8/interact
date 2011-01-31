@@ -8,10 +8,8 @@
 (defun init-screen-system (&key (width 800) (height 600) (full-screen nil)
                            (bg-colour '(1 1 1 0)) (window-title "Lisp")
                            sprite-path)
-  (cond ((null sprite-path) (error "No sprite path specified."))
-        ((not (cl-fad:directory-exists-p sprite-path))
-         (error "Sprite path invalid.")))
-  (setf *sprite-path* sprite-path)
+  (when (null sprite-path)
+    (error "No sprite path specified."))
   (sdl:init-video)
   (let ((flags (list sdl:sdl-opengl)))
     (when full-screen (push sdl:sdl-fullscreen flags))
@@ -32,7 +30,7 @@
   (gl:enable :texture-2d)
   (gl:blend-func :src-alpha :one-minus-src-alpha)
   (gl:clear :color-buffer-bit)
-  (init-click))
+  (init-click sprite-path))
 
 (defun run-screen-system ()
   (unwind-protect

@@ -44,7 +44,10 @@
             collect (make-keyword (pathname-name item))
             and collect (load-texture-sprite item))))
 
-(defun fetch-sprite-node (path &optional (tree *sprite-tree*))
+(defun sprite-node (&rest path)
+  (apply #'sprite-node-from *sprite-tree* path))
+
+(defun sprite-node-from (tree &rest path)
   (let ((node (loop with pointer = tree
                     for keyword in path
                       do (setf pointer (getf pointer keyword))
@@ -52,18 +55,15 @@
       (assert (not (null node)) () 'invalid-sprite-node :invalid-node path)
     node))
 
-(defmacro with-sprites (path-or-tree sprites &body body)
-  (let ((sprite-node (gensym "SPRITE-NODE"))
-        (fetch-sprite-code  (if (listp path-or-tree)
-                                `(fetch-sprite-node ',path-or-tree)
-                                path-or-tree)))
-    `(let* ((,sprite-node ,fetch-sprite-code)
-            ,@(loop for sprite in sprites collect
-                   (list sprite
-                         `(fetch-sprite-node '(,(intern (symbol-name sprite)
-                                                        "KEYWORD"))
-                                             ,sprite-node))))
-       ,@body)))
+(defmacro with-sprites (sprites sprite-node &body body)
+  (let ((sprite-branch (gensym "SPRITE-NODE")))
+    `(let ((,sprite-branch ,sprite-node))
+       (let (,@(loop for sprite in sprites collect
+                    (list sprite
+                          `(sprite-node-from ,sprite-branch
+                                             ,(intern (symbol-name sprite)
+                                                      "KEYWORD")))))
+         ,@body))))
 
 (defun translate (x y)
   (gl:matrix-mode :modelview)

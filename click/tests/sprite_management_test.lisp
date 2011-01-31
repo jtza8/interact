@@ -8,8 +8,8 @@
 (defclass sprite-management-test (test-case)
   ())
 
-(defmethod set-up ((test sprite-management-test))
-  (set-test-sprite-path))
+(defmethod initialize-instance :after ((test sprite-management-test) &key)
+  (init-click *test-sprite-path*))
 
 (def-test-method test-make-sprite-tree ((test sprite-management-test))
   (let ((tree  *sprite-tree*))
@@ -18,26 +18,26 @@
     (assert-true 
      (not (null (getf (getf (getf tree :1) :2) :b))))))
 
-(def-test-method test-fetch-sprite-node ((test sprite-management-test))
-  (assert-true (not (null (fetch-sprite-node '(:1 :2 :b)))))
+(def-test-method test-sprite-node-from ((test sprite-management-test))
+  (assert-true (not (null (sprite-node :1 :2 :b))))
   (assert-condition 'invalid-sprite-node
-                    (fetch-sprite-node '(:1 :2 :blah)))
-  (let ((tree (fetch-sprite-node '(:1 :2))))
-    (assert-true (typep (fetch-sprite-node '(:b) tree) 'texture-sprite)
+                    (sprite-node :1 :2 :blah))
+  (let ((tree (sprite-node :1 :2)))
+    (assert-true (typep (sprite-node-from tree :b) 'texture-sprite)
                  (format nil "~a~%~s"
-                         "FETCH-SPRITE-NODE failed with the following tree:"
+                         "SPRITE-NODE-FROM failed with the following tree:"
                          tree))))
 
 (def-test-method test-with-sprites ((test sprite-management-test))
   (assert-condition
    'invalid-sprite-node
-   (with-sprites (:1 :no-such-node) (blah)
+   (with-sprites (blah) (sprite-node :1 :no-such-node)
      (declare (ignore blah))))
   (assert-condition
    'invalid-sprite-node
-   (with-sprites (:1 :2) (blah)
+   (with-sprites (blah) (sprite-node :1 :2)
      (declare (ignore blah))))
-  (with-sprites (:1 :2) (b)
-    (assert-eql b (fetch-sprite-node '(:1 :2 :b))))
-  (with-sprites () (target)
-    (assert-eql target (fetch-sprite-node '(:target)))))
+  (with-sprites (b) (sprite-node :1 :2)
+    (assert-eql b (sprite-node :1 :2 :b)))
+  (with-sprites (target) (sprite-node)
+    (assert-eql target (sprite-node :target))))
