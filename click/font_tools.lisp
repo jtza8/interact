@@ -6,14 +6,14 @@
 (in-package :click)
 
 (defun render-text (text &key (type-face sdl:*default-font*)
-                    (justify "left") (colour sdl:*black*))
+                    (justify "left") (color sdl:*black*))
   (let ((width (sdl:get-font-size text :size :w :font type-face))
         (height (sdl:get-font-size text :size :h :font type-face)))
     (sdl:with-surface (surface
                        (sdl:create-surface width height :bpp 32 :pixel-alpha t))
       (sdl:draw-string-blended-* text 0 0
                                  :justify justify :surface surface
-                                 :font type-face :color colour)
+                                 :font type-face :color color)
       (sdl-base::with-pixel (pix (sdl:fp surface))
         (let ((texture (car (gl:gen-textures 1))))
           (gl:bind-texture :texture-2d texture)

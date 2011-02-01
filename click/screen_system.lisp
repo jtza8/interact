@@ -6,7 +6,7 @@
 (in-package :click)
 
 (defun init-screen-system (&key (width 800) (height 600) (full-screen nil)
-                           (bg-colour '(1 1 1 0)) (window-title "Lisp")
+                           (bg-color '(1 1 1 0)) (window-title "Lisp")
                            sprite-path)
   (when (null sprite-path)
     (error "No sprite path specified."))
@@ -25,7 +25,7 @@
   (gl:matrix-mode :modelview)
   (gl:load-identity)
   (gl:viewport 0 0 width height)
-  (apply #'gl:clear-color bg-colour)
+  (apply #'gl:clear-color bg-color)
   (gl:enable :blend)
   (gl:enable :texture-2d)
   (gl:blend-func :src-alpha :one-minus-src-alpha)
