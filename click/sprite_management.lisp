@@ -32,50 +32,79 @@
       (make-instance 'texture-sprite :texture texture :width width
                      :height height))))
 
+(defun sprite-node-from (tree &rest path)
+  (loop with pointer = tree
+     for keyword in path
+     do (setf pointer (getf pointer keyword))
+     finally (progn (assert (not (null pointer)) () 'invalid-sprite-node
+                            :invalid-node path)
+                    (return pointer))))
+
+(defun sprite-node (&rest path)
+  (apply #'sprite-node-from *sprite-tree* path))
+
+(defun setf-sprite-node-from (tree &rest rest)
+  (let ((new-value (car (last rest)))
+        (path (butlast rest)))
+    (loop with current = tree
+          for keyword in path
+          for remaining from (1- (length path)) downto 0
+          for next = (getf current keyword)
+          if (null next)
+            do (if (= remaining 0) 
+                   (setf (getf current keyword) new-value)
+                   (setf (getf current keyword) next
+                         current next))
+          else
+            do (if (= remaining 0)
+                   (setf (getf current keyword) new-value)
+                   (setf current next))
+          end
+          finally (return tree))))
+
+(defun setf-sprite-node (&rest rest)
+  (apply #'setf-sprite-node-from *sprite-tree* rest))
+
+(defsetf sprite-node-from setf-sprite-node-from)
+(defsetf sprite-node setf-sprite-node)
+
 (defun parse-color-sprite (entry)
-  (assert (>= (length entry) 5) () "invalid entry")
-  (let ((path (car entry))
-        (color (subseq entry 1 5))
-        (rest (subseq entry 5)))
+  (assert (and (listp entry)
+               (eq (car entry) :color)
+               (>= (length entry) 3))
+          () "invalid entry")
+  (let ((path (cadr entry))
+        (color (caddr entry))
+        (rest (subseq entry 3)))
     (print path)
     (print color)
     (print rest)))
 
-(defun parse-sprites (base-dir)
-  (let ((sprites-conf-path (merge-pathnames "sprites.conf" base-dir)))
-    (unless (cl-fad:file-exists-p sprites-conf-path)
-      (return-from parse-sprites))
-    (with-open-file (file sprites-conf-path)
-      (loop for line = (read file nil 'end-of-file)
-            until (eq line 'end-of-file)
-            do (parse-color-sprite line)))))
-      
+(defun parse-sprites (sprites-conf-path)
+  (assert (cl-fad:file-exists-p sprites-conf-path) () 
+          "~a doesn't exist or isn't a file." sprites-conf-path)
+  (with-open-file (file sprites-conf-path)
+    (loop for entry = (read file nil 'end-of-file)
+       until (eq entry 'end-of-file)
+       do (ecase (car entry)
+            (:color (parse-color-sprite entry))))))
 
 (defun make-sprite-tree (base-dir)
   (flet ((make-keyword (string)
            (intern (nsubstitute #\- #\_ (string-upcase string))
                    "KEYWORD")))
-    (loop for item in (cl-fad:list-directory base-dir)
-          when (cl-fad:directory-exists-p item)
-            collect (make-keyword (car (last (pathname-directory item))))
-            and collect (make-sprite-tree item)
-          when (and (cl-fad:file-exists-p item)
-                    (let ((type (pathname-type item)))
-                      (and type (string-equal (string-downcase type) "png"))))
-            collect (make-keyword (pathname-name item))
-            and collect (load-texture-sprite item))))
-
-(defun sprite-node (&rest path)
-  (apply #'sprite-node-from *sprite-tree* path))
-
-(defun sprite-node-from (tree &rest path)
-  (let ((node (loop with pointer = tree
-                    for keyword in path
-                      do (setf pointer (getf pointer keyword))
-                    finally (return pointer))))
-      (assert (not (null node)) () 'invalid-sprite-node :invalid-node path)
-    node))
-
+    (setf *sprite-tree*
+          (loop for item in (cl-fad:list-directory base-dir)
+             when (cl-fad:directory-exists-p item)
+             collect (make-keyword (car (last (pathname-directory item))))
+             and collect (make-sprite-tree item)
+             when (and (cl-fad:file-exists-p item)
+                       (let ((type (pathname-type item)))
+                         (and type (string-equal (string-downcase type)
+                                                 "png"))))
+             collect (make-keyword (pathname-name item))
+             and collect (load-texture-sprite item)))))
+  
 (defmacro with-sprites (sprites sprite-node &body body)
   (let ((sprite-branch (gensym "SPRITE-NODE")))
     `(let ((,sprite-branch ,sprite-node))

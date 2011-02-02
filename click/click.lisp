@@ -15,5 +15,6 @@
   (unless (cl-fad:directory-exists-p sprite-path)
     (error "Sprite path invalid."))
   (setf *sprite-path* sprite-path
-        *screen-manager* (make-instance 'screen-manager)
-        *sprite-tree* (make-sprite-tree *sprite-path*)))
+        *screen-manager* (make-instance 'screen-manager))
+  (make-sprite-tree *sprite-path*)
+  (parse-sprites (merge-pathnames "sprites.conf" *sprite-path*)))

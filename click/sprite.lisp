@@ -26,10 +26,10 @@
       (gl:tex-coord (pop coords) (pop coords))
       (gl:vertex x (+ y height)))))
 
-(defgeneric draw (sprite)
-  (:documentation
-   "Sprites draw themselves using OpenGL."))
-
 (defgeneric draw-at (sprite x y)
   (:documentation
-   "Like draw, except sprites draw themselves at the specified coordinates."))
+   "Draw at the specified coordinates."))
+
+(defgeneric draw-tiled (sprite x y &key width height)
+  (:documentation
+   "Draw Tiled."))
