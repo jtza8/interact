@@ -1,17 +1,18 @@
 ## About Click
 
-Click is an "IGS" as I call it. Which means, you may technically call
-it a GUI -- although it's meant to fulfill a different need than a
-traditional GUI. Click can (and is meant to) be used in games as a 2D
-graphics engine.
+Click is what I call an __I__nteractive __G__raphics __S__ystem (an
+"IGS"). Technically you could call it a very low-level GUI -- although
+it's meant to fulfill a different need than a traditional GUI. Click
+is intended to be used in games as a 2D graphics engine.
 
 ### Features
 
 * A sprite management system
   * Seamless handling of many different kinds of sprites.
-    * Currently supporting:
-      * Bitmap sprites (PNGs using RGB and RGBA)
+    * Currently supports:
+      * Automatic loading of bitmap sprites (PNGs using RGB and RGBA)
     * Support planned for:
+      * Non power-of-two sized bitmaps
       * Simple colour sprites
       * TTF Text sprites
       * Bitmap text sprites
@@ -19,8 +20,8 @@ graphics engine.
       * OpenGL shader sprites
 * An easy to use rendering system
   * Up and running with two function calls.
-  * An abstract class for new "widgets" (for event and sprite
-    handling).
+  * Layers (comming soon).
+  * An abstract "`widgets`" class.
   * Uses a higher-level approach to avoid dependencies on lower
     level code (e.g. uses it's own event system).
   * Is built on the following libraries:
@@ -41,6 +42,3 @@ graphics engine.
    <blockquote>
    `find /path/to/click/source -name '*.asd' -exec ln -s '{}' \;`
    </blockquote>
-4. For now, see the tests in the click source for examples. Enjoy (I
-   hope) and tell me what you think over at GitHub
-   (github.com/jtza8/Click).
