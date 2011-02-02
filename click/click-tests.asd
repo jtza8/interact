@@ -5,14 +5,14 @@
   :licence "BSD-Style License"
   :depends-on ("click" "xlunit")
   :components ((:module "tests"
-                :components ((:file "test_package")
-                             (:file "dummy_widget" :depends-on ("test_package"))
-                             (:file "dummy_listener")
-                             (:file "listening_test"
-                              :depends-on ("test_package" "dummy_widget"))
-                             (:file "sprite_management_test"
-                              :depends-on ("test_package" "dummy_widget"))
-                             (:file "simple_widget"
-                              :depends-on ("test_package"))
-                             (:file "screen_test"
-                              :depends-on ("test_package" "simple_widget"))))))
+                :components ((:file "test-package")
+                             (:file "dummy-widget" :depends-on ("test-package"))
+                             (:file "dummy-listener")
+                             (:file "listening-test"
+                              :depends-on ("test-package" "dummy-widget"))
+                             (:file "sprite-management-test"
+                              :depends-on ("test-package" "dummy-widget"))
+                             (:file "simple-widget"
+                              :depends-on ("test-package"))
+                             (:file "screen-test"
+                              :depends-on ("test-package" "simple-widget"))))))
