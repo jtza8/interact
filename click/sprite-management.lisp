@@ -1,4 +1,4 @@
-; Copyright 2009 Jens Thiede. All rights reserved.
+; Copyright 2011 Jens Thiede. All rights reserved.
 ; Use of this source code is governed by a BSD-style
 ; license that can be found in the license.txt file
 ; in the root directory of this project.
@@ -81,8 +81,8 @@
     (print rest)))
 
 (defun parse-sprites (sprites-conf-path)
-  (assert (cl-fad:file-exists-p sprites-conf-path) () 
-          "~a doesn't exist or isn't a file." sprites-conf-path)
+  (unless (cl-fad:file-exists-p sprites-conf-path)
+    (return-from parse-sprites))
   (with-open-file (file sprites-conf-path)
     (loop for entry = (read file nil 'end-of-file)
        until (eq entry 'end-of-file)

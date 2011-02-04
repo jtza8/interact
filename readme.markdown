@@ -12,8 +12,9 @@ is intended to be used in games as a 2D graphics engine.
     * Currently supports:
       * Automatic loading of bitmap sprites (PNGs using RGB and RGBA)
     * Support planned for:
-      * Non power-of-two sized bitmaps
+      * Non power-of-two sized bitmaps (full-screen backgrounds)
       * Simple colour sprites
+      * Animated sprites
       * TTF Text sprites
       * Bitmap text sprites
       * Vector sprites
