@@ -5,31 +5,60 @@
 
 (in-package :click)
 
-(cffi:defcfun ("memcpy" memcpy) :pointer
-  (dest :pointer) (src :pointer) (size :unsigned-int))
-
 (cffi:defcfun ("memset" memset) :pointer
   (dest :pointer) (value :int) (size :unsigned-int))
 
+(define-condition image-sequence-error (error)
+  ((path :initarg :path
+         :initform (error "must specify path")
+         :reader path)
+   (properties :initarg :properties
+               :initform (error "must specify properties")
+               :reader properties)
+   (requirements :initarg :requirements
+                 :initform (error "must specify requirements")
+                 :reader requirements))
+  (:report (lambda (condition stream)
+             (with-slots (path properties requirements) condition
+               (format stream "image ~a properties: ~s required properties: ~s"
+                       path properties requirements)))))
+
 (defun list-image-file-sequence (sequence-path)
-  (let ((regex (let* ((file-name (file-namestring sequence-path))
-                      (regex-str (ppcre:regex-replace "\\*" file-name "\\d+")))
+  (let ((regex (let* ((file-name (file-namestring sequence-path)) regex-str)
+                 (setf regex-str (ppcre:regex-replace "\." file-name "\\.")
+                       regex-str (ppcre:regex-replace "\\*" file-name "\\d+"))
                  (ppcre:parse-string regex-str))))
-    (loop for path in (fad:list-directory (directory-namestring sequence-path))
-          when (and (fad:file-exists-p path)
-                    (ppcre:scan regex (file-namestring path)))
-               collect path into image-file-list
-          finally (return (sort image-file-list #'string< :key #'namestring)))))
+    (sort (loop for path in (fad:list-directory
+                             (directory-namestring sequence-path))
+                when (and (fad:file-exists-p path)
+                          (ppcre:scan regex (file-namestring path)))
+                  collect path)
+           #'string< :key #'namestring)))
 
 (defun open-image-sequence (path-list)
-  (loop for path in path-list
-        for image = (il:gen-image)
-        do (progn (il:bind-image image)
-                  (il:load-image path)
-                  (il:check-error))
-        collect image into images
-        collect (il:get-data) into data-pointers
-        finally (return (values data-pointers images))))
+  (flet ((image-info ()
+           (list :width (il:get-integer :image-width)
+                 :height (il:get-integer :image-height)
+                 :data-format (cffi:foreign-enum-keyword 
+                               'il::data-format 
+                               (il:get-integer :image-format)))))
+    (loop with required-info and images = '()
+          for path in path-list
+          for image = (il:gen-image)
+          do (progn
+               (assert (fad:file-exists-p path))
+               (il:bind-image image)
+               (il:load-image path)
+               (il:check-error)
+               (push image images)
+               (if (null required-info)
+                   (setf required-info (image-info))
+                   (unless (equal required-info (image-info))
+                     (apply #'il:delete-images images)
+                     (error 'image-sequence-error
+                            :path path
+                            :properties (image-info)
+                            :requirements required-info)))))))
 
 ;(defun build-sprite-sheet (sequence-path fps &key (columns 10) sheet-file-name)
 ;  (il:with-bound-image (il:gen-image)

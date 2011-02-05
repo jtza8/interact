@@ -5,8 +5,28 @@
 
 (in-package :click)
 
+(defparameter *test-image-sequence-path*
+  (merge-pathnames "sequence*.png"
+                   (asdf:system-relative-pathname :click-tests
+                                                  "test_sequence/")))
+
 (defclass sprite-sheet-test (test-case)
   ())
 
 (def-test-method test-list-image-file-sequence ((test sprite-sheet-test))
-  ())
+  (let ((paths (list-image-file-sequence *test-image-sequence-path*)))
+    (assert-equal (length paths) 20)
+    (loop for path in paths
+          for i upfrom 1
+          do (assert-true (string= (format nil "sequence~4,'0d.png" i)
+                                   (file-namestring path))))))
+
+(def-test-method test-open-image-sequence ((test sprite-sheet-test))
+  (let* ((path-list (list-image-file-sequence *test-image-sequence-path*))
+         (image-sequence (open-image-sequence path-list)))
+    (apply #'il:delete-images image-sequence)
+    (open-image-sequence 
+     (cons (merge-pathnames "sequence-bogus.png"
+                            (directory-namestring *test-image-sequence-path*))
+           path-list))))
+    
