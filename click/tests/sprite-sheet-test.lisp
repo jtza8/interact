@@ -22,11 +22,13 @@
                                    (file-namestring path))))))
 
 (def-test-method test-open-image-sequence ((test sprite-sheet-test))
-  (let* ((path-list (list-image-file-sequence *test-image-sequence-path*))
-         (image-sequence (open-image-sequence path-list)))
-    (apply #'il:delete-images image-sequence)
-    (open-image-sequence 
-     (cons (merge-pathnames "sequence-bogus.png"
-                            (directory-namestring *test-image-sequence-path*))
-           path-list))))
+  (let ((path-list (list-image-file-sequence *test-image-sequence-path*))
+        (bogus-file (merge-pathnames "sequence-bogus.png"
+                     (directory-namestring *test-image-sequence-path*))))
+    (assert-condition 'image-sequence-error
+                      (apply #'il:delete-images
+                             (open-image-sequence (cons bogus-file path-list))))
+    (let ((image-sequence (open-image-sequence path-list)))
+      (unwind-protect (assert-true (numberp (car image-sequence)))
+        (apply #'il:delete-images image-sequence)))))
     

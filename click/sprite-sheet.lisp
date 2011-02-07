@@ -20,8 +20,11 @@
                  :reader requirements))
   (:report (lambda (condition stream)
              (with-slots (path properties requirements) condition
-               (format stream "image ~a properties: ~s required properties: ~s"
-                       path properties requirements)))))
+               (format stream 
+                       "the image ~a must have the properties: ~
+                       (~{~s~#[~:; ~]~}) but has the properties: ~
+                       (~{~s~#[~:; ~]~})"
+                       path requirements properties)))))
 
 (defun list-image-file-sequence (sequence-path)
   (let ((regex (let* ((file-name (file-namestring sequence-path)) regex-str)
@@ -58,15 +61,51 @@
                      (error 'image-sequence-error
                             :path path
                             :properties (image-info)
-                            :requirements required-info)))))))
+                            :requirements required-info))))
+          finally (return images))))
 
-;(defun build-sprite-sheet (sequence-path fps &key (columns 10) sheet-file-name)
-;  (il:with-bound-image (il:gen-image)
-;    ; data-size = (* width (1+ height))
-;    (cffi:with-foreign-object (data :uint8 data-size)
-;      (let ((i (- data-size width)))
-;        (setf (cffi:mem-ref data :uint16 i) frame-width
-;              (cffi:mem-ref data :uint16 (incf i 16)) frame-height
-;              (cffi:mem-ref data :uint8 (incf i 16)) frame-count
-;              (cffi:mem-ref data :uint8 (incf i 8)) fps)
-;        (mem-set (cffi-sys:inc-pointer data ()
+(defmacro with-image-sequence ((variable sequence) &body body)
+  `(let ((,variable (open-image-sequence ,sequence)))
+     (unwind-protect (progn ,@body)
+       (apply #'il:delete-images ,variable))))
+
+(defun build-sprite-sheet (sequence-path fps &key (max-columns 10)
+                           sheet-file-name)
+  (with-image-sequence (sequence (list-image-file-sequence sequence-path))
+    (let* ((height (1+ (* (il:height-of (car sequence))
+                          (ceiling (/ (length sequence) max-columns)))))
+           (width (* max-columns (il:width-of (car sequence))))
+           (bytes-per-pixel (il:bytes-per-pixel-of (car sequence)))
+           (data-size (* height width bytes-per-pixel))
+           (data-type (cffi:foreign-enum-keyword
+                       'il::data-type (il:get-integer :image-type)))
+           (frame-width (il:width-of (car sequence)))
+           (frame-height (il:height-of (car sequence)))
+           (frame-count (length sequence))
+           (pixel-format (il:pixel-format-of (car sequence))))
+      (cffi:with-foreign-object (data :uint8 data-size)
+        (memset data 0 data-size)
+        (let ((row (cffi:inc-pointer data (* (1- height) width
+                                             bytes-per-pixel))))
+          (setf (cffi:mem-aref row :uint8) frame-width)
+          (cffi:incf-pointer row 1)
+          (setf (cffi:mem-aref row :uint16) frame-height)
+          (cffi:incf-pointer row 2)
+          (setf (cffi:mem-aref row :uint16) frame-count)
+          (cffi:incf-pointer row 2)
+          (setf (cffi:mem-aref row :uint8) fps)
+          (il:with-images (sprite-sheet)
+            (il:bind-image sprite-sheet)
+            (il:tex-image width height 1 bytes-per-pixel pixel-format
+                          data-type data)
+            (let ((sequence-ref sequence))
+              (dotimes (sequence-x (min max-columns (length sequence)))
+                (dotimes (sequence-y (ceiling (/ frame-count max-columns)))
+                  (il:blit (pop sequence-ref) (* frame-width sequence-x)
+                           (- (1- height) (* sequence-y frame-height)) 0 
+                           0 0 0 frame-width frame-height 1))))
+            (when (null sheet-file-name)
+              (setf sheet-file-name 
+                    (ppcre:regex-replace "[-_]?\\*"
+                                         (namestring sequence-path) ".ss")))
+            (il:save-image sheet-file-name)))))))
