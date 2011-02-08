@@ -8,6 +8,9 @@
 (cffi:defcfun ("memset" memset) :pointer
   (dest :pointer) (value :int) (size :unsigned-int))
 
+(cffi:defcfun ("memcpy" memcpy) :pointer
+  (dest :pointer) (src :pointer) (size :unsigned-int))
+
 (define-condition image-sequence-error (error)
   ((path :initarg :path
          :initform (error "must specify path")
@@ -53,7 +56,6 @@
                (il:bind-image image)
                (il:load-image path)
                (il:check-error)
-               (push image images)
                (if (null required-info)
                    (setf required-info (image-info))
                    (unless (equal required-info (image-info))
@@ -61,8 +63,36 @@
                      (error 'image-sequence-error
                             :path path
                             :properties (image-info)
-                            :requirements required-info))))
+                            :requirements required-info)))
+               (push image images))
           finally (return images))))
+
+(defun overlay-image (source x y)
+  (let ((dest-width (il:get-integer :image-width))
+        (dest-height (il:get-integer :image-height))
+        (dest-data (il:get-data))
+        (data-format (il:get-integer :image-format))
+        (data-type (il:get-integer :image-type))
+        (bytes-per-pixel (il:get-integer :image-bytes-per-pixel))
+        src-height src-width src-data src-row-size)
+    (il:with-bound-image source
+      (il:convert-image data-format data-type)
+      (il:check-error)
+      (setf src-width (il:get-integer :image-width)
+            src-height (il:get-integer :image-height)
+            src-data (il:get-data)
+            src-row-size (* src-width bytes-per-pixel)))
+    (flet ((get-src-pos (x y)
+             (cffi:inc-pointer src-data (* (+ x (* y src-width))
+                                           bytes-per-pixel)))
+           (get-dest-pos (x y)
+             (cffi:inc-pointer dest-data (* (+ x (* y dest-width))
+                                            bytes-per-pixel))))
+      (loop for src-y below src-height
+            for dest-y upfrom y
+            do (memcpy (get-dest-pos x dest-y)
+                       (get-src-pos 0 src-y)
+                       src-row-size)))))
 
 (defmacro with-image-sequence ((variable sequence) &body body)
   `(let ((,variable (open-image-sequence ,sequence)))
@@ -70,7 +100,7 @@
        (apply #'il:delete-images ,variable))))
 
 (defun build-sprite-sheet (sequence-path fps &key (max-columns 10)
-                           sheet-file-name)
+                           sheet-file-name (file-overwrite nil))
   (with-image-sequence (sequence (list-image-file-sequence sequence-path))
     (let* ((height (1+ (* (il:height-of (car sequence))
                           (ceiling (/ (length sequence) max-columns)))))
@@ -93,19 +123,22 @@
           (cffi:incf-pointer row 2)
           (setf (cffi:mem-aref row :uint16) frame-count)
           (cffi:incf-pointer row 2)
-          (setf (cffi:mem-aref row :uint8) fps)
-          (il:with-images (sprite-sheet)
-            (il:bind-image sprite-sheet)
-            (il:tex-image width height 1 bytes-per-pixel pixel-format
-                          data-type data)
-            (let ((sequence-ref sequence))
-              (dotimes (sequence-x (min max-columns (length sequence)))
-                (dotimes (sequence-y (ceiling (/ frame-count max-columns)))
-                  (il:blit (pop sequence-ref) (* frame-width sequence-x)
-                           (- (1- height) (* sequence-y frame-height)) 0 
-                           0 0 0 frame-width frame-height 1))))
-            (when (null sheet-file-name)
-              (setf sheet-file-name 
-                    (ppcre:regex-replace "[-_]?\\*"
-                                         (namestring sequence-path) ".ss")))
-            (il:save-image sheet-file-name)))))))
+          (setf (cffi:mem-aref row :uint8) fps))
+        (il:with-images (sprite-sheet)
+          (il:bind-image sprite-sheet)
+          (il:tex-image width height 1 bytes-per-pixel pixel-format
+                        data-type data)
+          (let ((sequence-ref sequence))
+            (dotimes (sequence-x (min max-columns (length sequence)))
+              (dotimes (sequence-y (ceiling (/ frame-count max-columns)))
+                (overlay-image (pop sequence-ref)
+                               (* frame-width sequence-x)
+                               (- (1- height) (* sequence-y frame-height))))))
+          (when (null sheet-file-name)
+            (setf sheet-file-name 
+                  (ppcre:regex-replace "[-_]?\\*"
+                                       (namestring sequence-path) ".ss")))
+          (if file-overwrite
+            (il:enable :file-overwrite)
+            (il:disable :file-overwrite))
+          (il:save-image sheet-file-name))))))

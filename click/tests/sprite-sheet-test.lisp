@@ -10,6 +10,9 @@
                    (asdf:system-relative-pathname :click-tests
                                                   "test_sequence/")))
 
+(defparameter *test-image-path*
+  (asdf:system-relative-pathname :click-tests "test_images/"))
+
 (defclass sprite-sheet-test (test-case)
   ())
 
@@ -31,4 +34,26 @@
     (let ((image-sequence (open-image-sequence path-list)))
       (unwind-protect (assert-true (numberp (car image-sequence)))
         (apply #'il:delete-images image-sequence)))))
-    
+
+(defun test-overlay-image ()
+  (let* ((dest-width 500)
+         (dest-height 500)
+         (bytes-per-pixel 4)
+         (dest-format :rgba)
+         (dest-type :unsigned-byte)
+         (dest-data-size (* dest-width dest-height bytes-per-pixel)))
+    (il:with-images (dest-image src-image)
+      (il:bind-image dest-image)
+      (cffi:with-foreign-object (dest-data :uint8 dest-data-size)
+        (memset dest-data 0 dest-data-size)
+        (il:tex-image dest-width dest-height 1 bytes-per-pixel dest-format
+                      dest-type dest-data)
+        (il:check-error)
+        (il:with-bound-image src-image
+          (il:load-image (merge-pathnames #p"src-image.png"
+                                          *test-image-path*))
+          (il:check-error))
+        (overlay-image src-image 10 200)
+        (il:enable :file-overwrite)
+        (il:save-image (merge-pathnames #p"dest-image.png"
+                                        *test-image-path*))))))
