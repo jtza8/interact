@@ -35,18 +35,6 @@
       (unwind-protect (assert-true (numberp (car image-sequence)))
         (apply #'il:delete-images image-sequence)))))
 
-(defun test-clear-image ()
-  (il:with-images (image)
-    (il:bind-image image)
-    (il:tex-image 500 500 1 4 :rgba :unsigned-byte (cffi:null-pointer))
-    (format t "Using memset (in clear-image):~%")
-    (time (clear-image 0 0 0 0))
-    (format t "---~%Using memcpy (in clear-image):~%")
-    (time (clear-image 255 127 0 127))
-    (il:enable :file-overwrite)
-    (il:save-image (merge-pathnames #p"clear-test.png"
-                                    *test-image-path*))))
-
 (defun test-overlay-image ()
   (let ((dest-width 500)
         (dest-height 500)
