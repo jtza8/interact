@@ -5,11 +5,15 @@
 
 (in-package :click)
 
-(cffi:defcfun ("memset" memset) :pointer
-  (dest :pointer) (value :int) (size :unsigned-int))
-
 (cffi:defcfun ("memcpy" memcpy) :pointer
   (dest :pointer) (src :pointer) (size :unsigned-int))
+
+(define-condition image-data-index-error (error)
+  ((message :initarg :message
+            :initform (error "must specify message")))
+  (:report (lambda (condition stream)
+             (with-slots (message) condition
+               (princ message stream)))))
 
 (define-condition image-sequence-error (error)
   ((path :initarg :path
@@ -43,11 +47,9 @@
 
 (defun open-image-sequence (path-list)
   (flet ((image-info ()
-           (list :width (il:get-integer :image-width)
-                 :height (il:get-integer :image-height)
-                 :data-format (cffi:foreign-enum-keyword 
-                               'il::data-format 
-                               (il:get-integer :image-format)))))
+           (list :width (il:image-width)
+                 :height (il:image-height)
+                 :data-format (il:image-format))))
     (loop with required-info and images = '()
           for path in path-list
           for image = (il:gen-image)
@@ -65,33 +67,50 @@
                             :properties (image-info)
                             :requirements required-info)))
                (push image images))
-          finally (return images))))
+          finally (return (reverse images)))))
+
+(defun image-data-pos (x y &optional (image :current-image))
+  (il:with-bound-image image
+    (let ((width (il:image-width))
+          (height (il:image-height)))
+      (assert (and (<= 0 x width) (<= 0 y height)) (x y)
+              'image-data-index-error
+              :message (format nil "invalid index: (~d, ~d) ~
+                                    image width: ~d, ~
+                                    image height: ~d"
+                               x y width height))
+      (cffi:inc-pointer (il:get-data) (* (+ x (* y width))
+                                         (il:image-bytes-per-pixel))))))
 
 (defun overlay-image (source x y)
-  (let ((dest-width (il:get-integer :image-width))
-        (dest-height (il:get-integer :image-height))
-        (dest-data (il:get-data))
-        (data-format (il:get-integer :image-format))
-        (data-type (il:get-integer :image-type))
-        (bytes-per-pixel (il:get-integer :image-bytes-per-pixel))
-        src-height src-width src-data src-row-size)
-    (il:with-bound-image source
-      (il:convert-image data-format data-type)
-      (il:check-error)
-      (setf src-width (il:get-integer :image-width)
-            src-height (il:get-integer :image-height)
-            src-data (il:get-data)
-            src-row-size (* src-width bytes-per-pixel)))
-    (flet ((get-src-pos (x y)
-             (cffi:inc-pointer src-data (* (+ x (* y src-width))
-                                           bytes-per-pixel)))
-           (get-dest-pos (x y)
-             (cffi:inc-pointer dest-data (* (+ x (* y dest-width))
-                                            bytes-per-pixel))))
-      (loop for src-y below src-height
+  (let* ((dest-width (il:image-width))
+         (dest-height (il:image-height))
+         (data-format (il:image-format))
+         (data-type (il:image-type))
+         (bytes-per-pixel (il:image-bytes-per-pixel))
+         (src-width (il:image-width source))
+         (src-height (il:image-height source))
+         (src-row-size (* src-width bytes-per-pixel)))
+    (assert (and (>= dest-width src-width) (>= dest-height src-height)) ()
+            'image-data-index-error
+            :message (format nil "source image (~dpx by ~dpx) ~
+                                  larger than destination image (~dpx by ~dpx)"
+                             src-width src-height dest-width dest-height))
+    (assert (and (<= (+ x src-width) dest-width)
+                 (<= (+ y src-height) dest-height)) ()
+            'image-data-index-error
+            :message (format nil "source image (~dpx by ~dpx at (~d ~d)) ~
+                                  overlaps destination image (~dpx by ~dpx)"
+                             src-width src-height x y dest-width dest-height))
+    (il:with-images (source-clone)
+      (il:with-bound-image source-clone
+        (il:copy-image source)
+        (il:convert-image data-format data-type)
+        (il:check-error))
+      (loop for src-y from (1- src-height) downto 0
             for dest-y upfrom y
-            do (memcpy (get-dest-pos x dest-y)
-                       (get-src-pos 0 src-y)
+            do (memcpy (image-data-pos x dest-y)
+                       (image-data-pos 0 src-y source)
                        src-row-size)))))
 
 (defmacro with-image-sequence ((variable sequence) &body body)
@@ -99,19 +118,19 @@
      (unwind-protect (progn ,@body)
        (apply #'il:delete-images ,variable))))
 
-(defun build-sprite-sheet (sequence-path fps &key (max-columns 10)
+(defun build-sprite-sheet (sequence-path fps &key (max-columns 5)
                            sheet-file-name (file-overwrite nil))
   (with-image-sequence (sequence (list-image-file-sequence sequence-path))
-    (let* ((height (1+ (* (il:height-of (car sequence))
-                          (ceiling (/ (length sequence) max-columns)))))
-           (width (* max-columns (il:width-of (car sequence))))
-           (bytes-per-pixel (il:bytes-per-pixel-of (car sequence)))
-           (data-type (cffi:foreign-enum-keyword
-                       'il::data-type (il:get-integer :image-type)))
-           (frame-width (il:width-of (car sequence)))
-           (frame-height (il:height-of (car sequence)))
+    (il:bind-image (car sequence))
+    (let* ((frame-width (il:image-width))
+           (frame-height (il:image-height))
            (frame-count (length sequence))
-           (pixel-format (il:pixel-format-of (car sequence))))
+           (width (* max-columns frame-width))
+           (height (1+ (* frame-height
+                          (ceiling (/ frame-count max-columns)))))
+           (bytes-per-pixel (il:image-bytes-per-pixel))
+           (data-type (il:image-type))
+           (pixel-format (il:image-format)))
       (il:with-images (sprite-sheet)
         (il:bind-image sprite-sheet)
         (il:tex-image width height 1 bytes-per-pixel pixel-format
@@ -119,8 +138,7 @@
         (case pixel-format
           (:rgb (il:clear-image 0 0 0))
           (:rgba (il:clear-image 0 0 0 0)))
-        (let ((row (cffi:inc-pointer (il:get-data) (* (1- height) width
-                                                      bytes-per-pixel))))
+        (let ((row (image-data-pos 0 (1- height))))
           (setf (cffi:mem-aref row :uint8) frame-width)
           (cffi:incf-pointer row 1)
           (setf (cffi:mem-aref row :uint16) frame-height)
@@ -128,12 +146,12 @@
           (setf (cffi:mem-aref row :uint16) frame-count)
           (cffi:incf-pointer row 2)
           (setf (cffi:mem-aref row :uint8) fps))
-        (let ((sequence-ref sequence))
-          (dotimes (sequence-x (min max-columns (length sequence)))
-            (dotimes (sequence-y (ceiling (/ frame-count max-columns)))
-              (overlay-image (pop sequence-ref)
-                             (* frame-width sequence-x)
-                             (- (1- height) (* sequence-y frame-height))))))
+        (loop for image in sequence
+              for sequence-y from (1- (ceiling (/ frame-count max-columns)))
+              do (loop for sequence-x below (min max-columns frame-count)
+                         do (overlay-image image
+                                           (* frame-width sequence-x)
+                                           (* sequence-y frame-height))))
         (when (null sheet-file-name)
           (setf sheet-file-name 
                 (ppcre:regex-replace "[-_]?\\*"

@@ -15,19 +15,17 @@
   (il:with-bound-image (il:gen-image)
     (il:load-image (namestring file))
     (il:check-error)
-    (let ((img-mode (cffi:foreign-enum-keyword 
-                     'il::data-format 
-                     (il:get-integer :image-format)))
-          (width (il:get-integer :image-width))
-          (height (il:get-integer :image-height))
+    (let ((image-format (il:image-format))
+          (width (il:image-width))
+          (height (il:image-height))
           (texture (car (gl:gen-textures 1))))
-      (if (eq img-mode :rgba)
+      (if (eq image-format :rgba)
         (il:convert-image :rgba :unsigned-byte)
         (il:convert-image :rgb :unsigned-byte))
       (il:check-error)
       (gl:bind-texture :texture-2d texture)
       (gl:tex-parameter :texture-2d :texture-min-filter :linear)
-      (gl:tex-image-2d :texture-2d 0 img-mode width height 0 img-mode
+      (gl:tex-image-2d :texture-2d 0 image-format width height 0 image-format
                        :unsigned-byte (il:get-data))
       (make-instance 'texture-sprite :texture texture :width width
                      :height height))))
