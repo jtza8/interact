@@ -146,15 +146,16 @@
           (setf (cffi:mem-aref row :uint16) frame-count)
           (cffi:incf-pointer row 2)
           (setf (cffi:mem-aref row :uint8) fps))
-        (loop for image in sequence
-              for sequence-y from (1- (ceiling (/ frame-count max-columns)))
-              do (loop for sequence-x below (min max-columns frame-count)
-                         do (overlay-image image
-                                           (* frame-width sequence-x)
-                                           (* sequence-y frame-height))))
+        (let ((sequence-pointer sequence))
+          (loop for sequence-y from (1- (ceiling (/ frame-count max-columns)))
+                    downto 0
+                do (dotimes (sequence-x (min max-columns frame-count))
+                     (overlay-image (pop sequence-pointer)
+                                    (* frame-width sequence-x)
+                                    (* sequence-y frame-height)))))
         (when (null sheet-file-name)
           (setf sheet-file-name 
-                (ppcre:regex-replace "[-_]?\\*"
+                (ppcre:regex-replace "[-_ ]?\\*"
                                      (namestring sequence-path) ".ss")))
         (if file-overwrite
             (il:enable :file-overwrite)
