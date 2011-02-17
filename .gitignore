@@ -2,3 +2,5 @@
 *.fas
 *.fasl
 .DS_Store
+*-test.png
+*-test.ss.png

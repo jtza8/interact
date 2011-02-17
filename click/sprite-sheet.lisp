@@ -33,6 +33,12 @@
                        (~{~s~#[~:; ~]~})"
                        path requirements properties)))))
 
+(defun nlist-to-english (src)
+  (when (> (length src) 1)
+    (let ((tail (last src 2)))
+      (setf (cdr tail) (cons "and" (cdr tail)))))
+  (format nil "~{~a~#[~; ~:;, ~]~}" src))
+
 (defun list-image-file-sequence (sequence-path)
   (let ((regex (let* ((file-name (file-namestring sequence-path)) regex-str)
                  (setf regex-str (ppcre:regex-replace "\." file-name "\\.")
@@ -82,7 +88,9 @@
       (cffi:inc-pointer (il:get-data) (* (+ x (* y width))
                                          (il:image-bytes-per-pixel))))))
 
-(defun overlay-image (source x y)
+(defun blit (source dest-x dest-y dest-z src-x src-y src-z width height depth
+             &key (allow-clipping t))
+  (declare (ignore dest-z src-z depth))
   (let* ((dest-width (il:image-width))
          (dest-height (il:image-height))
          (data-format (il:image-format))
@@ -90,28 +98,41 @@
          (bytes-per-pixel (il:image-bytes-per-pixel))
          (src-width (il:image-width source))
          (src-height (il:image-height source))
-         (src-row-size (* src-width bytes-per-pixel)))
-    (assert (and (>= dest-width src-width) (>= dest-height src-height)) ()
-            'image-data-index-error
-            :message (format nil "source image (~dpx by ~dpx) ~
-                                  larger than destination image (~dpx by ~dpx)"
-                             src-width src-height dest-width dest-height))
-    (assert (and (<= (+ x src-width) dest-width)
-                 (<= (+ y src-height) dest-height)) ()
-            'image-data-index-error
-            :message (format nil "source image (~dpx by ~dpx at (~d ~d)) ~
-                                  overlaps destination image (~dpx by ~dpx)"
-                             src-width src-height x y dest-width dest-height))
+         (src-row-size (* (min width (- dest-width dest-x))
+                          bytes-per-pixel)))
+    (let ((too-wide (> width src-width))
+          (too-high (> height src-height)))
+      (assert (and (not too-wide) (not too-high)) ()
+              'image-data-index-error 
+              :message (format nil "the given dimensions are ~a"
+                               (nlist-to-english
+                                (delete nil `(,(when too-wide "too wide")
+                                              ,(when too-high "too high")))))))
+    (unless allow-clipping
+      (let ((out-of-bounds-x (> width (- dest-width dest-x)))
+            (out-of-bounds-y (> height (- dest-height dest-y))))
+        (assert (and (not out-of-bounds-x) (not out-of-bounds-y)) ()
+                'image-data-index-error 
+                :message
+                (let* ((items (delete nil `(,(when out-of-bounds-x "x")
+                                            ,(when out-of-bounds-y "y"))))
+                       (item-count (length items)))
+                  (format nil "clipping not alowed, but the ~a ax~[~;i~:;e~]s ~
+                               ~[~;is~:;are~] clipped"
+                           (nlist-to-english items) item-count item-count)))))
     (il:with-images (source-clone)
       (il:with-bound-image source-clone
         (il:copy-image source)
         (il:convert-image data-format data-type)
         (il:check-error))
-      (loop for src-y from (1- src-height) downto 0
-            for dest-y upfrom y
-            do (memcpy (image-data-pos x dest-y)
-                       (image-data-pos 0 src-y source)
-                       src-row-size)))))
+      (loop for y from 0 upto (1- (min (- dest-height dest-y) height))
+         do (memcpy (image-data-pos dest-x (+ y dest-y))
+                    (image-data-pos src-x (+ (- height y) src-y) source-clone)
+                    src-row-size)))))
+
+(defun overlay-image (source x y z &key (allow-clipping t))
+  (blit source x y z 0 0 0 (il:image-width source) (il:image-height source) 1
+        :allow-clipping allow-clipping))
 
 (defmacro with-image-sequence ((variable sequence) &body body)
   `(let ((,variable (open-image-sequence ,sequence)))
@@ -119,7 +140,7 @@
        (apply #'il:delete-images ,variable))))
 
 (defun build-sprite-sheet (sequence-path fps &key (max-columns 5)
-                           sheet-file-name (file-overwrite nil))
+                           sheet-file-name file-overwrite)
   (with-image-sequence (sequence (list-image-file-sequence sequence-path))
     (il:bind-image (car sequence))
     (let* ((frame-width (il:image-width))
@@ -151,8 +172,9 @@
                     downto 0
                 do (dotimes (sequence-x (min max-columns frame-count))
                      (overlay-image (pop sequence-pointer)
-                                    (* frame-width sequence-x)
-                                    (* sequence-y frame-height)))))
+                                    (* sequence-x frame-width)
+                                    (* sequence-y frame-height) 0
+                                    :allow-clipping nil))))
         (when (null sheet-file-name)
           (setf sheet-file-name 
                 (ppcre:regex-replace "[-_ ]?\\*"
