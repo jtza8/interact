@@ -99,9 +99,9 @@
          (src-row-size (* (min width (- dest-width dest-x))
                           bytes-per-pixel)))
     (assert-pixel-index-cond (>= src-width width) 
-                             "width argument is too large")
+                             "width argument too large")
     (assert-pixel-index-cond (>= src-height height) 
-                             "the height argument is too large")
+                             "height argument too large")
     (unless allow-clipping
       (assert-pixel-index-cond (>= (- dest-width dest-x) width)
                                "clipping not alowed, x axis is clipped")

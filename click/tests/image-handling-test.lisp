@@ -7,10 +7,10 @@
 
 (defparameter *test-image-sequence-path*
   (asdf:system-relative-pathname :click-tests
-                                 "test_sequence/"))
+                                 "test-sequence/"))
 
 (defparameter *test-image-path*
-  (asdf:system-relative-pathname :click-tests "test_images/"))
+  (asdf:system-relative-pathname :click-tests "test-images/"))
 
 (defclass sprite-sheet-test (test-case)
   ())

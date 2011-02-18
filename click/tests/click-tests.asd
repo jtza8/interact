@@ -9,7 +9,7 @@
                (:file "dummy-listener")
                (:file "listening-test"
                       :depends-on ("test-package" "dummy-widget"))
-               (:file "sprite-sheet-test" :depends-on ("test-package"))
+               (:file "image-handling-test" :depends-on ("test-package"))
                (:file "sprite-management-test"
                       :depends-on ("test-package" "dummy-widget"))
                (:file "simple-widget"

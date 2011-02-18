@@ -13,7 +13,7 @@
                (:file "sprite" :depends-on ("click"))
                (:file "color-sprite" :depends-on ("click"))
                (:file "texture-sprite" :depends-on ("sprite"))
-               (:file "sprite-sheet" :depends-on ("package"))
+               (:file "image-handling" :depends-on ("package"))
                (:file "sprite-management" :depends-on ("click"))
                (:file "font-tools" :depends-on ("texture-sprite"))
                (:file "screen-manager" :depends-on ("listenable"))
