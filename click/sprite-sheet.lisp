@@ -8,12 +8,16 @@
 (cffi:defcfun ("memcpy" memcpy) :pointer
   (dest :pointer) (src :pointer) (size :unsigned-int))
 
-(define-condition image-data-index-error (error)
+(define-condition pixel-index-error (error)
   ((message :initarg :message
             :initform (error "must specify message")))
   (:report (lambda (condition stream)
              (with-slots (message) condition
                (princ message stream)))))
+
+(defmacro assert-pixel-index-cond (condition message &optional (places '()))
+  `(assert ,condition ,places 'pixel-index-error 
+           :message ,message))
 
 (define-condition image-sequence-error (error)
   ((path :initarg :path
@@ -32,12 +36,6 @@
                        (~{~s~#[~:; ~]~}) but has the properties: ~
                        (~{~s~#[~:; ~]~})"
                        path requirements properties)))))
-
-(defun nlist-to-english (src)
-  (when (> (length src) 1)
-    (let ((tail (last src 2)))
-      (setf (cdr tail) (cons "and" (cdr tail)))))
-  (format nil "~{~a~#[~; ~:;, ~]~}" src))
 
 (defun list-image-file-sequence (sequence-path)
   (let ((regex (let* ((file-name (file-namestring sequence-path)) regex-str)
@@ -79,12 +77,12 @@
   (il:with-bound-image image
     (let ((width (il:image-width))
           (height (il:image-height)))
-      (assert (and (<= 0 x width) (<= 0 y height)) (x y)
-              'image-data-index-error
-              :message (format nil "invalid index: (~d, ~d) ~
-                                    image width: ~d, ~
-                                    image height: ~d"
-                               x y width height))
+      (assert-pixel-index-cond (and (<= 0 x width) (<= 0 y height))
+                               (format nil "invalid index: (~d, ~d) ~
+                                            image width: ~d, ~
+                                            image height: ~d"
+                                       x y width height)
+                               (x y))
       (cffi:inc-pointer (il:get-data) (* (+ x (* y width))
                                          (il:image-bytes-per-pixel))))))
 
@@ -100,26 +98,15 @@
          (src-height (il:image-height source))
          (src-row-size (* (min width (- dest-width dest-x))
                           bytes-per-pixel)))
-    (let ((too-wide (> width src-width))
-          (too-high (> height src-height)))
-      (assert (and (not too-wide) (not too-high)) ()
-              'image-data-index-error 
-              :message (format nil "the given dimensions are ~a"
-                               (nlist-to-english
-                                (delete nil `(,(when too-wide "too wide")
-                                              ,(when too-high "too high")))))))
+    (assert-pixel-index-cond (>= src-width width) 
+                             "width argument is too large")
+    (assert-pixel-index-cond (>= src-height height) 
+                             "the height argument is too large")
     (unless allow-clipping
-      (let ((out-of-bounds-x (> width (- dest-width dest-x)))
-            (out-of-bounds-y (> height (- dest-height dest-y))))
-        (assert (and (not out-of-bounds-x) (not out-of-bounds-y)) ()
-                'image-data-index-error 
-                :message
-                (let* ((items (delete nil `(,(when out-of-bounds-x "x")
-                                            ,(when out-of-bounds-y "y"))))
-                       (item-count (length items)))
-                  (format nil "clipping not alowed, but the ~a ax~[~;i~:;e~]s ~
-                               ~[~;is~:;are~] clipped"
-                           (nlist-to-english items) item-count item-count)))))
+      (assert-pixel-index-cond (>= (- dest-width dest-x) width)
+                               "clipping not alowed, x axis is clipped")
+      (assert-pixel-index-cond (>= (- dest-height dest-y) height)
+                               "clipping not alowed, y axis is clipped"))
     (il:with-images (source-clone)
       (il:with-bound-image source-clone
         (il:copy-image source)
@@ -127,7 +114,7 @@
         (il:check-error))
       (loop for y from 0 upto (1- (min (- dest-height dest-y) height))
          do (memcpy (image-data-pos dest-x (+ y dest-y))
-                    (image-data-pos src-x (+ (- height y) src-y) source-clone)
+                    (image-data-pos src-x (+ (- height 1 y) src-y) source-clone)
                     src-row-size)))))
 
 (defun overlay-image (source x y z &key (allow-clipping t))

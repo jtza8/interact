@@ -6,9 +6,8 @@
 (in-package :click)
 
 (defparameter *test-image-sequence-path*
-  (merge-pathnames "sequence*.png"
-                   (asdf:system-relative-pathname :click-tests
-                                                  "test_sequence/")))
+  (asdf:system-relative-pathname :click-tests
+                                 "test_sequence/"))
 
 (defparameter *test-image-path*
   (asdf:system-relative-pathname :click-tests "test_images/"))
@@ -17,17 +16,21 @@
   ())
 
 (def-test-method test-list-image-file-sequence ((test sprite-sheet-test))
-  (let ((paths (list-image-file-sequence *test-image-sequence-path*)))
-    (assert-equal (length paths) 20)
+  (let ((paths (list-image-file-sequence 
+                (merge-pathnames "sequence*.png" 
+                                 *test-image-sequence-path*))))
+    (assert-equal 20 (length paths))
     (loop for path in paths
           for i upfrom 1
           do (assert-true (string= (format nil "sequence~4,'0d.png" i)
                                    (file-namestring path))))))
 
 (def-test-method test-open-image-sequence ((test sprite-sheet-test))
-  (let ((path-list (list-image-file-sequence *test-image-sequence-path*))
+  (let* ((sequence-path-pattern (merge-pathnames "sequence*.png" 
+                                                 *test-image-sequence-path*))
+         (path-list (list-image-file-sequence sequence-path-pattern))
         (bogus-file (merge-pathnames "sequence-bogus.png"
-                     (directory-namestring *test-image-sequence-path*))))
+                                     *test-image-sequence-path*)))
     (assert-condition 'image-sequence-error
                       (apply #'il:delete-images
                              (open-image-sequence (cons bogus-file path-list))))
@@ -41,9 +44,9 @@
     (il:tex-image 100 100 1 3 :rgb :unsigned-byte (cffi:null-pointer))
     (assert-false (cffi-sys:null-pointer-p (image-data-pos 0 0)))
     (assert-false (cffi-sys:null-pointer-p (image-data-pos 100 100)))
-    (assert-condition 'image-data-index-error (image-data-pos 101 100))
-    (assert-condition 'image-data-index-error (image-data-pos 100 101))
-    (assert-condition 'image-data-index-error (image-data-pos -1 0))))
+    (assert-condition 'pixel-index-error (image-data-pos 101 100))
+    (assert-condition 'pixel-index-error (image-data-pos 100 101))
+    (assert-condition 'pixel-index-error (image-data-pos -1 0))))
 
 (defun test-blit-manually ()
   (let ((dest-width 500)
@@ -78,14 +81,14 @@
     (il:clear-image 0 0 0)
     (blit src 10 12 0 0 0 0 64 128 1)
     (assert-equal :bgr (il:image-format src))
-    (assert-condition 'image-data-index-error (blit src 0 0 0 0 0 0 65 128 0))
+    (assert-condition 'pixel-index-error (blit src 0 0 0 0 0 0 65 128 0))
     (blit src 192 0 0 0 0 0 64 128 1)
     (blit src 193 0 0 0 0 0 64 128 1)
-    (assert-condition 'image-data-index-error 
+    (assert-condition 'pixel-index-error 
                       (blit src 193 0 0 0 0 0 64 128 1 :allow-clipping nil))
     (blit src 0 384 0 0 0 0 64 128 1)
     (blit src 0 385 0 0 0 0 64 128 1)
-    (assert-condition 'image-data-index-error 
+    (assert-condition 'pixel-index-error 
                       (blit src 0 385 0 0 0 0 64 128 1 :allow-clipping nil))))
 
 (defun test-overlay-image-manually ()
@@ -104,7 +107,7 @@
                                         *test-image-path*))
         (il:check-error))
       (il:clear-image 0 0 0 0)
-      (time (overlay-image src-image 10 200))
+      (time (overlay-image src-image 10 200 0))
       (il:enable :file-overwrite)
       (il:save-image (merge-pathnames #p"overlay-image-test.png"
                                       *test-image-path*)))))
@@ -120,11 +123,20 @@
     (overlay-image src 10 12 0)
     (assert-equal :bgr (il:image-format src))
     (overlay-image src 192 0 0)
-    (assert-condition 'image-data-index-error 
+    (assert-condition 'pixel-index-error 
                       (overlay-image src 193 0 0 :allow-clipping nil))
     (overlay-image src 0 384 0)
-    (assert-condition 'image-data-index-error
+    (assert-condition 'pixel-index-error
                       (overlay-image src 0 385 0 :allow-clipping nil))
     (il:bind-image src)
-    (assert-condition 'image-data-index-error 
+    (assert-condition 'pixel-index-error 
                       (overlay-image dst 0 0 0 :allow-clipping nil))))
+
+(defun test-build-sprite-sheet-manually ()
+  (build-sprite-sheet (merge-pathnames #p"sequence*.png"
+                                       *test-image-sequence-path*)
+                      24
+                      :file-overwrite t
+                      :sheet-file-name 
+                      (merge-pathnames "sequence-test.ss.png"
+                                       *test-image-sequence-path*)))
