@@ -5,7 +5,9 @@
 (in-package :click)
 
 (defun screen-test ()
-  (init-screen-system)
+  (init-screen-system :sprite-path
+                      (asdf:system-relative-pathname :click-tests
+                                                     "test-sprites"))
   (let ((screen (make-instance 'screen :height 100 :width 100 :x 10 :y 10))
         (widget (make-instance 'simple-widget :x 10 :y 10)))
     (add-widget screen widget :simple-widget))

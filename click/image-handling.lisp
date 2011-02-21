@@ -36,6 +36,37 @@
                        (~{~s~#[~:; ~]~})"
                        path requirements properties)))))
 
+(defun format-image ()
+  (case (il:image-format)
+    ((:rgb :bgr) (il:convert-image :rgb :unsigned-byte))
+    ((:rgba :bgra) (il:convert-image :rgba :unsigned-byte))
+    (otherwise (error "image format ~s not supported" (il:image-format))))
+  (il:check-error))
+
+(defun image-to-sprite (&optional (image :current-image))
+  (il:with-bound-image image
+    (let ((texture (car (gl:gen-textures 1)))
+          (format (il:image-format))
+          (width (il:image-width))
+          (height (il:image-height)))
+      (assert (eq (il:image-type) :unsigned-byte) ()
+              "currently, only :unsigned-byte image types are supported")
+      (gl:bind-texture :texture-2d texture)
+      (gl:tex-parameter :texture-2d :texture-min-filter :linear)
+      (gl:tex-image-2d :texture-2d 0 format width height 0
+                       format :unsigned-byte (il:get-data))
+      (make-instance 'texture-sprite :texture texture :width width
+                     :height height))))
+  
+
+(defun load-texture-sprite (file)
+  (il:with-images (image)
+    (il:with-bound-image (setf image (il:gen-image))
+      (il:load-image (namestring file))
+      (il:check-error)
+      (format-image)
+      (image-to-sprite))))
+
 (defun list-image-file-sequence (sequence-path)
   (let ((regex (let* ((file-name (file-namestring sequence-path)) regex-str)
                  (setf regex-str (ppcre:regex-replace "\." file-name "\\.")
@@ -107,14 +138,18 @@
       (assert-pixel-index-cond (>= (- dest-height dest-y) height)
                                "clipping not alowed, y axis is clipped"))
     (il:with-images (source-clone)
-      (il:with-bound-image source-clone
-        (il:copy-image source)
-        (il:convert-image data-format data-type)
-        (il:check-error))
-      (loop for y from 0 upto (1- (min (- dest-height dest-y) height))
-         do (memcpy (image-data-pos dest-x (+ y dest-y))
-                    (image-data-pos src-x (+ (- height 1 y) src-y) source-clone)
-                    src-row-size)))))
+      (let ((image (if (and (eq (il:image-type source) data-type)
+                            (eq (il:image-format source) data-format))
+                       source
+                       (il:with-bound-image source-clone
+                         (il:copy-image source)
+                         (il:convert-image data-format data-type)
+                         (il:check-error)
+                         source-clone))))
+        (loop for y from 0 upto (1- (min (- dest-height dest-y) height))
+           do (memcpy (image-data-pos dest-x (+ y dest-y))
+                      (image-data-pos src-x (+ (- height 1 y) src-y) image)
+                      src-row-size))))))
 
 (defun overlay-image (source x y z &key (allow-clipping t))
   (blit source x y z 0 0 0 (il:image-width source) (il:image-height source) 1
@@ -159,8 +194,8 @@
                 do (dotimes (sequence-x (min max-columns frame-count))
                      (overlay-image (pop sequence-pointer)
                                     (* sequence-x frame-width)
-                                    (* sequence-y frame-height) 0
-                                    :allow-clipping nil))))
+                                    (* sequence-y frame-height)
+                                    0 :allow-clipping nil))))
         (when (null sheet-file-name)
           (setf sheet-file-name 
                 (ppcre:regex-replace "[-_ ]?\\*"
