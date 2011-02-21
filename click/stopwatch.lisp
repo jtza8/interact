@@ -4,15 +4,12 @@
 
 (in-package :click)
 
-(cffi:defcfun ("gettimeofday" %get-time-of-day) :int)
-(cffi:defcstruct timeval-cstruct 
-  (seconds time-ctype)
-  (useconds suseconds-ctype))
-
-(defun get-ticks ()
-  (cffi:with-foreign-object (timeval 'timeval-cstruct)
-    (cffi:with-foreign-slots ((seconds useconds) timeval timeval-cstruct)
-      (+ (* seconds 1000000) useconds))))
+(unless (= internal-time-units-per-second 1000)
+  (error (format nil
+                 "your CL implementation doesn't use an ~
+                  INTERNAL-TIME-UNITS-PER-SECOND of 1000. ~
+                  thus, your implementation isn't supported ~
+                  yet.")))
 
 (defclass stopwatch ()
   ((time-marker :initform nil)

@@ -10,4 +10,4 @@
         :reader fps)
    (sprite-vector :initarg :sprite-vector
                   :initform (error "must specify sprite vector"))
-   (timer :initform (make-instance stop-watch))))
+   (timer :initform (make-instance 'stopwatch))))

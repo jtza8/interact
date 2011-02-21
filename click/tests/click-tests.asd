@@ -5,6 +5,7 @@
   :licence "BSD-Style License"
   :depends-on ("click" "xlunit")
   :components ((:file "test-package")
+               (:file "stopwatch-test" :depends-on ("test-package"))
                (:file "dummy-widget" :depends-on ("test-package"))
                (:file "dummy-listener")
                (:file "listening-test"
