@@ -131,6 +131,19 @@
     (assert-condition 'pixel-index-error 
                       (overlay-image dst 0 0 0 :allow-clipping nil))))
 
+(def-test-method test-sheet-header ((test sprite-sheet-test))
+  (il:with-images (test)
+    (il:with-bound-image test
+      (il:tex-image 64 64 1 4 :rgba :unsigned-byte (cffi:null-pointer))
+      (il:clear-image 0 0 0 0)
+      (write-sheet-header 8 7 12 60 t)
+      (let ((header (read-sheet-header)))
+        (print header)
+        (assert-equal 8 (getf header :frame-width))
+        (assert-equal 7 (getf header :frame-height))
+        (assert-equal 60 (getf header :frame-count))
+        (assert-equal 12 (getf header :fps))))))
+
 (defun test-build-sprite-sheet-manually ()
   (build-sprite-sheet (merge-pathnames #p"sequence*.png"
                                        *test-image-sequence-path*)
@@ -139,3 +152,6 @@
                       :sheet-file-name 
                       (merge-pathnames "sequence-test.ss.png"
                                        *test-image-sequence-path*)))
+
+(def-test-method test-load-sprite-sheet ((test sprite-sheet-test))
+  (load-sprite-sheet (merge-pathnames "test-sheet.ss.png" *test-image-path*)))

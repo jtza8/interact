@@ -5,9 +5,9 @@
 (in-package :click)
 
 (defclass simple-widget (widget)
-  ())
+  ((sprite :initarg :sprite
+           :initform (error "sprite must be specified"))))
 
 (defmethod draw ((widget simple-widget))
-  (with-slots (x y) widget
-    (with-sprites (target) (sprite-node)
-      (draw-at target x y))))
+  (with-slots (sprite x y) widget
+    (draw-at sprite x y)))

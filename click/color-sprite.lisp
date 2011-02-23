@@ -19,4 +19,5 @@
       (gl:vertex x (+ y height)))))
 
 (defmethod draw-at ((sprite color-sprite) x y)
-  (draw-tiled sprite x y))
+  (with-slots (width height) sprite
+    (draw-tiled sprite x y :width width :height height)))

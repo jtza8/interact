@@ -4,6 +4,9 @@
 
 (in-package :click)
 
+(cffi:defcfun ("memset" memset) :pointer
+  (dest :pointer) (value :int) (size :unsigned-int))
+
 (cffi:defcfun ("memcpy" memcpy) :pointer
   (dest :pointer) (src :pointer) (size :unsigned-int))
 
@@ -160,6 +163,48 @@
      (unwind-protect (progn ,@body)
        (apply #'il:delete-images ,variable))))
 
+(defun write-sheet-header (frame-width frame-height frame-count fps looping 
+                           &optional (image :current-image))
+  (il:with-bound-image image
+    (let* ((width (il:image-width))
+           (height (il:image-height))
+           (bytes-per-pixel (il:image-bytes-per-pixel))
+           (header-byte-size 8)
+           (pixel-count (ceiling (/ header-byte-size bytes-per-pixel)))
+           (header-pixel-size (* pixel-count bytes-per-pixel))
+           (pointer (image-data-pos 0 (1- height))))
+      (assert (>= bytes-per-pixel 2) ()
+              "pixels are required to be at least 2 bytes big")
+      (assert (>= (* width height bytes-per-pixel) header-pixel-size) ()
+              "too little space to write header in")
+      (memset pointer #xff header-pixel-size)
+      (setf (cffi:mem-aref pointer :uint16)
+            (- #xffff frame-width)
+            (cffi:mem-aref pointer :uint16 (* bytes-per-pixel 1))
+            (- #xffff frame-height)
+            (cffi:mem-aref pointer :uint16 (* bytes-per-pixel 2))
+            (- #xffff frame-count)
+            (cffi:mem-aref pointer :uint8 (* bytes-per-pixel 3))
+            (- #xff fps)
+            (cffi:mem-aref pointer :uint8 (* bytes-per-pixel 4))
+            (if looping #b00000001 #xff)))))
+
+(defun read-sheet-header (&optional (image :current-image))
+  (il:with-bound-image image
+    (let* ((height (il:image-height))
+           (bytes-per-pixel (il:image-bytes-per-pixel))
+           (pointer (image-data-pos 0 (1- height))))
+      (let ((flags (cffi:mem-aref pointer :uint8 (* bytes-per-pixel 4))))
+        (list :frame-width (- #xffff (cffi:mem-aref pointer :uint16))
+              :frame-height (- #xffff (cffi:mem-aref pointer :uint16
+                                                     (* bytes-per-pixel 1)))
+              :frame-count (- #xffff (cffi:mem-aref pointer :uint16
+                                                    (* bytes-per-pixel 2)))
+              :fps (- #xff (cffi:mem-aref pointer :uint8
+                                          (* bytes-per-pixel 3)))
+              :loop (and (not (logbitp 7 flags)) (logbitp flags 0)))))))
+           
+
 (defun build-sprite-sheet (sequence-path fps &key (max-columns 5)
                            sheet-file-name file-overwrite)
   (with-image-sequence (sequence (list-image-file-sequence sequence-path))
@@ -181,7 +226,7 @@
           (:rgb (il:clear-image 0 0 0))
           (:rgba (il:clear-image 0 0 0 0)))
         (let ((row (image-data-pos 0 (1- height))))
-          (setf (cffi:mem-aref row :uint8) frame-width)
+          (print (setf (cffi:mem-aref row :uint8) frame-width))
           (cffi:incf-pointer row 1)
           (setf (cffi:mem-aref row :uint16) frame-height)
           (cffi:incf-pointer row 2)
@@ -204,3 +249,17 @@
             (il:enable :file-overwrite)
             (il:disable :file-overwrite))
         (il:save-image sheet-file-name)))))
+
+(defun load-sprite-sheet (path)
+  (assert (fad:file-exists-p path))
+  (il:with-images (sheet)
+    (il:with-bound-image sheet
+      (il:load-image path)
+      (il:check-error)
+      (let* ((width (il:image-width))
+             (height (il:image-height))
+             (image-format (il:image-format)))
+        (print height)
+        (let ((row (image-data-pos 0 (1- height))))
+          (print (cffi:mem-aref row :uint8)))))))
+  
