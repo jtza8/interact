@@ -169,12 +169,10 @@
     (let* ((width (il:image-width))
            (height (il:image-height))
            (bytes-per-pixel (il:image-bytes-per-pixel))
-           (header-byte-size 8)
+           (header-byte-size 10)
            (pixel-count (ceiling (/ header-byte-size bytes-per-pixel)))
            (header-pixel-size (* pixel-count bytes-per-pixel))
            (pointer (image-data-pos 0 (1- height))))
-      (assert (>= bytes-per-pixel 2) ()
-              "pixels are required to be at least 2 bytes big")
       (assert (>= (* width height bytes-per-pixel) header-pixel-size) ()
               "too little space to write header in")
       (memset pointer #xff header-pixel-size)
@@ -184,25 +182,26 @@
             (- #xffff frame-height)
             (cffi:mem-aref pointer :uint16 (* bytes-per-pixel 2))
             (- #xffff frame-count)
-            (cffi:mem-aref pointer :uint8 (* bytes-per-pixel 3))
-            (- #xff fps)
-            (cffi:mem-aref pointer :uint8 (* bytes-per-pixel 4))
-            (if looping #b00000001 #xff)))))
+            (cffi:mem-aref pointer :uint16 (* bytes-per-pixel 3))
+            (- #xffff fps)
+            (cffi:mem-aref pointer :uint16 (* bytes-per-pixel 4))
+            (- #xffff (if looping #x0001 #x0000))))))
 
 (defun read-sheet-header (&optional (image :current-image))
   (il:with-bound-image image
     (let* ((height (il:image-height))
            (bytes-per-pixel (il:image-bytes-per-pixel))
            (pointer (image-data-pos 0 (1- height))))
-      (let ((flags (cffi:mem-aref pointer :uint8 (* bytes-per-pixel 4))))
-        (list :frame-width (- #xffff (cffi:mem-aref pointer :uint16))
-              :frame-height (- #xffff (cffi:mem-aref pointer :uint16
-                                                     (* bytes-per-pixel 1)))
-              :frame-count (- #xffff (cffi:mem-aref pointer :uint16
-                                                    (* bytes-per-pixel 2)))
-              :fps (- #xff (cffi:mem-aref pointer :uint8
-                                          (* bytes-per-pixel 3)))
-              :loop (and (not (logbitp 7 flags)) (logbitp flags 0)))))))
+      (list* :frame-width (- #xffff (cffi:mem-aref pointer :uint16))
+             :frame-height (- #xffff (cffi:mem-aref pointer :uint16
+                                                    (* bytes-per-pixel 1)))
+             :frame-count (- #xffff (cffi:mem-aref pointer :uint16
+                                                   (* bytes-per-pixel 2)))
+             :fps (- #xffff (cffi:mem-aref pointer :uint16 
+                                           (* bytes-per-pixel 3)))
+             (let ((flags (- #xffff (cffi:mem-aref pointer :uint16
+                                                   (* bytes-per-pixel 5)))))
+               (list :looping (logbitp 0 flags)))))))
            
 
 (defun build-sprite-sheet (sequence-path fps &key (max-columns 5)

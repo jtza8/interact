@@ -136,13 +136,13 @@
     (il:with-bound-image test
       (il:tex-image 64 64 1 4 :rgba :unsigned-byte (cffi:null-pointer))
       (il:clear-image 0 0 0 0)
-      (write-sheet-header 8 7 12 60 t)
+      (write-sheet-header 8 7 60 12 t)
       (let ((header (read-sheet-header)))
-        (print header)
         (assert-equal 8 (getf header :frame-width))
         (assert-equal 7 (getf header :frame-height))
         (assert-equal 60 (getf header :frame-count))
-        (assert-equal 12 (getf header :fps))))))
+        (assert-equal 12 (getf header :fps))
+        (assert-true (getf header :looping))))))
 
 (defun test-build-sprite-sheet-manually ()
   (build-sprite-sheet (merge-pathnames #p"sequence*.png"
