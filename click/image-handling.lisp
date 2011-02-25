@@ -54,6 +54,8 @@
           (height (il:image-height)))
       (assert (eq (il:image-type) :unsigned-byte) ()
               "currently, only :unsigned-byte image types are supported")
+      (when (eq (il:image-origin image) :origin-upper-left)
+        (ilu:flip-image))
       (gl:bind-texture :texture-2d texture)
       (gl:tex-parameter :texture-2d :texture-min-filter :linear)
       (gl:tex-image-2d :texture-2d 0 format width height 0
@@ -65,6 +67,8 @@
 (defun load-texture-sprite (file)
   (il:with-images (image)
     (il:with-bound-image (setf image (il:gen-image))
+      (il:enable :origin-set)
+      (il:origin-func :origin-lower-left)
       (il:load-image (namestring file))
       (il:check-error)
       (format-image)
@@ -95,6 +99,7 @@
                (il:bind-image image)
                (il:load-image path)
                (il:check-error)
+               (format-image)
                (if (null required-info)
                    (setf required-info (image-info))
                    (unless (equal required-info (image-info))
@@ -141,17 +146,22 @@
       (assert-pixel-index-cond (>= (- dest-height dest-y) height)
                                "clipping not alowed, y axis is clipped"))
     (il:with-images (source-clone)
-      (let ((image (if (and (eq (il:image-type source) data-type)
-                            (eq (il:image-format source) data-format))
-                       source
-                       (il:with-bound-image source-clone
-                         (il:copy-image source)
-                         (il:convert-image data-format data-type)
-                         (il:check-error)
-                         source-clone))))
+      (let* ((image (if (and (eq (il:image-type source) data-type)
+                             (eq (il:image-format source) data-format))
+                        source
+                        (il:with-bound-image source-clone
+                          (il:copy-image source)
+                          (il:convert-image data-format data-type)
+                          (il:check-error)
+                          source-clone)))
+             (src-data-pos (if (eq (il:image-origin) (il:image-origin image))
+                               (lambda (x y) 
+                                 (image-data-pos x y image))
+                               (lambda (x y) 
+                                 (image-data-pos x (- src-height 1 y) image)))))
         (loop for y from 0 upto (1- (min (- dest-height dest-y) height))
            do (memcpy (image-data-pos dest-x (+ y dest-y))
-                      (image-data-pos src-x (+ (- height 1 y) src-y) image)
+                      (funcall src-data-pos src-x (+ y src-y))
                       src-row-size))))))
 
 (defun overlay-image (source x y z &key (allow-clipping t))
@@ -172,7 +182,9 @@
            (header-byte-size (* 5 bytes-per-pixel))
            (pixel-count (ceiling (/ header-byte-size bytes-per-pixel)))
            (header-pixel-size (* pixel-count bytes-per-pixel))
-           (pointer (image-data-pos 0 (1- height))))
+           (pointer (ecase (il:image-origin)
+                      (:origin-lower-left (image-data-pos 0 (1- height)))
+                      (:origin-upper-left (image-data-pos 0 0)))))
       (assert (>= (* width height bytes-per-pixel) header-pixel-size) ()
               "too little space to write header in")
       (memset pointer #xff header-pixel-size)
@@ -191,7 +203,9 @@
   (il:with-bound-image image
     (let* ((height (il:image-height))
            (bytes-per-pixel (il:image-bytes-per-pixel))
-           (pointer (image-data-pos 0 (1- height))))
+           (pointer (ecase (il:image-origin)
+                      (:origin-lower-left (image-data-pos 0 (1- height)))
+                      (:origin-upper-left (image-data-pos 0 0)))))
       (list* :frame-width (- #xffff (cffi:mem-aref pointer :uint16))
              :frame-height (- #xffff (cffi:mem-aref pointer :uint16
                                                     (* bytes-per-pixel 1)))
@@ -221,18 +235,22 @@
         (il:bind-image sprite-sheet)
         (il:tex-image width height 1 bytes-per-pixel pixel-format
                       data-type (cffi:null-pointer))
-        (case pixel-format
+        (ecase pixel-format
           (:rgb (il:clear-image 0 0 0))
           (:rgba (il:clear-image 0 0 0 0)))
         (write-sheet-header frame-width frame-height frame-count fps looping)
-        (let ((sequence-pointer sequence))
-          (loop for sequence-y from (1- (ceiling (/ frame-count max-columns)))
-                    downto 0
-                do (dotimes (sequence-x (min max-columns frame-count))
-                     (overlay-image (pop sequence-pointer)
-                                    (* sequence-x frame-width)
-                                    (* sequence-y frame-height)
-                                    0 :allow-clipping nil))))
+        (tagbody
+          (let ((sequence-pointer sequence))
+            (loop for sequence-y from (1- (ceiling (/ frame-count max-columns)))
+                      downto 0
+                  do (dotimes (sequence-x (min max-columns frame-count))
+                       (when (null sequence-pointer)
+                         (go end-loops))
+                       (overlay-image (pop sequence-pointer)
+                                      (* sequence-x frame-width)
+                                      (* sequence-y frame-height)
+                                      0 :allow-clipping nil))))
+           end-loops)
         (when (null sheet-file-name)
           (setf sheet-file-name 
                 (ppcre:regex-replace "[-_ ]?\\*"
@@ -243,15 +261,46 @@
         (il:save-image sheet-file-name)))))
 
 (defun load-sprite-sheet (path)
-  (assert (fad:file-exists-p path))
+  (assert (fad:file-exists-p path) ()
+          "File doesn't exist: ~a" path)
   (il:with-images (sheet)
-    (il:with-bound-image sheet
-      (il:load-image path)
-      (il:check-error)
-      (let* ((width (il:image-width))
-             (height (il:image-height))
-             (image-format (il:image-format))
-             (header (read-sheet-header)))
-        (print (cffi:mem-aref (image-data-pos 0 (1- height)) :uint16))
-        (print header)))))
-  
+    (il:bind-image sheet)
+    (il:enable :origin-set)
+    (il:origin-func :origin-lower-left)
+    (il:load-image path)
+    (il:check-error)
+    (let* ((width (il:image-width))
+           (height (il:image-height))
+           (image-format (il:image-format))
+           (image-type (il:image-type))
+           (bytes-per-pixel (il:image-bytes-per-pixel))
+           (header (read-sheet-header))
+           (frame-width (getf header :frame-width))
+           (frame-height (getf header :frame-height))
+           (frame-count (getf header :frame-count))
+           (fps (getf header :fps))
+;           (looping (getf header :looping))
+           (sprite-vector (make-array frame-count))
+           (images-left frame-count))
+      (tagbody
+        (loop for y from (1- (truncate (/ height frame-height))) downto 0
+              do (dotimes (x (truncate (/ width frame-width)))
+                   (if (= images-left 0)
+                       (go end-loops)
+                       (il:with-images (image)
+                         (il:bind-image image)
+                         (il:tex-image frame-width frame-height 0
+                                       bytes-per-pixel image-format
+                                       image-type (cffi:null-pointer))
+                         (blit sheet 0 0 0 (* x frame-width) (* y frame-height)
+                               0 frame-width frame-height 0)
+                         (ilu:flip-image)
+                         (setf (aref sprite-vector (- frame-count images-left))
+                               (image-to-sprite))
+                         (decf images-left)))))
+       end-loops)
+      (make-instance 'animation-sprite
+                     :sprite-vector sprite-vector
+                     :fps fps
+                     :height frame-height
+                     :width frame-width))))

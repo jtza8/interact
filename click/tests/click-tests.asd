@@ -16,4 +16,6 @@
                (:file "simple-widget"
                       :depends-on ("test-package"))
                (:file "screen-test"
+                      :depends-on ("test-package" "simple-widget"))
+               (:file "animation-sprite-test"
                       :depends-on ("test-package" "simple-widget"))))

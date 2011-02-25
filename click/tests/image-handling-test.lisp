@@ -133,7 +133,7 @@
 
 (def-test-method test-sheet-header ((test sprite-sheet-test))
   ; Mega-über-macro-simplification... ENGADGE!
-  ; Overkill, perhaps? =P
+  ; Overkill much? =P
   (flet ((assert-header (header message frame-width frame-height
                                 frame-count fps looping)
            (flet ((make-msg (attribute)
@@ -161,6 +161,7 @@
       (il:bind-image test)
       (il:load-image (merge-pathnames #p"header-test.png"
                                       *test-image-path*))
+      (print (il:image-origin))
       (assert-header (read-sheet-header) "post-write assert" 8 7 60 12 t))))
 
 (defun test-build-sprite-sheet-manually ()
@@ -172,5 +173,13 @@
                       (merge-pathnames "sequence-test.ss.png"
                                        *test-image-sequence-path*)))
 
-(def-test-method test-load-sprite-sheet ((test sprite-sheet-test))
-  (load-sprite-sheet (merge-pathnames "test-sheet.ss.png" *test-image-path*)))
+(defun test-load-sprite-sheet-manually ()
+  (init-screen-system :sprite-path *test-sprite-path*)
+  (let* ((screen (make-instance 'screen :height 100 :width 100 :x 10 :y 10))
+         (sprite (load-sprite-sheet 
+                  (merge-pathnames "test-sheet3.ss.png" *test-image-path*)))
+         (widget (make-instance 'simple-widget :x 10 :y 10 :sprite sprite)))
+    (start sprite)
+    (add-widget screen widget :simple-widget))
+  (run-screen-system))
+

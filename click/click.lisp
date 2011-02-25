@@ -11,6 +11,7 @@
 
 (defun init-click (sprite-path)
   (il:init)
+  (ilu:init)
   (unless (fad:directory-exists-p sprite-path)
     (error "Sprite path invalid."))
   (setf *sprite-path* (fad:pathname-as-directory sprite-path)
