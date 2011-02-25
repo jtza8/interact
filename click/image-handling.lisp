@@ -169,7 +169,7 @@
     (let* ((width (il:image-width))
            (height (il:image-height))
            (bytes-per-pixel (il:image-bytes-per-pixel))
-           (header-byte-size 10)
+           (header-byte-size (* 5 bytes-per-pixel))
            (pixel-count (ceiling (/ header-byte-size bytes-per-pixel)))
            (header-pixel-size (* pixel-count bytes-per-pixel))
            (pointer (image-data-pos 0 (1- height))))
@@ -204,7 +204,7 @@
                (list :looping (logbitp 0 flags)))))))
            
 
-(defun build-sprite-sheet (sequence-path fps &key (max-columns 5)
+(defun build-sprite-sheet (sequence-path fps &key (looping t) (max-columns 5)
                            sheet-file-name file-overwrite)
   (with-image-sequence (sequence (list-image-file-sequence sequence-path))
     (il:bind-image (car sequence))
@@ -224,14 +224,7 @@
         (case pixel-format
           (:rgb (il:clear-image 0 0 0))
           (:rgba (il:clear-image 0 0 0 0)))
-        (let ((row (image-data-pos 0 (1- height))))
-          (print (setf (cffi:mem-aref row :uint8) frame-width))
-          (cffi:incf-pointer row 1)
-          (setf (cffi:mem-aref row :uint16) frame-height)
-          (cffi:incf-pointer row 2)
-          (setf (cffi:mem-aref row :uint16) frame-count)
-          (cffi:incf-pointer row 2)
-          (setf (cffi:mem-aref row :uint8) fps))
+        (write-sheet-header frame-width frame-height frame-count fps looping)
         (let ((sequence-pointer sequence))
           (loop for sequence-y from (1- (ceiling (/ frame-count max-columns)))
                     downto 0
@@ -257,8 +250,8 @@
       (il:check-error)
       (let* ((width (il:image-width))
              (height (il:image-height))
-             (image-format (il:image-format)))
-        (print height)
-        (let ((row (image-data-pos 0 (1- height))))
-          (print (cffi:mem-aref row :uint8)))))))
+             (image-format (il:image-format))
+             (header (read-sheet-header)))
+        (print (cffi:mem-aref (image-data-pos 0 (1- height)) :uint16))
+        (print header)))))
   

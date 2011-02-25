@@ -132,17 +132,36 @@
                       (overlay-image dst 0 0 0 :allow-clipping nil))))
 
 (def-test-method test-sheet-header ((test sprite-sheet-test))
-  (il:with-images (test)
-    (il:with-bound-image test
+  ; Mega-über-macro-simplification... ENGADGE!
+  ; Overkill, perhaps? =P
+  (flet ((assert-header (header message frame-width frame-height
+                                frame-count fps looping)
+           (flet ((make-msg (attribute)
+                    (format nil "~a ~a" attribute message)))
+             (macrolet ((expand-assert (name)
+                          `(assert-equal ,name (getf header
+                                                     ,(intern (symbol-name name)
+                                                              'keyword)) 
+                                         (make-msg ,(symbol-name name))))
+                        (expand-asserts (&rest names)
+                          `(progn ,@(loop for name in names
+                                          collect `(expand-assert ,name)))))
+               (expand-asserts frame-width frame-height 
+                               frame-count fps looping)))))
+   (il:with-images (test)
+      (il:bind-image test)
       (il:tex-image 64 64 1 4 :rgba :unsigned-byte (cffi:null-pointer))
       (il:clear-image 0 0 0 0)
       (write-sheet-header 8 7 60 12 t)
-      (let ((header (read-sheet-header)))
-        (assert-equal 8 (getf header :frame-width))
-        (assert-equal 7 (getf header :frame-height))
-        (assert-equal 60 (getf header :frame-count))
-        (assert-equal 12 (getf header :fps))
-        (assert-true (getf header :looping))))))
+      (assert-header (read-sheet-header) "pre-write assert" 8 7 60 12 t)
+      (il:enable :file-overwrite)
+      (il:save-image (merge-pathnames #p"header-test.png"
+                                      *test-image-path*)))
+    (il:with-images (test)
+      (il:bind-image test)
+      (il:load-image (merge-pathnames #p"header-test.png"
+                                      *test-image-path*))
+      (assert-header (read-sheet-header) "post-write assert" 8 7 60 12 t))))
 
 (defun test-build-sprite-sheet-manually ()
   (build-sprite-sheet (merge-pathnames #p"sequence*.png"
