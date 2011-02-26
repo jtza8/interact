@@ -182,12 +182,13 @@
            (header-byte-size (* 5 bytes-per-pixel))
            (pixel-count (ceiling (/ header-byte-size bytes-per-pixel)))
            (header-pixel-size (* pixel-count bytes-per-pixel))
+           (header-row-size (* width bytes-per-pixel))
            (pointer (ecase (il:image-origin)
                       (:origin-lower-left (image-data-pos 0 (1- height)))
                       (:origin-upper-left (image-data-pos 0 0)))))
-      (assert (>= (* width height bytes-per-pixel) header-pixel-size) ()
+      (assert (>= header-row-size header-pixel-size) ()
               "too little space to write header in")
-      (memset pointer #xff header-pixel-size)
+      (memset pointer #xff header-row-size)
       (setf (cffi:mem-aref pointer :uint16)
             (- #xffff frame-width)
             (cffi:mem-aref pointer :uint16 (* bytes-per-pixel 1))
@@ -214,7 +215,7 @@
              :fps (- #xffff (cffi:mem-aref pointer :uint16 
                                            (* bytes-per-pixel 3)))
              (let ((flags (- #xffff (cffi:mem-aref pointer :uint16
-                                                   (* bytes-per-pixel 5)))))
+                                                   (* bytes-per-pixel 4)))))
                (list :looping (logbitp 0 flags)))))))
            
 

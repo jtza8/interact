@@ -161,7 +161,6 @@
       (il:bind-image test)
       (il:load-image (merge-pathnames #p"header-test.png"
                                       *test-image-path*))
-      (print (il:image-origin))
       (assert-header (read-sheet-header) "post-write assert" 8 7 60 12 t))))
 
 (defun test-build-sprite-sheet-manually ()
