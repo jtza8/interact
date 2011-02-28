@@ -6,10 +6,10 @@
 
 (defclass sprite ()
   ((width :initarg :width
-          :initform (error "No width given.")
+          :initform (error 'program-error "No width given.")
           :reader width)
    (height :initarg :height
-           :initform (error "No height given.")
+           :initform (error 'program-error "No height given.")
            :reader height)))
 
 (defun rectangle (x y width height &key (tex-coords '(0 0 1 0 1 1 0 1)))

@@ -102,6 +102,8 @@
                     dest-type (cffi:null-pointer))
       (il:check-error)
       (il:with-bound-image src-image
+        (il:enable :origin-set)
+        (il:origin-func :origin-lower-left)
         (il:load-image (merge-pathnames #p"src-image.png"
                                         *test-image-path*))
         (il:check-error))
@@ -166,7 +168,7 @@
 (defun test-build-sprite-sheet-manually ()
   (build-sprite-sheet (merge-pathnames #p"sequence*.png"
                                        *test-image-sequence-path*)
-                      24
+                      30
                       :file-overwrite t
                       :sheet-file-name 
                       (merge-pathnames "sequence-test.ss.png"
@@ -176,7 +178,7 @@
   (init-screen-system :sprite-path *test-sprite-path*)
   (let* ((screen (make-instance 'screen :height 100 :width 100 :x 10 :y 10))
          (sprite (load-sprite-sheet 
-                  (merge-pathnames "test-sheet3.ss.png" *test-image-path*)))
+                  (merge-pathnames "test-sheet.ss.png" *test-image-path*)))
          (widget (make-instance 'simple-widget :x 10 :y 10 :sprite sprite)))
     (start sprite)
     (add-widget screen widget :simple-widget))

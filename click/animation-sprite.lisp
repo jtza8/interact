@@ -6,10 +6,10 @@
 
 (defclass animation-sprite (sprite)
   ((fps :initarg :fps
-        :initform (error "must specify fps")
+        :initform (error 'program-error "must specify fps")
         :reader fps)
    (sprite-vector :initarg :sprite-vector
-                  :initform (error "must specify sprite vector"))
+                  :initform (error 'program-error "must specify sprite vector"))
    (stopwatch :initform (make-instance 'stopwatch))))
 
 (defmethod initialize-instance :after ((sprite animation-sprite) 
@@ -26,11 +26,9 @@
                              (length sprite-vector)))))
       (draw-at sprite x y))))
 
-(macrolet ((message-to-stopwatch (message)
-             `(defmethod ,message ((sprite animation-sprite))
-                (with-slots (stopwatch) sprite
-                  (,message stopwatch)))))
-  (message-to-stopwatch start)
-  (message-to-stopwatch stop)
-  (message-to-stopwatch reset))
-      
+(macrolet ((messages-to-stopwatch (&rest messages)
+             `(progn ,@(dolist (message messages)
+                         `(defmethod ,message ((sprite animation-sprite))
+                            (with-slots (stopwatch) sprite
+                              (,message stopwatch)))))))
+  (messages-to-stopwatch start stop reset))

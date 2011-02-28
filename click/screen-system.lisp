@@ -16,7 +16,8 @@
                 :bpp 32
                 :flags flags
                 :title-caption window-title))
-  (setf cl-opengl-bindings:*gl-get-proc-address*
+  (setf (sdl:frame-rate) 60
+        cl-opengl-bindings:*gl-get-proc-address*
         #'sdl-cffi::sdl-gl-get-proc-address)
   (gl:matrix-mode :projection)
   (gl:load-identity)

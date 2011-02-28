@@ -6,7 +6,7 @@
 
 (defclass texture-sprite (sprite)
   ((texture :initarg :texture
-            :initform (error "No texture name given.")
+            :initform (error 'program-error "No texture name given.")
             :reader texture)))
 
 (defmethod draw-at ((sprite texture-sprite) x y)

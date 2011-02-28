@@ -12,7 +12,7 @@
 
 (define-condition pixel-index-error (error)
   ((message :initarg :message
-            :initform (error "must specify message")))
+            :initform (error 'program-error "must specify message")))
   (:report (lambda (condition stream)
              (with-slots (message) condition
                (princ message stream)))))
@@ -23,13 +23,13 @@
 
 (define-condition image-sequence-error (error)
   ((path :initarg :path
-         :initform (error "must specify path")
+         :initform (error 'program-error "must specify path")
          :reader path)
    (properties :initarg :properties
-               :initform (error "must specify properties")
+               :initform (error 'program-error "must specify properties")
                :reader properties)
    (requirements :initarg :requirements
-                 :initform (error "must specify requirements")
+                 :initform (error 'program-error "must specify requirements")
                  :reader requirements))
   (:report (lambda (condition stream)
              (with-slots (path properties requirements) condition
@@ -189,16 +189,10 @@
       (assert (>= header-row-size header-pixel-size) ()
               "too little space to write header in")
       (memset pointer #xff header-row-size)
-      (setf (cffi:mem-aref pointer :uint16)
-            (- #xffff frame-width)
-            (cffi:mem-aref pointer :uint16 (* bytes-per-pixel 1))
-            (- #xffff frame-height)
-            (cffi:mem-aref pointer :uint16 (* bytes-per-pixel 2))
-            (- #xffff frame-count)
-            (cffi:mem-aref pointer :uint16 (* bytes-per-pixel 3))
-            (- #xffff fps)
-            (cffi:mem-aref pointer :uint16 (* bytes-per-pixel 4))
-            (- #xffff (if looping #x0001 #x0000))))))
+      (dolist (item (list frame-width frame-height frame-count
+                          fps (if looping #x0001 #x0000)))
+        (setf (cffi:mem-aref pointer :uint16) (- #xffff item))
+        (cffi:incf-pointer pointer bytes-per-pixel)))))
 
 (defun read-sheet-header (&optional (image :current-image))
   (il:with-bound-image image
@@ -207,16 +201,16 @@
            (pointer (ecase (il:image-origin)
                       (:origin-lower-left (image-data-pos 0 (1- height)))
                       (:origin-upper-left (image-data-pos 0 0)))))
-      (list* :frame-width (- #xffff (cffi:mem-aref pointer :uint16))
-             :frame-height (- #xffff (cffi:mem-aref pointer :uint16
-                                                    (* bytes-per-pixel 1)))
-             :frame-count (- #xffff (cffi:mem-aref pointer :uint16
-                                                   (* bytes-per-pixel 2)))
-             :fps (- #xffff (cffi:mem-aref pointer :uint16 
-                                           (* bytes-per-pixel 3)))
-             (let ((flags (- #xffff (cffi:mem-aref pointer :uint16
-                                                   (* bytes-per-pixel 4)))))
-               (list :looping (logbitp 0 flags)))))))
+      (flet ((read-value () 
+               (let ((value (- #xffff (cffi:mem-aref pointer :uint16))))
+                 (cffi:incf-pointer pointer bytes-per-pixel)
+                 value)))
+        (list* :frame-width (read-value)
+               :frame-height (read-value)
+               :frame-count (read-value)
+               :fps (read-value)
+               (let ((flags (read-value)))
+                 (list :looping (logbitp 0 flags))))))))
            
 
 (defun build-sprite-sheet (sequence-path fps &key (looping t) (max-columns 5)

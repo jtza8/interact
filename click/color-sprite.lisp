@@ -6,7 +6,7 @@
 
 (defclass color-sprite (sprite)
   ((color :initarg :color
-          :initform (error "No color specified.")
+          :initform (error 'program-error "No color specified.")
           :reader color)))
 
 (defmethod draw-tiled ((sprite color-sprite) x y &key (width 1) (height 1))
