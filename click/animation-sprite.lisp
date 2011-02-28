@@ -27,8 +27,9 @@
       (draw-at sprite x y))))
 
 (macrolet ((messages-to-stopwatch (&rest messages)
-             `(progn ,@(dolist (message messages)
-                         `(defmethod ,message ((sprite animation-sprite))
-                            (with-slots (stopwatch) sprite
-                              (,message stopwatch)))))))
+             `(progn
+                ,@(loop for message in messages
+                        collect `(defmethod ,message ((sprite animation-sprite))
+                                   (with-slots (stopwatch) sprite
+                                     (,message stopwatch)))))))
   (messages-to-stopwatch start stop reset))
