@@ -4,7 +4,7 @@
 
 (in-package :click)
 
-(defun animation-sprite-test ()
+(defun test-animation-sprite-manually ()
   (init-screen-system :sprite-path
                       (asdf:system-relative-pathname :click-tests
                                                      "test-sprites"))

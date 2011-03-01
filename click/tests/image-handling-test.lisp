@@ -184,3 +184,12 @@
     (add-widget screen widget :simple-widget))
   (run-screen-system))
 
+(def-test-method test-load-sprites ((test sprite-sheet-test))
+  (let ((bogus-jpg-path (merge-pathnames "bogus.jpg" *test-image-path*))
+        (test-image-path (merge-pathnames "src-image.png" *test-image-path*)))
+    (assert-condition 'file-format-error (load-sprite "bogus"))
+    (assert-true (fad:file-exists-p bogus-jpg-path))
+    (assert-condition 'file-format-error (load-sprite bogus-jpg-path))
+    (let ((sprite (load-sprite test-image-path)))
+      (assert-true (typep sprite 'texture-sprite))
+      (gl:delete-textures (list (texture sprite))))))

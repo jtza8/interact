@@ -10,6 +10,11 @@
 (defmethod initialize-instance :after ((test sprite-management-test) &key)
   (init-click *test-sprite-path*))
 
+(def-test-method test-make-node-keyword ((test sprite-management-test))
+  (assert-equal :bar (make-node-keyword #p"/one/two/bar/"))
+  (assert-equal :foo (make-node-keyword #p"/one/two/bar/foo"))
+  (assert-equal :baz (make-node-keyword #p"/one/two/bar/baz.ss.png")))
+
 (def-test-method test-make-sprite-tree ((test sprite-management-test))
   (let ((tree  *sprite-tree*))
     (assert-true (not (null (getf tree :1))))

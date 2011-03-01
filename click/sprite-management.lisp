@@ -67,22 +67,29 @@
        do (ecase (car entry)
             (:color (parse-color-sprite entry))))))
 
+(defun make-node-keyword (path)
+  (let* ((file-name (file-namestring path))
+         (symbol-name (if (string= file-name "")
+                          (ppcre:scan-to-strings "(?!/)[^/]*(?=/$)" 
+                                                 (namestring path))
+                          (ppcre:scan-to-strings "^.*?(?=\\.)|^[^\\.]*$"
+                                                 file-name))))
+    (intern (nsubstitute #\- #\_ (string-upcase symbol-name))
+            "KEYWORD")))
+
+
 (defun make-sprite-tree (base-dir)
-  (flet ((make-keyword (string)
-           (intern (nsubstitute #\- #\_ (string-upcase string))
-                   "KEYWORD")))
-    (setf *sprite-tree*
-          (loop for item in (fad:list-directory base-dir)
-             when (fad:directory-exists-p item)
-             collect (make-keyword (car (last (pathname-directory item))))
-             and collect (make-sprite-tree item)
-             when (and (fad:file-exists-p item)
-                       (let ((type (pathname-type item)))
-                         (and type (string-equal (string-downcase type)
-                                                 "png"))))
-             collect (make-keyword (pathname-name item))
-             and collect (load-sprite item)))))
-  
+   (setf *sprite-tree*
+         (loop with sprite
+               for item in (fad:list-directory base-dir)
+               if (fad:directory-exists-p item)
+                 collect (make-node-keyword item)
+                 and collect (make-sprite-tree item)
+               else if (setf sprite (restart-case (load-sprite item)
+                                      (ignore-file () nil)))
+                 collect (make-node-keyword item)
+                 and collect sprite)))
+ 
 (defmacro with-sprites (sprites sprite-node &body body)
   (let ((sprite-branch (gensym "SPRITE-NODE")))
     `(let ((,sprite-branch ,sprite-node))
