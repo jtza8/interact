@@ -39,6 +39,13 @@
                        (~{~s~#[~:; ~]~})"
                        path requirements properties)))))
 
+(define-condition file-format-error (error)
+  ((pattern :initarg :pattern 
+            :initform (error 'program-error "must specify pattern")))
+  (:report (lambda (condition stream)
+             (with-slots (pattern) condition
+               (format stream "file format (~a) not supported." pattern)))))
+
 (defun format-image ()
   (case (il:image-format)
     ((:rgb :bgr) (il:convert-image :rgb :unsigned-byte))
@@ -63,17 +70,6 @@
       (make-instance 'texture-sprite :texture texture :width width
                      :height height))))
   
-
-(defun load-texture-sprite (file)
-  (il:with-images (image)
-    (il:with-bound-image (setf image (il:gen-image))
-      (il:enable :origin-set)
-      (il:origin-func :origin-lower-left)
-      (il:load-image (namestring file))
-      (il:check-error)
-      (format-image)
-      (image-to-sprite))))
-
 (defun list-image-file-sequence (sequence-path)
   (let ((regex (let* ((file-name (file-namestring sequence-path)) regex-str)
                  (setf regex-str (ppcre:regex-replace "\." file-name "\\.")
@@ -255,6 +251,16 @@
             (il:disable :file-overwrite))
         (il:save-image sheet-file-name)))))
 
+(defun load-image-sprite (file)
+  (il:with-images (image)
+    (il:with-bound-image (setf image (il:gen-image))
+      (il:enable :origin-set)
+      (il:origin-func :origin-lower-left)
+      (il:load-image (namestring file))
+      (il:check-error)
+      (format-image)
+      (image-to-sprite))))
+
 (defun load-sprite-sheet (path)
   (assert (fad:file-exists-p path) ()
           "File doesn't exist: ~a" path)
@@ -299,3 +305,11 @@
                      :fps fps
                      :height frame-height
                      :width frame-width))))
+
+(defun load-sprite (file)
+  (let ((file-name (string-downcase (file-namestring file))))
+    (assert (ppcre:scan "\\.(?:png|tga|tif|tiff)$" file-name) (file)
+            'file-format-error
+            :pattern (ppcre:scan-to-strings "\\.[^\\.]+$|^[^\\.]*$" file-name))
+    (cond ((ppcre:scan "\\.ss\\.\\w+$" file-name) (load-sprite-sheet file))
+          (t (load-image-sprite file)))))
