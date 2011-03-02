@@ -76,7 +76,7 @@
       format "unsupported format ~s. Supported formats: :RGB :RGBA :BGR :BGRA"
       type "unsupported type ~s. Currently only 8-bit unsigned integers are ~
             supported."
-      dimensions "unsupported dimensions ~s."))
+      dimensions "unsupported dimensions ~s"))
 
 (define-condition file-format-error (error)
   ((pattern :initarg :pattern 
@@ -141,7 +141,7 @@
                      (error 'image-dimensions-error
                             :expected-dimensions required-dimensions
                             :actual-dimensions (image-dimensions)
-                            :addendum (format nil "file ~a"path))))
+                            :addendum (format nil "file ~a" path))))
                (push image images))
           finally (return (reverse images)))))
 
