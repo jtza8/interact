@@ -30,7 +30,7 @@
          (path-list (list-image-file-sequence sequence-path-pattern))
         (bogus-file (merge-pathnames "sequence-bogus.png"
                                      *test-image-sequence-path*)))
-    (assert-condition 'image-sequence-error
+    (assert-condition 'image-error
                       (apply #'il:delete-images
                              (open-image-sequence (cons bogus-file path-list))))
     (let ((image-sequence (open-image-sequence path-list)))

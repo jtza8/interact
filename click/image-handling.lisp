@@ -21,23 +21,62 @@
   `(assert ,condition ,places 'pixel-index-error 
            :message ,message))
 
-(define-condition image-sequence-error (error)
-  ((path :initarg :path
-         :initform (error 'program-error "must specify path")
-         :reader path)
-   (properties :initarg :properties
-               :initform (error 'program-error "must specify properties")
-               :reader properties)
-   (requirements :initarg :requirements
-                 :initform (error 'program-error "must specify requirements")
-                 :reader requirements))
-  (:report (lambda (condition stream)
-             (with-slots (path properties requirements) condition
-               (format stream 
-                       "the image ~a must have the properties: ~
-                       (~{~s~#[~:; ~]~}) but has the properties: ~
-                       (~{~s~#[~:; ~]~})"
-                       path requirements properties)))))
+(define-condition image-error (error)
+  ()
+  (:report (lambda (condition stream) "an image has incorrect properties")))
+
+(macrolet ((define-property-error (property unsupported-message)
+             (flet ((format-symbol (control-string &rest format-arguments)
+                      (intern (string-upcase (apply #'format nil control-string
+                                                    format-arguments))
+                              (loop for (key value) on format-arguments
+                                 when (eq key :package) return value
+                                 finally (return 'click)))))
+               (let ((condition-name (format-symbol "image-~a-error" property))
+                     (expected-property (format-symbol "expected-~a" property))
+                     (expected-initarg (format-symbol "expected-~a" property
+                                                      :package 'keyword))
+                     (actual-property (format-symbol "actual-~a" property))
+                     (actual-initarg (format-symbol "actual-~a" property
+                                                    :package 'keyword))
+                     (actual-err-string (format nil "must specify actual-~(~a~)"
+                                                property)))
+                 `(define-condition ,condition-name (image-error)
+                    ((,expected-property :initform nil
+                                         :initarg ,expected-initarg
+                                         :reader ,expected-property)
+                     (,actual-property :initform (error 'program-error 
+                                                        ,actual-err-string)
+                                       :initarg ,actual-initarg
+                                       :reader ,actual-property)
+                     (addendum :initform nil
+                               :initarg :addendum
+                               :reader addendum))
+                    (:report (lambda (condition stream)
+                               (with-slots (,expected-property ,actual-property
+                                            addendum)
+                                   condition
+                                 (if (null ,expected-property)
+                                     (format stream ,unsupported-message
+                                             ,actual-property)
+                                     (format stream
+                                             "expecting ~(~a~) ~s but got ~s"
+                                             ',property
+                                             ,expected-property
+                                             ,actual-property))
+                                 (unless (null addendum)
+                                   (format stream ". ~@(~a~)" addendum)))))))))
+           (define-property-errors (&rest arguments)
+             `(progn ,@(loop for (property unsupported-message) on arguments 
+                                 by #'cddr
+                             collect `(define-property-error
+                                          ,property
+                                          ,unsupported-message)))))
+  (define-property-errors
+      format "unsupported format ~s. Supported formats: :RGB :RGBA :BGR :BGRA"
+      type "unsupported type ~s. Currently only 8-bit unsigned integers are ~
+            supported."
+      dimensions "unsupported dimensions ~s."))
 
 (define-condition file-format-error (error)
   ((pattern :initarg :pattern 
@@ -50,17 +89,17 @@
   (case (il:image-format)
     ((:rgb :bgr) (il:convert-image :rgb :unsigned-byte))
     ((:rgba :bgra) (il:convert-image :rgba :unsigned-byte))
-    (otherwise (error "image format ~s not supported" (il:image-format))))
+    (otherwise (error 'image-format-error :actual-format (il:image-format))))
   (il:check-error))
 
 (defun image-to-sprite (&optional (image :current-image))
   (il:with-bound-image image
     (let ((texture (car (gl:gen-textures 1)))
           (format (il:image-format))
+          (type (il:image-type))
           (width (il:image-width))
           (height (il:image-height)))
-      (assert (eq (il:image-type) :unsigned-byte) ()
-              "currently, only :unsigned-byte image types are supported")
+      (assert (eq type :unsigned-byte) () 'image-type-error :actual-type type)
       (when (eq (il:image-origin image) :origin-upper-left)
         (ilu:flip-image))
       (gl:bind-texture :texture-2d texture)
@@ -83,11 +122,10 @@
            #'string< :key #'namestring)))
 
 (defun open-image-sequence (path-list)
-  (flet ((image-info ()
+  (flet ((image-dimensions ()
            (list :width (il:image-width)
-                 :height (il:image-height)
-                 :data-format (il:image-format))))
-    (loop with required-info and images = '()
+                 :height (il:image-height))))
+    (loop with required-dimensions and images = '()
           for path in path-list
           for image = (il:gen-image)
           do (progn
@@ -96,14 +134,14 @@
                (il:load-image path)
                (il:check-error)
                (format-image)
-               (if (null required-info)
-                   (setf required-info (image-info))
-                   (unless (equal required-info (image-info))
+               (if (null required-dimensions)
+                   (setf required-dimensions (image-dimensions))
+                   (unless (equal required-dimensions (image-dimensions))
                      (apply #'il:delete-images images)
-                     (error 'image-sequence-error
-                            :path path
-                            :properties (image-info)
-                            :requirements required-info)))
+                     (error 'image-dimensions-error
+                            :expected-dimensions required-dimensions
+                            :actual-dimensions (image-dimensions)
+                            :addendum (format nil "file ~a"path))))
                (push image images))
           finally (return (reverse images)))))
 
