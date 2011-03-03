@@ -37,10 +37,11 @@ seems promising so far.
 
 ## Installation
 
-1. After installing all dependencies, manually install click by
-   copying the source code to the appropriate directory.
-2. On any Unix system, use the following command while in the
-   appropriate ASDF systems directory:
-   <blockquote>
-   `find /path/to/click/source -name '*.asd' -exec ln -s '{}' \;`
-   </blockquote>
+After installing all dependencies, manually install Click by copying
+the source code to the appropriate directory and providing the ASDF
+system with the required symbolic links.
+
+__Note:__ To create symbolic links on any Unix system, use the following
+command while in the appropriate ASDF systems directory:
+
+`find ../path/to/click/source -name '*.asd' -exec ln -s '{}' \;`
