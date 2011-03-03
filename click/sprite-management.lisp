@@ -77,6 +77,13 @@
     (intern (nsubstitute #\- #\_ (string-upcase symbol-name))
             "KEYWORD")))
 
+(defun load-sprite (file)
+  (let ((file-name (string-downcase (file-namestring file))))
+    (assert (ppcre:scan "\\.(?:png|tga|tif|tiff)$" file-name) (file)
+            'file-format-error
+            :pattern (ppcre:scan-to-strings "\\.[^\\.]+$|^[^\\.]*$" file-name))
+    (cond ((ppcre:scan "\\.ss\\.\\w+$" file-name) (load-sprite-sheet file))
+          (t (load-image-sprite file)))))
 
 (defun make-sprite-tree (base-dir)
    (setf *sprite-tree*
