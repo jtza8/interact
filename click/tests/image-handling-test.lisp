@@ -4,40 +4,13 @@
 
 (in-package :click)
 
-(defparameter *test-image-sequence-path*
-  (asdf:system-relative-pathname :click-tests
-                                 "test-sequence/"))
-
 (defparameter *test-image-path*
   (asdf:system-relative-pathname :click-tests "test-images/"))
 
-(defclass sprite-sheet-test (test-case)
+(defclass image-handling-test (test-case)
   ())
 
-(def-test-method test-list-image-file-sequence ((test sprite-sheet-test))
-  (let ((paths (list-image-file-sequence 
-                (merge-pathnames "sequence*.png" 
-                                 *test-image-sequence-path*))))
-    (assert-equal 20 (length paths))
-    (loop for path in paths
-          for i upfrom 1
-          do (assert-true (string= (format nil "sequence~4,'0d.png" i)
-                                   (file-namestring path))))))
-
-(def-test-method test-open-image-sequence ((test sprite-sheet-test))
-  (let* ((sequence-path-pattern (merge-pathnames "sequence*.png" 
-                                                 *test-image-sequence-path*))
-         (path-list (list-image-file-sequence sequence-path-pattern))
-        (bogus-file (merge-pathnames "sequence-bogus.png"
-                                     *test-image-sequence-path*)))
-    (assert-condition 'image-dimensions-error
-                      (apply #'il:delete-images
-                             (open-image-sequence (cons bogus-file path-list))))
-    (let ((image-sequence (open-image-sequence path-list)))
-      (unwind-protect (assert-true (numberp (car image-sequence)))
-        (apply #'il:delete-images image-sequence)))))
-
-(def-test-method test-image-data-pos ((test sprite-sheet-test))
+(def-test-method test-image-data-pos ((test image-handling-test))
   (il:with-images (image)
     (il:bind-image image)
     (il:tex-image 100 100 1 3 :rgb :unsigned-byte (cffi:null-pointer))
@@ -70,7 +43,7 @@
       (il:save-image (merge-pathnames #p"blit-test.png"
                                       *test-image-path*)))))
 
-(def-test-method test-blit ((test sprite-sheet-test))
+(def-test-method test-blit ((test image-handling-test))
   (il:with-images (src dst)
     (il:bind-image src)
     (il:tex-image 64 128 1 3 :bgr :unsigned-byte (cffi:null-pointer))
@@ -113,7 +86,7 @@
       (il:save-image (merge-pathnames #p"overlay-image-test.png"
                                       *test-image-path*)))))
 
-(def-test-method test-overlay-image ((test sprite-sheet-test))
+(def-test-method test-overlay-image ((test image-handling-test))
   (il:with-images (src dst)
     (il:bind-image src)
     (il:tex-image 64 128 1 3 :bgr :unsigned-byte (cffi:null-pointer))
@@ -133,63 +106,3 @@
     (assert-condition 'pixel-index-error 
                       (overlay-image dst 0 0 0 :allow-clipping nil))))
 
-(def-test-method test-sheet-header ((test sprite-sheet-test))
-  ; Mega-über-macro-simplification... ENGADGE!
-  ; Overkill much? =P
-  (flet ((assert-header (header message frame-width frame-height
-                                frame-count fps looping)
-           (flet ((make-msg (attribute)
-                    (format nil "~a ~a" attribute message)))
-             (macrolet ((expand-assert (name)
-                          `(assert-equal ,name (getf header
-                                                     ,(intern (symbol-name name)
-                                                              'keyword)) 
-                                         (make-msg ,(symbol-name name))))
-                        (expand-asserts (&rest names)
-                          `(progn ,@(loop for name in names
-                                          collect `(expand-assert ,name)))))
-               (expand-asserts frame-width frame-height 
-                               frame-count fps looping)))))
-   (il:with-images (test)
-      (il:bind-image test)
-      (il:tex-image 64 64 1 4 :rgba :unsigned-byte (cffi:null-pointer))
-      (il:clear-image 0 0 0 0)
-      (write-sheet-header 8 7 60 12 t)
-      (assert-header (read-sheet-header) "pre-write assert" 8 7 60 12 t)
-      (il:enable :file-overwrite)
-      (il:save-image (merge-pathnames #p"header-test.png"
-                                      *test-image-path*)))
-    (il:with-images (test)
-      (il:bind-image test)
-      (il:load-image (merge-pathnames #p"header-test.png"
-                                      *test-image-path*))
-      (assert-header (read-sheet-header) "post-write assert" 8 7 60 12 t))))
-
-(defun test-build-sprite-sheet-manually ()
-  (build-sprite-sheet (merge-pathnames #p"sequence*.png"
-                                       *test-image-sequence-path*)
-                      30
-                      :file-overwrite t
-                      :sheet-file-name 
-                      (merge-pathnames "sequence-test.ss.png"
-                                       *test-image-sequence-path*)))
-
-(defun test-load-sprite-sheet-manually ()
-  (init-screen-system :sprite-path *test-sprite-path*)
-  (let* ((screen (make-instance 'screen :height 100 :width 100 :x 10 :y 10))
-         (sprite (load-sprite-sheet 
-                  (merge-pathnames "test-sheet.ss.png" *test-image-path*)))
-         (widget (make-instance 'simple-widget :x 10 :y 10 :sprite sprite)))
-    (start sprite)
-    (add-widget screen widget :simple-widget))
-  (run-screen-system))
-
-(def-test-method test-load-sprites ((test sprite-sheet-test))
-  (let ((bogus-jpg-path (merge-pathnames "bogus.jpg" *test-image-path*))
-        (test-image-path (merge-pathnames "src-image.png" *test-image-path*)))
-    (assert-condition 'file-format-error (load-sprite "bogus"))
-    (assert-true (fad:file-exists-p bogus-jpg-path))
-    (assert-condition 'file-format-error (load-sprite bogus-jpg-path))
-    (let ((sprite (load-sprite test-image-path)))
-      (assert-true (typep sprite 'texture-sprite))
-      (gl:delete-textures (list (texture sprite))))))
