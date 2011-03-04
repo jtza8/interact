@@ -16,5 +16,6 @@
     (error "Sprite path invalid."))
   (setf *sprite-path* (fad:pathname-as-directory sprite-path)
         *screen-manager* (make-instance 'screen-manager))
+  (reset *global-stopwatch*)
   (make-sprite-tree *sprite-path*)
   (parse-sprites (merge-pathnames "sprites.conf" *sprite-path*)))

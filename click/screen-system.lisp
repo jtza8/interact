@@ -33,6 +33,7 @@
   (init-click sprite-path))
 
 (defun run-screen-system ()
+  (start *global-stopwatch*)
   (unwind-protect
        (sdl:with-events (:poll)
          (:mouse-motion-event (:state state :x x :y y

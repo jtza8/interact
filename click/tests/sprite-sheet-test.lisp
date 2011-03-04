@@ -54,7 +54,6 @@
          (sprite (load-sprite-sheet 
                   (merge-pathnames "test-sheet.ss.png" *test-image-path*)))
          (widget (make-instance 'simple-widget :x 10 :y 10 :sprite sprite)))
-    (start sprite)
     (add-widget screen widget :simple-widget))
   (run-screen-system))
 

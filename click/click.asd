@@ -8,7 +8,7 @@
   :components ((:file "package")
                (:file "utils" :depends-on ("package"))
                (:file "stopwatch" :depends-on ("package"))
-               (:file "click" :depends-on ("package"))
+               (:file "click" :depends-on ("stopwatch"))
                (:file "listenable" :depends-on ("package"))
                (:file "listener" :depends-on ("package"))
                (:file "sprite" :depends-on ("click"))

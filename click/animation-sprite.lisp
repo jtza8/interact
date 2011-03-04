@@ -13,7 +13,7 @@
    (stopwatch :initform (make-instance 'stopwatch))))
 
 (defmethod initialize-instance :after ((sprite animation-sprite) 
-                                       &key (start nil))
+                                       &key (start t))
   (with-slots (sprite-vector stopwatch) sprite
     (check-type sprite-vector vector)
     (assert (> (length sprite-vector) 0))

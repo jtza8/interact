@@ -18,12 +18,10 @@
                         finally (return (coerce sprite-list 'vector))))
          (animation-1 (make-instance 'animation-sprite
                                      :sprite-vector sprites :fps 10
-                                     :width 100 :height 100
-                                     :start t))
+                                     :width 100 :height 100))
          (animation-2 (make-instance 'animation-sprite
                                      :sprite-vector sprites :fps 30
-                                     :width 100 :height 100
-                                     :start t))
+                                     :width 100 :height 100))
          (widget-1 (make-instance 'simple-widget 
                                   :x 10 :y 10
                                   :sprite animation-1))
