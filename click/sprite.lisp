@@ -6,10 +6,10 @@
 
 (defclass sprite ()
   ((width :initarg :width
-          :initform (error 'program-error "No width given.")
+          :initform (error "No width given.")
           :reader width)
    (height :initarg :height
-           :initform (error 'program-error "No height given.")
+           :initform (error "No height given.")
            :reader height)))
 
 (defun rectangle (x y width height &key (tex-coords '(0 0 1 0 1 1 0 1)))
@@ -32,3 +32,28 @@
 (defgeneric draw-tiled (sprite x y &key width height)
   (:documentation
    "Draw Tiled."))
+
+(defmacro with-sprites (sprites sprite-node &body body)
+  (let ((sprite-branch (gensym "SPRITE-NODE")))
+    `(let ((,sprite-branch ,sprite-node))
+       (let (,@(loop for sprite in sprites collect
+                    (list sprite
+                          `(sprite-node-from ,sprite-branch
+                                             ,(intern (symbol-name sprite)
+                                                      "KEYWORD")))))
+         ,@body))))
+
+(defun translate (x y)
+  (gl:matrix-mode :modelview)
+  (gl:push-matrix)
+  (gl:translate x y 0))
+
+(defun undo-translate ()
+  (gl:matrix-mode :modelview)
+  (gl:pop-matrix))
+
+(defmacro with-translate ((x y) &body body)
+  `(progn
+     (translate ,x ,y)
+     ,@body
+     (undo-translate)))

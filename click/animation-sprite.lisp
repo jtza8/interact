@@ -6,10 +6,10 @@
 
 (defclass animation-sprite (sprite)
   ((fps :initarg :fps
-        :initform (error 'program-error "must specify fps")
+        :initform (error "must specify fps")
         :reader fps)
    (sprite-vector :initarg :sprite-vector
-                  :initform (error 'program-error "must specify sprite vector"))
+                  :initform (error "must specify sprite vector"))
    (stopwatch :initform (make-instance 'stopwatch))))
 
 (defmethod initialize-instance :after ((sprite animation-sprite) 

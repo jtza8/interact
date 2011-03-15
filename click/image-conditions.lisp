@@ -6,7 +6,7 @@
 
 (define-condition pixel-index-error (error)
   ((message :initarg :message
-            :initform (error 'program-error "must specify message")))
+            :initform (error "must specify message")))
   (:report (lambda (condition stream)
              (with-slots (message) condition
                (princ message stream)))))
@@ -39,7 +39,7 @@
                     ((,expected-property :initform nil
                                          :initarg ,expected-initarg
                                          :reader ,expected-property)
-                     (,actual-property :initform (error 'program-error 
+                     (,actual-property :initform (error 
                                                         ,actual-err-string)
                                        :initarg ,actual-initarg
                                        :reader ,actual-property)
@@ -75,7 +75,7 @@
 
 (define-condition file-format-error (error)
   ((pattern :initarg :pattern 
-            :initform (error 'program-error "must specify pattern")))
+            :initform (error "must specify pattern")))
   (:report (lambda (condition stream)
              (with-slots (pattern) condition
                (format stream "file format (~a) not supported." pattern)))))

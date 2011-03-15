@@ -12,6 +12,8 @@
    (active-screens :initform nil
                    :reader active-screens)))
 
+(defparameter *screen-manager* (make-instance 'screen-manager))
+
 (defmethod sm-add-screen ((manager screen-manager) screen)
   (check-type screen screen)
   (with-slots (screens) manager

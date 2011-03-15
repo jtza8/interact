@@ -6,7 +6,7 @@
 
 (defclass simple-widget (widget)
   ((sprite :initarg :sprite
-           :initform (error 'program-error "sprite must be specified"))))
+           :initform (error "sprite must be specified"))))
 
 (defmethod draw ((widget simple-widget))
   (with-slots (sprite x y) widget
