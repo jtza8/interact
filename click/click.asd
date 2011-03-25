@@ -13,7 +13,7 @@
                (:file "sprite" :depends-on ("package"))
                (:file "color-sprite" :depends-on ("sprite"))
                (:file "texture-sprite" :depends-on ("sprite"))
-               (:file "animation-sprite" :depends-on ("sprite"))
+               (:file "animation-sprite" :depends-on ("sprite" "stopwatch"))
                (:file "image-conditions" :depends-on ("package"))
                (:file "image-handling" :depends-on 
                       ("image-conditions" "texture-sprite"))
@@ -28,4 +28,5 @@
                (:file "widget" :depends-on
                       ("listenable" "listener" "sprite-tree"))
                (:file "screen" :depends-on ("widget"))
-               (:file "screen-system" :depends-on ("screen"))))
+               (:file "screen-system" :depends-on ("screen" "screen-manager"
+                                                   "stopwatch"))))

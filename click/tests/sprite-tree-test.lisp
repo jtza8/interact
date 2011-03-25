@@ -4,9 +4,8 @@
 
 (in-package :click)
 
-(use-package :xlunit)
-(defparameter *test-sprite-path*
-  (asdf:system-relative-pathname :click "tests/test-sprites"))
+(defclass sprite-tree-test (test-case)
+  ())
 
-(init-screen-system)
-(sdl:quit-video)
+(defmethod initialize-instance :after ((test sprite-tree-test) &key)
+  (load-sprite-path *test-sprite-path*))

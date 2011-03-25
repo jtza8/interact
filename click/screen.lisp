@@ -103,4 +103,4 @@
   (with-slots (x y width height background) screen
     (when (null background)
       (return-from draw-panel))
-    (draw-tiled background x y :width width :height height)))
+    (draw-at background x y :width width :height height :mode :tile)))

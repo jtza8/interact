@@ -10,6 +10,6 @@
   (let ((screen (make-instance 'screen :height 100 :width 100 :x 10 :y 10))
         (widget (make-instance 'simple-widget :x 10 :y 10 
                                :sprite (sprite-node :test-sheet))))
-    (start (sprite-node :test-sheet))
+    ;; (start (sprite-node :test-sheet))
     (add-widget screen widget :simple-widget))
   (run-screen-system))

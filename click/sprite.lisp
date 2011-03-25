@@ -12,6 +12,9 @@
            :initform (error "No height given.")
            :reader height)))
 
+(defmethod diverge ((sprite sprite))
+  sprite)
+
 (defun rectangle (x y width height &key (tex-coords '(0 0 1 0 1 1 0 1)))
   "Draws the currently bound texture as a 2D \"surface\""
   (let ((coords tex-coords))
@@ -25,23 +28,9 @@
       (gl:tex-coord (pop coords) (pop coords))
       (gl:vertex x (+ y height)))))
 
-(defgeneric draw-at (sprite x y)
+(defgeneric draw-at (sprite x y &key width height mode)
   (:documentation
    "Draw at the specified coordinates."))
-
-(defgeneric draw-tiled (sprite x y &key width height)
-  (:documentation
-   "Draw Tiled."))
-
-(defmacro with-sprites (sprites sprite-node &body body)
-  (let ((sprite-branch (gensym "SPRITE-NODE")))
-    `(let ((,sprite-branch ,sprite-node))
-       (let (,@(loop for sprite in sprites collect
-                    (list sprite
-                          `(sprite-node-from ,sprite-branch
-                                             ,(intern (symbol-name sprite)
-                                                      "KEYWORD")))))
-         ,@body))))
 
 (defun translate (x y)
   (gl:matrix-mode :modelview)

@@ -9,12 +9,8 @@
             :initform (error "No texture name given.")
             :reader texture)))
 
-(defmethod draw-at ((sprite texture-sprite) x y)
-  (with-slots (texture width height) sprite
-    (gl:bind-texture :texture-2d texture)
-    (rectangle x y width height)))
-
-(defmethod draw-tiled ((sprite texture-sprite) x y &key width height)
+(defmethod draw-at ((sprite texture-sprite) x y &key width height (mode :tile))
+  (declare (ignore mode))
   (with-slots ((normal-width width) (normal-height height) texture) sprite
     (gl:bind-texture :texture-2d texture)
     (gl:tex-parameter :texture-2d :texture-wrap-s :repeat)

@@ -19,7 +19,14 @@
     (assert (> (length sprite-vector) 0))
     (when start (start stopwatch))))
 
-(defmethod draw-at ((sprite animation-sprite) x y)
+(defmethod diverge ((sprite animation-sprite))
+  (with-slots (height width fps sprite-vector) sprite
+    (make-instance 'animation-sprite
+                   :height height :width width
+                   :fps fps :sprite-vector sprite-vector)))
+
+(defmethod draw-at ((sprite animation-sprite) x y &key 
+                    height width (mode :tile))
   (with-slots (fps sprite-vector stopwatch) sprite
     (let ((frame-number (rem (truncate (/ (* (lap stopwatch) fps) 1000))
                              (length sprite-vector))))

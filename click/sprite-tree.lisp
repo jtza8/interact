@@ -27,16 +27,17 @@
 
 (defun load-sprite (file)
   (let ((file-name (string-downcase (file-namestring file))))
-    (unless (find (pathname-type file) '("png" "tga" "tif" "tiff")
+    (unless (find  (pathname-type file-name)
+                  '("png" "tga" "tif" "tiff")
                   :test #'string=)
       (return-from load-sprite))
-    (list (path-keyword file-name)
-          (cond ((ppcre:scan "\\.ss\\.\\w+$" file-name)
-                 (load-sprite-sheet file))
-                (t (load-image-sprite file))))))
+    (cond ((ppcre:scan "\\.ss\\.\\w+$" file-name)
+           (load-sprite-sheet file))
+          (t (load-image-sprite file)))))
 
 (defparameter *sprite-tree*
-  (make-instance 'rt:resource-tree :file-loader #'load-sprite))
+  (make-instance 'rt:resource-tree 
+                 :load-function #'load-sprite))
 
 (defun sprite-node (&rest path)
   (apply #'rt:node *sprite-tree* path))

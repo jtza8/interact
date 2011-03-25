@@ -4,6 +4,10 @@
 
 (defpackage #:click
   (:use #:common-lisp)
+  (:import-from #:resource-tree 
+                #:invalid-node
+                #:free
+                #:with-nodes)
   (:export #:*screen-manager*
            #:*settings*
            #:*sprite-path*
@@ -19,7 +23,6 @@
            #:desire-events
            #:draw
            #:draw-at
-           #:draw-tiled
            #:event-data
            #:event-type
            #:sprite-node
@@ -57,7 +60,7 @@
            #:widget
            #:widget-of
            #:with-event-keys
-           #:with-sprites
+           #:with-nodes
            #:with-translate
            #:within
 

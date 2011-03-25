@@ -58,5 +58,8 @@
                 (draw *screen-manager*)
                 (gl:flush)
                 (sdl:update-display)))
-    (sdl:quit-video)))
+    (stop *global-stopwatch*)
+    (sdl:quit-video)
+    (free *sprite-tree*)
+    (setf (sprite-node) (make-hash-table))))
 

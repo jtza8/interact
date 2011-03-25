@@ -13,7 +13,7 @@
                (:file "image-handling-test" :depends-on ("test-package"))
                (:file "image-sequence-test" :depends-on ("test-package"))
                (:file "sprite-sheet-test" :depends-on ("image-sequence-test"))
-               (:file "sprite-management-test"
+               (:file "sprite-tree-test"
                       :depends-on ("test-package" "dummy-widget"))
                (:file "simple-widget"
                       :depends-on ("test-package"))
