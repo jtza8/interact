@@ -28,38 +28,46 @@
   (gl:blend-func :src-alpha :one-minus-src-alpha)
   (gl:clear :color-buffer-bit))
 
+(defun quit-screen-system ()
+  (sdl:quit-video)
+  (reset *global-stopwatch*)
+  (reset-screen-manager)
+  (rt:clear-tree *sprite-tree*)
+  (wipe-sprite-tree))
+
 (defun run-screen-system ()
   (start *global-stopwatch*)
-  (unwind-protect
-       (sdl:with-events (:poll)
-         (:mouse-motion-event (:state state :x x :y y
-                               :x-rel x-rel :y-rel y-rel)
-           (send-event *screen-manager*
-                       (list :mouse-move :state state :x x :y y
-                             :x-rel x-rel :y-rel y-rel)))
-         (:mouse-button-down-event (:button button :state state :x x :y y)  
-           (send-event *screen-manager*
-                       (list :mouse-down :button button
-                             :state state :x x :y y)))
-         (:mouse-button-up-event (:button button :state state :x x :y y)  
-           (send-event *screen-manager*
-                       (list :mouse-up :button button
-                             :state state :x x :y y)))
-         (:key-down-event (:key key)
-           (cond ((sdl:key= key :sdl-key-escape) (sdl:push-quit-event))
-                 ((sdl:key= key :sdl-key-F12)
-                  (sdl:resize-window (sdl:width sdl:*default-display*)
-                                     (sdl:height sdl:*default-display*)
-                                     :fullscreen (not (sdl:fullscreen-p)))
-                  (gl:clear :color-buffer-bit))))
-         (:quit-event () t)
-         (:idle ()
-                (gl:clear :color-buffer-bit)
-                (draw *screen-manager*)
-                (gl:flush)
-                (sdl:update-display)))
-    (stop *global-stopwatch*)
-    (sdl:quit-video)
-    (free *sprite-tree*)
-    (setf (sprite-node) (make-hash-table))))
+  (sdl:with-events (:poll)
+    (:mouse-motion-event (:state state :x x :y y
+                          :x-rel x-rel :y-rel y-rel)
+      (send-event *screen-manager*
+                  (list :mouse-move :state state :x x :y y
+                        :x-rel x-rel :y-rel y-rel)))
+    (:mouse-button-down-event (:button button :state state :x x :y y)  
+      (send-event *screen-manager*
+                  (list :mouse-down :button button
+                        :state state :x x :y y)))
+    (:mouse-button-up-event (:button button :state state :x x :y y)  
+      (send-event *screen-manager*
+                  (list :mouse-up :button button
+                        :state state :x x :y y)))
+    (:key-down-event (:key key)
+      (cond ((sdl:key= key :sdl-key-escape) (sdl:push-quit-event))
+            ((sdl:key= key :sdl-key-F12)
+             (sdl:resize-window (sdl:width sdl:*default-display*)
+                                (sdl:height sdl:*default-display*)
+                                :fullscreen (not (sdl:fullscreen-p)))
+             (gl:clear :color-buffer-bit))))
+    (:quit-event () t)
+    (:idle ()
+           (gl:clear :color-buffer-bit)
+           (draw *screen-manager*)
+           (gl:flush)
+           (sdl:update-display))))
 
+(defmacro with-screen-system ((&rest args) &body body)
+  `(progn (init-screen-system ,@args)
+          (unwind-protect (progn ,@body 
+                                 (run-screen-system))
+            (quit-screen-system))))
+  

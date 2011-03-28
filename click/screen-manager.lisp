@@ -55,3 +55,6 @@
 
 (defun deactivate-screen (screen)
   (sm-deactivate-screen click:*screen-manager* screen))
+
+(defun reset-screen-manager ()
+  (setf *screen-manager* (make-instance 'screen-manager)))
