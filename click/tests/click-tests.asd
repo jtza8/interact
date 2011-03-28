@@ -7,9 +7,11 @@
   :components ((:file "test-package")
                (:file "stopwatch-test" :depends-on ("test-package"))
                (:file "dummy-widget" :depends-on ("test-package"))
-               (:file "dummy-listener")
+               (:file "dummy-listener" :depends-on ("test-package"))
                (:file "listening-test"
                       :depends-on ("test-package" "dummy-widget"))
+               (:file "peripheral-controller-test"
+                      :depends-on ("dummy-listener"))
                (:file "image-handling-test" :depends-on ("test-package"))
                (:file "image-sequence-test" :depends-on ("test-package"))
                (:file "sprite-sheet-test" :depends-on ("image-sequence-test"))

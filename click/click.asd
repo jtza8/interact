@@ -10,6 +10,7 @@
                (:file "stopwatch" :depends-on ("package"))
                (:file "listenable" :depends-on ("package"))
                (:file "listener" :depends-on ("package"))
+               (:file "peripheral-controller" :depends-on ("listenable"))
                (:file "sprite" :depends-on ("package"))
                (:file "color-sprite" :depends-on ("sprite"))
                (:file "texture-sprite" :depends-on ("sprite"))

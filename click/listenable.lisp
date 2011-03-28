@@ -25,10 +25,11 @@
 
 (defmethod provide-events ((listenable listenable) &rest events)
   (with-slots (provided-events) listenable
-    (setf provided-events (cons provided-events events))))
+    (setf provided-events (delete-duplicates (cons provided-events events)))))
 
-(defmacro event-type (event) `(car ,event))
-(defmacro event-data (event) `(cdr ,event))
+(declaim (inline event-type event-data))
+(defun event-type (event) (car event))
+(defun event-data (event) (cdr event))
 
 (defmacro with-event-keys (keys event &body body)
   (let ((data (gensym "event")))
@@ -37,7 +38,11 @@
                    `(,key (getf ,data ,(intern (symbol-name key) "KEYWORD")))))
        ,@body)))
 
-(defmethod add-listener ((listenable listenable) listener event-type)
+(defmethod add-listener ((listenable listenable) listener &optional event-type)
+  (when (null event-type)
+    (loop for (event nil) on (desired-events listener) by #'cddr
+          do (add-listener listenable listener event))
+    (return-from add-listener))
   (with-slots (listeners provided-events) listenable
     (assert (find event-type provided-events) (event-type)
             'invalid-event-type
@@ -51,7 +56,12 @@
                (push event-type listeners))
         (pushnew listener (getf listeners event-type)))))
 
-(defmethod remove-listener ((listenable listenable) listener event-type)
+(defmethod remove-listener ((listenable listenable) listener 
+                            &optional event-type)
+  (when (null event-type)
+    (dolist (event (desired-events listener))
+      (remove-listener listenable listener event))
+    (return-from remove-listener))
   (with-slots (listeners) listenable
     (let ((event-listeners (getf listeners event-type)))
       (assert event-listeners (event-type)

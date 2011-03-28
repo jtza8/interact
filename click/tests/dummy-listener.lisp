@@ -6,8 +6,14 @@
 
 (defclass dummy-listener (listener)
   ((latest-event :initform nil
-                 :reader latest-event)
-   (desired-events :initform '(:dummy-event event-dummy))))
+                 :reader latest-event)))
 
-(defmethod event-dummy ((listener dummy-listener) event)
+(defmethod initialize-instance :after ((listener dummy-listener) &key 
+                                       (desired-events '(:dummy-event)))
+  (apply #'desire-events listener
+         (loop for event in desired-events
+               collect event
+               collect #'event-handler)))
+
+(defmethod event-handler ((listener dummy-listener) event)
   (setf (slot-value listener 'latest-event) event))

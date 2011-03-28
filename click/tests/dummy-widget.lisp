@@ -5,10 +5,12 @@
 (in-package :click)
 
 (defclass dummy-widget (widget)
-  ((provided-events :initform '(:dummy-event))
-   (desired-events :initform '(:mouse-move event-mouse-move))
-   (latest-event :initform nil
+  ((latest-event :initform nil
                  :reader latest-event)))
+
+(defmethod initialize-instance :after ((widget widget) &key)
+  (provide-events widget :dummy-event)
+  (desire-events widget :mouse-move #'event-mouse-move))
 
 ;; (defmethod select-handler ((dummy dummy-widget) event-type)
 ;;   (when (eq event-type :mouse-move)
