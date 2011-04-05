@@ -10,7 +10,7 @@
                (:file "dummy-listener" :depends-on ("test-package"))
                (:file "listening-test"
                       :depends-on ("test-package" "dummy-igo"))
-               (:file "peripheral-controller-test"
+               (:file "event-converter-test"
                       :depends-on ("dummy-listener"))
                (:file "image-handling-test" :depends-on ("test-package"))
                (:file "image-sequence-test" :depends-on ("test-package"))

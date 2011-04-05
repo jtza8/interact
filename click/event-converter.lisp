@@ -4,20 +4,20 @@
 
 (in-package :click)
 
-(defclass peripheral-controller (listenable)
+(defclass event-converter (listenable)
   ((predicates :initform (make-array 20 :adjustable t 
                                      :fill-pointer 0
                                      :element-type 'function))))
 
-(defmethod initialize-instance :after ((controller peripheral-controller)
+(defmethod initialize-instance :after ((controller event-converter)
                                        &key mappable-events)
   (apply #'provide-events controller mappable-events))
 
-(defmethod map-input ((controller peripheral-controller) event-predicate)
+(defmethod map-input ((controller event-converter) event-predicate)
   (with-slots (predicates) controller
     (vector-push-extend event-predicate predicates)))
 
-(defmethod handle-event ((controller peripheral-controller) event)
+(defmethod handle-event ((controller event-converter) event)
   (with-slots (predicates) controller
     (loop for predicate across predicates
           for result = (funcall predicate event)

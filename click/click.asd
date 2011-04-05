@@ -11,7 +11,7 @@
                (:file "listenable" :depends-on ("package"))
                (:file "listener" :depends-on ("package"))
                (:file "sdl-events" :depends-on ("package"))
-               (:file "peripheral-controller" :depends-on
+               (:file "event-converter" :depends-on
                       ("listenable" "sdl-events"))
                (:file "sprite" :depends-on ("package"))
                (:file "color-sprite" :depends-on ("sprite"))

@@ -4,11 +4,11 @@
 
 (in-package :click)
 
-(defclass peripheral-controller-test (test-case)
+(defclass event-converter-test (test-case)
   ())
 
-(def-test-method input-test ((test peripheral-controller-test))
-  (let ((controller (make-instance 'peripheral-controller 
+(def-test-method input-test ((test event-converter-test))
+  (let ((controller (make-instance 'event-converter 
                                    :mappable-events '(:jump)))
         (listener (make-instance 'dummy-listener
                                  :desired-events '(:jump))))
