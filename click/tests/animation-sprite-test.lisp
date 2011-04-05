@@ -5,7 +5,7 @@
 (in-package :click)
 
 (defun test-animation-sprite-manually ()
-  (init-screen-system)
+  (init-display-system)
   (load-sprite-path (asdf:system-relative-pathname :click-tests
                                                    "test-sprites"))
   (let* ((screen (make-instance 'screen :height 0 :width 0 :x 0 :y 0))
@@ -20,15 +20,15 @@
                                      :sprite-vector sprites :fps 10
                                      :width 100 :height 100))
          (animation-2 (diverge animation-1))
-         (widget-1 (make-instance 'simple-widget 
+         (igo-1 (make-instance 'simple-igo 
                                   :x 10 :y 10
                                   :sprite animation-1))
-         (widget-2 (make-instance 'simple-widget 
+         (igo-2 (make-instance 'simple-igo 
                                   :x 120 :y 10 
                                   :sprite animation-2)))
     ; The following is bad code, it is a cheat only used for testing
     ; purposes.
     (setf (slot-value animation-2 'fps) 30)
-    (add-widget screen widget-1 :widget-1)
-    (add-widget screen widget-2 :widget-2)
-  (run-screen-system)))
+    (add-igo screen igo-1 :igo-1)
+    (add-igo screen igo-2 :igo-2)
+  (run-display-system)))

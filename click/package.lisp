@@ -19,7 +19,7 @@
            #:sm-activate-sceen
            #:deactivate-screen
            #:sm-deactivate-screen
-           #:add-widget
+           #:add-igo
            #:desire-events
            #:draw
            #:draw-at
@@ -28,7 +28,7 @@
            #:sprite-node
            #:sprite-node-from
            #:init-click
-           #:init-screen-system
+           #:init-display-system
            #:invalid-event
            #:invalid-event-type
            #:invalid-sprite-node
@@ -41,24 +41,24 @@
            #:remove-screen
            #:sm-remove-screen
            #:remove-tag
-           #:remove-widget
+           #:remove-igo
            #:render-text
            #:reset-settings
-           #:run-screen-system
+           #:run-display-system
            #:screen
            #:screen-manager
            #:send-event
            #:sprite
            #:tag-error
            #:tag-of
-           #:tag-widget
+           #:tag-igo
            #:texture-sprite
            #:theme
            #:translate
            #:undesire-events
            #:undo-translate
-           #:widget
-           #:widget-of
+           #:igo
+           #:igo-of
            #:with-event-keys
            #:with-nodes
            #:with-translate
@@ -76,7 +76,7 @@
            #:reason
            #:screens
            #:texture
-           #:widgets
+           #:igos
            #:width
            #:windows
            #:absolute-pos

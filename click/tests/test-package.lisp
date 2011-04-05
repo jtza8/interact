@@ -8,5 +8,5 @@
 (defparameter *test-sprite-path*
   (asdf:system-relative-pathname :click "tests/test-sprites"))
 
-(init-screen-system)
+(init-display-system)
 (sdl:quit-video)

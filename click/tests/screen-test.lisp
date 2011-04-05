@@ -5,10 +5,10 @@
 (in-package :click)
 
 (defun test-screen-manually ()
-  (with-screen-system ()
+  (with-display-system ()
     (load-sprite-path (asdf:system-relative-pathname 
                        :click-tests "test-sprites"))
     (let ((screen (make-instance 'screen :height 100 :width 100 :x 10 :y 10))
-          (widget (make-instance 'simple-widget :x 10 :y 10 
+          (igo (make-instance 'simple-igo :x 10 :y 10 
                                  :sprite (sprite-node :test-sheet))))
-      (add-widget screen widget :simple-widget))))
+      (add-igo screen igo :simple-igo))))

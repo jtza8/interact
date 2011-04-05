@@ -10,7 +10,9 @@
                (:file "stopwatch" :depends-on ("package"))
                (:file "listenable" :depends-on ("package"))
                (:file "listener" :depends-on ("package"))
-               (:file "peripheral-controller" :depends-on ("listenable"))
+               (:file "sdl-events" :depends-on ("package"))
+               (:file "peripheral-controller" :depends-on
+                      ("listenable" "sdl-events"))
                (:file "sprite" :depends-on ("package"))
                (:file "color-sprite" :depends-on ("sprite"))
                (:file "texture-sprite" :depends-on ("sprite"))
@@ -26,8 +28,8 @@
                       ("color-sprite" "texture-sprite" "animation-sprite"))
                (:file "font-tools" :depends-on ("texture-sprite"))
                (:file "screen-manager" :depends-on ("listenable"))
-               (:file "widget" :depends-on
+               (:file "igo" :depends-on
                       ("listenable" "listener" "sprite-tree"))
-               (:file "screen" :depends-on ("widget"))
-               (:file "screen-system" :depends-on ("screen" "screen-manager"
+               (:file "screen" :depends-on ("igo"))
+               (:file "display-system" :depends-on ("screen" "screen-manager"
                                                    "stopwatch"))))

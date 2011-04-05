@@ -8,11 +8,11 @@
   ())
 
 (def-test-method test-listenable ((test listening-test))
-  (let ((dummy (make-instance 'dummy-widget))
+  (let ((dummy (make-instance 'dummy-igo))
         (listener-1 (make-instance 'dummy-listener))
         (listener-2 (make-instance 'dummy-listener)))
     (flet ((set-up-variables ()
-             (setf dummy (make-instance 'dummy-widget)
+             (setf dummy (make-instance 'dummy-igo)
                    listener-1 (make-instance 'dummy-listener)
                    listener-2 (make-instance 'dummy-listener))))
       (set-up-variables)

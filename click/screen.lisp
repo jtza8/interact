@@ -9,25 +9,23 @@
           :initform :fault)
    (tag :initarg :tag
         :initform nil)
-   (widget :initarg :widget
+   (igo :initarg :igo
            :initform nil))
   (:report (lambda (condition stream)
-             (with-slots (fault tag widget) condition
+             (with-slots (fault tag igo) condition
                (case fault
-                 (:tag (format stream "Tag ~s for widget ~s must be unique"
-                               tag widget))
-                 (:widget (format stream "Widget ~s already has tag ~s"
-                                  widget tag))
+                 (:tag (format stream "Tag ~s for igo ~s must be unique"
+                               tag igo))
+                 (:igo (format stream "Widget ~s already has tag ~s"
+                                  igo tag))
                  (:invalid-tag (format stream "Couldn't find tag ~s" tag))
                  (otherwise (format stream "Unknown fault: ~s" fault)))))))
 
-(defclass screen (widget)
+(defclass screen (igo)
   ((visible :initarg :visible
             :initform t)
-   (provided-events :initform '(:mouse-move :mouse-down :mouse-up :parent-move))
-   (desired-events :initform '(:title-bar-drag event-title-bar-drag))
-   (widgets :initform '()
-            :reader widgets)
+   (igos :initform '()
+            :reader igos)
    (background :initform nil
                :reader background)
    (tags :initform '())))
@@ -36,68 +34,69 @@
                                        (manager *screen-manager*))
   (unless (null manager)
     (check-type manager screen-manager)
-    (sm-add-screen manager screen)))
+    (sm-add-screen manager screen))
+  (provide-events screen :mouse-move :mouse-down :mouse-up :parent-move))
 
-(defmethod tag-widget ((screen screen) (widget widget) tag)
+(defmethod tag-igo ((screen screen) (igo igo) tag)
   (with-slots (tags) screen
-    (multiple-value-bind (fault tag widget)
+    (multiple-value-bind (fault tag igo)
         (loop
            for (tag-key tag-value) on tags by #'cddr do
              (cond
                ((eq tag-key tag)
                 (return (values :tag tag-key tag-value)))
-               ((eq tag-value widget)
-                (return (values :widget tag-key tag-value))))
+               ((eq tag-value igo)
+                (return (values :igo tag-key tag-value))))
            finally
              (return (values nil nil nil)))
-      (assert (not fault) (tag widget)
-              'tag-error :fault fault :tag tag :widget widget))
-    (setf (getf tags tag) widget)))
+      (assert (not fault) (tag igo)
+              'tag-error :fault fault :tag tag :igo igo))
+    (setf (getf tags tag) igo)))
 
 (defmethod remove-tag ((screen screen) identifier)
   (with-slots (tags) screen
     (when (null tags) (return-from remove-tag))
     (setf tags (loop for (key value) on tags by #'cddr
-                  unless (eq (if (subtypep (type-of identifier) 'widget) 
+                  unless (eq (if (subtypep (type-of identifier) 'igo) 
                                  value key)
                              identifier)
                   collect key and collect value))))
 
-(defmethod widget-of ((screen screen) tag)
+(defmethod igo-of ((screen screen) tag)
   (let ((value (getf (slot-value screen 'tags) tag)))
     (assert value (value) 'tag-error :fault :invalid-tag :tag tag)
     value))
 
-(defmethod tag-of ((screen screen) (widget widget))
+(defmethod tag-of ((screen screen) (igo igo))
   (loop for (key value) on (slot-value screen 'tags) by #'cddr
-       when (eql value widget) do (return key)
+       when (eql value igo) do (return key)
        finally (return nil)))
 
-(defmethod add-widget ((screen screen) widget &optional tag)
-  (check-type widget widget)
-  (setf (parent widget) screen)
-  (with-slots (widgets) screen
-    (pushnew widget widgets))
-  (loop for event-type in (desired-events widget) by #'cddr
-     do (add-listener screen widget event-type))
+(defmethod add-igo ((screen screen) igo &optional tag)
+  (check-type igo igo)
+  (setf (parent igo) screen)
+  (with-slots (igos) screen
+    (pushnew igo igos))
+  (loop for event-type in (desired-events igo) by #'cddr
+     do (add-listener screen igo event-type))
   (when (keywordp tag)
-    (tag-widget screen widget tag)))
+    (tag-igo screen igo tag)))
 
-(defmethod remove-widget ((screen screen) widget &key (remove-listeners t))
-  (with-slots (widgets tags) screen
-    (setf widgets (delete-if (lambda (other-widget) (eq widget other-widget))
-                             widgets))
-    (remove-tag screen widget)
+(defmethod remove-igo ((screen screen) igo &key (remove-listeners t))
+  (with-slots (igos tags) screen
+    (setf igos (delete-if (lambda (other-igo) (eq igo other-igo))
+                             igos))
+    (remove-tag screen igo)
     (when remove-listeners
-      (dolist (event-type (desired-events widget))
-        (remove-listener screen widget event-type)))))
+      (dolist (event-type (desired-events igo))
+        (remove-listener screen igo event-type)))))
 
 (defmethod draw ((screen screen))
   (with-slots (x y) screen
     (with-translate (x y)
       (draw-panel screen)
-      (dolist (widget (slot-value screen 'widgets))
-        (draw widget)))))
+      (dolist (igo (slot-value screen 'igos))
+        (draw igo)))))
 
 (defmethod draw-panel ((screen screen))
   (with-slots (x y width height background) screen

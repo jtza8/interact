@@ -4,17 +4,17 @@
 
 (in-package :click)
 
-(defclass dummy-widget (widget)
+(defclass dummy-igo (igo)
   ((latest-event :initform nil
                  :reader latest-event)))
 
-(defmethod initialize-instance :after ((widget widget) &key)
-  (provide-events widget :dummy-event)
-  (desire-events widget :mouse-move #'event-mouse-move))
+(defmethod initialize-instance :after ((igo igo) &key)
+  (provide-events igo :dummy-event)
+  (desire-events igo :mouse-move #'event-mouse-move))
 
-;; (defmethod select-handler ((dummy dummy-widget) event-type)
+;; (defmethod select-handler ((dummy dummy-igo) event-type)
 ;;   (when (eq event-type :mouse-move)
 ;;     #'event-mouse-move))
   
-(defmethod event-mouse-move ((dummy dummy-widget) event)
+(defmethod event-mouse-move ((dummy dummy-igo) event)
   (setf (slot-value dummy 'latest-event) event))
