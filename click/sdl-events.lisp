@@ -1,0 +1,90 @@
+; Use of this source code is governed by a BSD-style
+; license that can be found in the license.txt file
+; in the root directory of this project.
+
+(in-package :click)
+
+(defun chop-sdl-key (keyword &optional (prefix "SDL-KEY"))
+  (let ((name (nstring-upcase (symbol-name keyword))))
+    (if (string= (subseq name 0 (length prefix)) prefix)
+        (intern (subseq name (1+ (length prefix))) 'keyword)
+        keyword)))
+
+(defun parse-sdl-event (sdl-event)
+  (flet ((display-state-event ()
+           `(:display-state 
+             :gain ,(sdl:active-event-gain sdl-event)
+             :state ,(sdl:active-event-state sdl-event)))
+         (key-event (event-name)
+           `(,event-name
+             :state ,(sdl:key-event-state sdl-event)
+             :scancode ,(sdl:key-event-scancode sdl-event)
+             :key ,(chop-sdl-key (sdl:key-event-key sdl-event))
+             :mod ,(sdl:key-event-mod sdl-event)
+             :mod-key ,(mapcar (lambda (keyword)
+                                 (chop-sdl-key keyword "SDL-KEY-MOD"))
+                               (sdl:key-event-mod-key sdl-event))
+             :unicode ,(sdl:key-event-unicode sdl-event)))
+         (mouse-motion-event ()
+           `(:mouse-motion
+             :state ,(sdl:mouse-motion-event-state sdl-event)
+             :x ,(sdl:mouse-motion-event-x sdl-event)
+             :y ,(sdl:mouse-motion-event-y sdl-event)
+             :x-rel ,(sdl:mouse-motion-event-x-rel sdl-event)
+             :y-rel ,(sdl:mouse-motion-event-y-rel sdl-event)))
+         (mouse-button-event (event-name)
+           `(,event-name
+             :button ,(sdl:mouse-button-event-button sdl-event)
+             :state ,(sdl:mouse-button-event-state sdl-event)
+             :x ,(sdl:mouse-button-event-x sdl-event)
+             :y ,(sdl:mouse-button-event-y sdl-event)))
+         (joy-axis-motion-event ()
+           `(:joy-axis-motion
+             :which ,(sdl:joy-axis-motion-event-which sdl-event)
+             :axis ,(sdl:joy-axis-motion-event-axis sdl-event)
+             :value ,(sdl:joy-axis-motion-event-value sdl-event)))
+         (joy-hat-motion-event ()
+           `(:joy-hat-motion
+             :which ,(sdl:joy-hat-motion-event-which sdl-event)
+             :axis ,(sdl:joy-hat-motion-event-axis sdl-event)
+             :value ,(sdl:joy-hat-motion-event-value sdl-event)))
+         (joy-ball-motion-event ()
+           `(:joy-ball-motion
+             :which ,(sdl:joy-ball-motion-event-which sdl-event)
+             :ball ,(sdl:joy-ball-motion-event-ball sdl-event)
+             :x-rel ,(sdl:joy-ball-motion-event-x-rel sdl-event)
+             :y-rel ,(sdl:joy-ball-motion-event-y-rel sdl-event)))
+         (joy-button-event (event-name)
+           `(,event-name
+             :which ,(sdl:joy-button-event-which sdl-event)
+             :button ,(sdl:joy-button-event-button sdl-event)
+             :state ,(sdl:joy-button-event-state sdl-event)))
+         (user-event ()
+           `(:user-event
+             :type ,(sdl:user-event-type sdl-event)
+             :code ,(sdl:user-event-code sdl-event)
+             :data1 ,(sdl:user-event-data1 sdl-event)
+             :data2 ,(sdl:user-event-data2 sdl-event)))
+         (display-resize-event ()
+           `(:display-resize
+             :w ,(sdl:video-resize-event-w sdl-event)
+             :h ,(sdl:video-resize-event-h sdl-event))))
+    
+    (ecase (sdl:get-event-type sdl-event)
+      (:no-event '(:no-event))
+      (:active-event (display-state-event))
+      (:key-down-event (key-event :key-down))
+      (:key-up-event (key-event :key-up))
+      (:mouse-motion-event (mouse-motion-event))
+      (:mouse-button-down-event (mouse-button-event :mouse-button-down))
+      (:mouse-button-up-event (mouse-button-event :mouse-button-up))
+      (:joy-axis-motion-event (joy-axis-motion-event))
+      (:joy-hat-motion-event (joy-hat-motion-event))
+      (:joy-ball-motion-event (joy-ball-motion-event))
+      (:joy-button-down-event (joy-button-event :joy-button-down))
+      (:joy-button-up-event (joy-button-event :joy-button-up))
+      (:quit-event '(:quit))
+      (:sys-wm-event '(:sys-wm-event))
+      (:video-resize-event (display-resize-event))
+      (:video-expose-event '(:display-exposure))
+      (:user-event (user-event)))))
