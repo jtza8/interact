@@ -12,6 +12,7 @@
                       :depends-on ("test-package" "dummy-igo"))
                (:file "event-converter-test"
                       :depends-on ("dummy-listener"))
+               (:file "display-functions-test" :depends-on ("test-package"))
                (:file "image-handling-test" :depends-on ("test-package"))
                (:file "image-sequence-test" :depends-on ("test-package"))
                (:file "sprite-sheet-test" :depends-on ("image-sequence-test"))

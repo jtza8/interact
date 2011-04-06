@@ -8,9 +8,14 @@
   ((latest-event :initform nil
                  :reader latest-event)))
 
-(defmethod initialize-instance :after ((igo dummy-igo) &key)
-  (provide-events igo :dummy-event)
-  (desire-events igo :mouse-motion #'event-mouse-motion))
+(defmethod initialize-instance :after ((igo dummy-igo) &key
+                                       (provided-events '(:dummy-event))
+                                       (desired-events '(:mouse-motion)))
+  (apply #'provide-events igo provided-events)
+  (apply #'desire-events igo 
+         (loop for event in desired-events
+               collect event
+               collect #'event-handler)))
 
-(defmethod event-mouse-motion ((dummy dummy-igo) event)
+(defmethod event-handler ((dummy dummy-igo) event)
   (setf (slot-value dummy 'latest-event) event))

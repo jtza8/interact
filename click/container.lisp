@@ -28,6 +28,8 @@
             :initform t)
    (igos :initform '()
          :reader igos)
+   (height :initform -1)
+   (width :initform -1)
    (background :initform nil
                :reader background)
    (tags :initform '())))
@@ -102,13 +104,14 @@
         (remove-listener container igo event-type)))))
 
 (defmethod draw ((container container))
-  (with-slots (visible x y) container
+  (with-slots (visible x y width height) container
     (unless visible
       (return-from draw))
     (with-translate (x y)
-      (draw-background container)
-      (dolist (igo (slot-value container 'igos))
-        (draw igo)))))
+      (with-clipping (x y width height)
+        (draw-background container)
+        (dolist (igo (slot-value container 'igos))
+          (draw igo))))))
 
 (defmethod draw-background ((container container))
   (with-slots (x y width height background) container
