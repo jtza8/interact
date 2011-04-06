@@ -50,11 +50,11 @@
 
 (defun test-load-sprite-sheet-manually ()
   (init-display-system :sprite-path *test-sprite-path*)
-  (let* ((screen (make-instance 'screen :height 100 :width 100 :x 10 :y 10))
+  (let* ((container (make-instance 'container :height 100 :width 100 :x 10 :y 10))
          (sprite (load-sprite-sheet 
                   (merge-pathnames "test-sheet.ss.png" *test-image-path*)))
          (igo (make-instance 'simple-igo :x 10 :y 10 :sprite sprite)))
-    (add-igo screen igo :simple-igo))
+    (add-igo container igo :simple-igo))
   (run-display-system))
 
 (def-test-method test-load-sprites ((test sprite-sheet-test))

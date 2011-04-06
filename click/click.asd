@@ -27,9 +27,7 @@
                (:file "sprite-tree" :depends-on
                       ("color-sprite" "texture-sprite" "animation-sprite"))
                (:file "font-tools" :depends-on ("texture-sprite"))
-               (:file "screen-manager" :depends-on ("listenable"))
                (:file "igo" :depends-on
                       ("listenable" "listener" "sprite-tree"))
-               (:file "screen" :depends-on ("igo"))
-               (:file "display-system" :depends-on ("screen" "screen-manager"
-                                                   "stopwatch"))))
+               (:file "container" :depends-on ("igo"))
+               (:file "display-system" :depends-on ("container" "stopwatch"))))

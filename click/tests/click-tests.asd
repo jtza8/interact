@@ -19,7 +19,7 @@
                       :depends-on ("test-package" "dummy-igo"))
                (:file "simple-igo"
                       :depends-on ("test-package"))
-               (:file "screen-test"
+               (:file "container-test"
                       :depends-on ("test-package" "simple-igo"))
                (:file "animation-sprite-test"
                       :depends-on ("test-package" "simple-igo"))))

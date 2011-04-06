@@ -31,7 +31,7 @@
 (defun quit-display-system ()
   (sdl:quit-video)
   (reset *global-stopwatch*)
-  (reset-screen-manager)
+  (set-up-root-container)
   (rt:clear-tree *sprite-tree*))
 
 (defun run-display-system ()
@@ -45,11 +45,10 @@
                   do (progn
                        (when (eq (sdl:get-event-type event) :quit-event)
                          (setf quit t))
-                       (print (parse-sdl-event event))))
-                       ;; (send-event *screen-manager* (parse-sdl-event event))))
+                       (send-event *root-container* (parse-sdl-event event))))
             do (progn
                  (gl:clear :color-buffer-bit)
-                 (draw *screen-manager*)
+                 (draw *root-container*)
                  (gl:flush)
                  (sdl:update-display)
                  (sleep 1/60)))

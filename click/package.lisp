@@ -8,17 +8,14 @@
                 #:invalid-node
                 #:free
                 #:with-nodes)
-  (:export #:*screen-manager*
+  (:export #:*root-container*
            #:*settings*
            #:*sprite-path*
            #:*sprite-tree*
            #:add-listener
-           #:add-screen
-           #:sm-add-screen
-           #:activate-screen
-           #:sm-activate-sceen
-           #:deactivate-screen
-           #:sm-deactivate-screen
+           #:add-container
+           #:activate-container
+           #:deactivate-container
            #:add-igo
            #:desire-events
            #:draw
@@ -38,15 +35,13 @@
            #:provide-events
            #:rectangle
            #:remove-listener
-           #:remove-screen
-           #:sm-remove-screen
            #:remove-tag
            #:remove-igo
            #:render-text
            #:reset-settings
            #:run-display-system
-           #:screen
-           #:screen-manager
+           #:container
+           #:container-manager
            #:send-event
            #:sprite
            #:tag-error
@@ -65,7 +60,7 @@
            #:within
 
            ; Accessors:
-           #:active-screens
+           #:active-containers
            #:background
            #:desired-events
            #:event
@@ -74,7 +69,7 @@
            #:listeners
            #:provided-events
            #:reason
-           #:screens
+           #:containers
            #:texture
            #:igos
            #:width
