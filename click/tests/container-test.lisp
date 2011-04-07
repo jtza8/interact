@@ -21,10 +21,15 @@
                        :click-tests "test-sprites"))
     (let ((igo-1 (make-instance 'simple-igo :x 10 :y 10 
                                 :sprite (diverge (sprite-node :test-sheet))))
-          (container (make-instance 'container :x 100 :y 120 
-                                    :width 25 :height 340))
-          (igo-2 (make-instance 'simple-igo :x -10 :y 0
-                                :sprite (diverge (sprite-node :test-sheet)))))
+          (container-a (make-instance 'container :x 100 :y 100
+                                      :width 200 :height 200))
+          (container-b (make-instance 'container :x 0 :y 0
+                                      :width 200 :height 200))
+          (igo-2 (make-instance 'simple-igo :x 0 :y 0 :sprite
+                                (make-instance 'color-sprite
+                                               :color '(1.0 0.0 0.0)
+                                               :width 200 :height 200))))
       (add-igo *root-container* igo-1)
-      (add-igo container igo-2)
-      (add-igo *root-container* container))))
+      (add-igo container-b igo-2)
+      (add-igo container-a container-b)
+      (add-igo *root-container* container-a))))

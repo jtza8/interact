@@ -8,6 +8,11 @@
   ((sprite :initarg :sprite
            :initform (error "sprite must be specified"))))
 
+(defmethod initialize-instance :after ((igo simple-igo) &key)
+  (with-slots (sprite width height) igo
+    (setf width (width sprite)
+          height (height sprite))))
+
 (defmethod draw ((igo simple-igo))
   (with-slots (sprite x y) igo
     (draw-at sprite x y)))

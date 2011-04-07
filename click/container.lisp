@@ -82,8 +82,8 @@
 
 (defmethod tag-of ((container container) (igo igo))
   (loop for (key value) on (slot-value container 'tags) by #'cddr
-       when (eql value igo) do (return key)
-       finally (return nil)))
+        when (eql value igo) do (return key)
+        finally (return nil)))
 
 (defmethod add-igo ((container container) igo &optional tag)
   (check-type igo igo)
@@ -97,7 +97,7 @@
 (defmethod remove-igo ((container container) igo &key (remove-listeners t))
   (with-slots (igos tags) container
     (setf igos (delete-if (lambda (other-igo) (eq igo other-igo))
-                             igos))
+                          igos))
     (remove-tag container igo)
     (when remove-listeners
       (dolist (event-type (desired-events igo))
@@ -109,6 +109,7 @@
       (return-from draw))
     (with-translate (x y)
       (with-clipping (x y width height)
+        (print (gl:get-integer :scissor-box))
         (draw-background container)
         (dolist (igo (slot-value container 'igos))
           (draw igo))))))

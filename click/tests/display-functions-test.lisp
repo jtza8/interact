@@ -8,8 +8,8 @@
   ())
 
 (def-test-method test-overlay-rectangles ((test display-functions-test))
-  (let ((a '(10 11 90 101))
-        (b '(20 22 200 202))
-        (c '(110 111 100 101)))
-    (assert-equal '(20 22 80 90) (overlay-rectangles a b))
-    (assert-equal '(110 111 0 1) (overlay-rectangles a c))))
+  (let ((a #(10 110 90 101))
+        (b #(99 210 90 101))
+        (c #(101 212 90 101)))
+    (assert-equal '(99 210 1 1) (coerce (overlay-rectangles a b) 'list))
+    (assert-equal '(101 212 0 0) (coerce (overlay-rectangles a c) 'list))))

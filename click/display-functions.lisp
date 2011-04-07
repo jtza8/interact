@@ -4,14 +4,39 @@
 
 (in-package :click)
 
+(defclass display-functions-state ()
+  ((clipping-depth :initarg :clipping-depth
+                   :initform 0
+                   :accessor clipping-depth)
+   (clipping-rect :initarg :clipping-rect
+                  :initform #(0 0 0 0)
+                  :accessor clipping-rect)
+   (translate-stack :initarg :translate-stack
+                    :initform '()
+                    :accessor translate-stack)))
+
+(defparameter *df-state*
+  (make-instance 'display-functions-state))
+
 (defun translate (x y)
   (gl:matrix-mode :modelview)
   (gl:push-matrix)
-  (gl:translate x y 0))
+  (gl:translate x y 0)
+  (push (list x y) (translate-stack *df-state*))
+  (let ((clipping-rect (clipping-rect *df-state*)))
+    (decf (aref clipping-rect 0) x)
+    (decf (aref clipping-rect 1) y)
+    (print clipping-rect)))
 
 (defun undo-translate ()
-  (gl:matrix-mode :modelview)
-  (gl:pop-matrix))
+  (with-accessors ((translate-stack translate-stack)
+                   (clipping-rect clipping-rect))
+      *df-state*
+    (destructuring-bind (x y) (pop translate-stack)
+      (gl:matrix-mode :modelview)
+      (gl:pop-matrix)
+      (incf (aref clipping-rect 0) x)
+      (incf (aref clipping-rect 1) y))))
 
 (defmacro with-translate ((x y) &body body)
   `(progn
@@ -19,30 +44,44 @@
      (unwind-protect (progn ,@body)
        (undo-translate))))
 
-(defparameter *clipping-stack* '())
+(defmacro simple-vector-bind ((&rest variables) src-vector &body body)
+  `(let ,(loop for variable in variables
+               for i upfrom 0
+               collect `(,variable (aref ,src-vector ,i)))
+     ,@body))
 
-(defun overlay-rectangles (&optional a b)
-  (when (or (null a) (null b))
-    (return-from overlay-rectangles))
-  (destructuring-bind (ax ay aw ah) a
-    (destructuring-bind (bx by bw bh) b
+(defun overlay-rectangles (a b)
+  (simple-vector-bind (ax ay aw ah) a
+    (simple-vector-bind (bx by bw bh) b
       (let* ((x (max ax bx))
              (y (max ay by))
              (w (max (- (min (+ ax aw) (+ bx bw)) x) 0))
              (h (max (- (min (+ ay ah) (+ by bh)) y) 0)))
-        (list x y w h)))))
+        (vector x y w h)))))
 
 (defun clip-display (x y width height)
-  (when (= 0 (length *clipping-stack*))
+  (when (= (clipping-depth *df-state*) 0)
     (gl:enable :scissor-test))
-  (push (list x y width height) *clipping-stack*)
-  (apply #'gl:scissor (reduce #'overlay-rectangles *clipping-stack*
-                              :from-end t)))
+  (incf y height)
+  (with-accessors ((clipping-depth clipping-depth)
+                   (clipping-rect clipping-rect))
+      *df-state*
+    (simple-vector-bind (x y width height)
+        (setf clipping-rect
+              (if (> clipping-depth 0)
+                  (overlay-rectangles clipping-rect (vector x y width height))
+                  (vector x y width height)))
+      (gl:push-attrib :scissor-bit)
+      (gl:scissor x y width height)
+      (incf clipping-depth))))
 
 (defun undo-clipping ()
-  (when (= 1 (length *clipping-stack*))
-    (gl:disable :scissor-test))
-  (pop *clipping-stack*))
+  (gl:pop-attrib)
+  (with-accessors ((clipping-depth clipping-depth)) *df-state*
+    (decf clipping-depth)
+    (when (= 0 clipping-depth)
+      (gl:disable :scissor-test))
+    clipping-depth))
 
 (defmacro with-clipping ((x y width height) &body body)
   (let ((make-clip (gensym)))
