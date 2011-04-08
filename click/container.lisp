@@ -108,10 +108,11 @@
     (unless visible
       (return-from draw))
     (with-translate (x y)
-      (with-clipping (x y width height)
-        (print (gl:get-integer :scissor-box))
+      (with-clipping ((absolute-x container)
+                      (absolute-y container)
+                      width height)
         (draw-background container)
-        (dolist (igo (slot-value container 'igos))
+        (dolist (igo (reverse (slot-value container 'igos)))
           (draw igo))))))
 
 (defmethod draw-background ((container container))

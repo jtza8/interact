@@ -19,17 +19,55 @@
   (with-display-system ()
     (load-sprite-path (asdf:system-relative-pathname 
                        :click-tests "test-sprites"))
-    (let ((igo-1 (make-instance 'simple-igo :x 10 :y 10 
-                                :sprite (diverge (sprite-node :test-sheet))))
-          (container-a (make-instance 'container :x 100 :y 100
-                                      :width 200 :height 200))
-          (container-b (make-instance 'container :x 0 :y 0
-                                      :width 200 :height 200))
-          (igo-2 (make-instance 'simple-igo :x 0 :y 0 :sprite
-                                (make-instance 'color-sprite
-                                               :color '(1.0 0.0 0.0)
-                                               :width 200 :height 200))))
-      (add-igo *root-container* igo-1)
-      (add-igo container-b igo-2)
-      (add-igo container-a container-b)
-      (add-igo *root-container* container-a))))
+    (add-igo *root-container* 
+             (make-instance 'container :x 10 :y 10
+                            :width 100 :height 100)
+             :container-a)
+    (add-igo (igo-of *root-container* :container-a)
+             (make-instance 'simple-igo 
+                            :sprite
+                            (make-instance 'color-sprite
+                                           :color '(1.0 0.0 0.0)
+                                           :width 100 :height 100)))
+    (add-igo *root-container* 
+             (make-instance 'container :x 120 :y 10
+                            :width 50 :height 50)
+             :container-b)
+    (add-igo (igo-of *root-container* :container-b)
+             (make-instance 'simple-igo 
+                            :sprite
+                            (make-instance 'color-sprite
+                                           :color '(1.0 0.0 0.0)
+                                           :width 100 :height 100)))
+    (add-igo *root-container* 
+             (make-instance 'container :x 240 :y 10
+                            :width 100 :height 100)
+             :container-c)
+    (add-igo (igo-of *root-container* :container-c)
+             (make-instance 'simple-igo 
+                            :sprite
+                            (make-instance 'color-sprite
+                                           :color '(0.0 1.0 0.0)
+                                           :width 100 :height 100)))
+    (add-igo (igo-of *root-container* :container-c)
+             (make-instance 'container :x 70 :y 60
+                            :width 50 :height 50)
+             :container-d)
+    (add-igo (igo-of (igo-of *root-container* :container-c) :container-d)
+             (make-instance 'simple-igo 
+                            :sprite
+                            (make-instance 'color-sprite
+                                           :color '(0.0 0.0 1.0)
+                                           :width 100 :height 100)))
+    (add-igo (igo-of (igo-of *root-container* :container-c) :container-d)
+             (make-instance 'container :x -10 :y 0
+                            :width 25 :height 25)
+             :container-e)
+    (add-igo (igo-of (igo-of (igo-of *root-container* :container-c)
+                             :container-d)
+                     :container-e)
+             (make-instance 'simple-igo 
+                            :sprite
+                            (make-instance 'color-sprite
+                                           :color '(1.0 0.0 0.0)
+                                           :width 100 :height 100)))))
