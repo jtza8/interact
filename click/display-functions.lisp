@@ -7,16 +7,9 @@
 (defclass display-functions-state ()
   ((clipping-depth :initarg :clipping-depth
                    :initform 0
-                   :accessor clipping-depth)
-   (clipping-rect :initarg :clipping-rect
-                  :initform #(0 0 0 0)
-                  :accessor clipping-rect)
-   (translate-stack :initarg :translate-stack
-                    :initform '()
-                    :accessor translate-stack)))
+                   :accessor clipping-depth)))
 
-(defparameter *df-state*
-  (make-instance 'display-functions-state))
+(defparameter *clipping-depth* 0)
 
 (defun translate (x y)
   (gl:matrix-mode :modelview)
@@ -53,27 +46,25 @@
   (gl:get-integer :viewport))
 
 (defun clip-display (x y width height)
-  (with-accessors ((clipping-depth clipping-depth)) *df-state*
-    (let ((clipping
-           (simple-vector-bind (dx dy dw dh) (viewport)
-             (declare (ignore dw))
-             (vector x (+ (- dh y height) dy) (+ width dx) (+ height dy)))))
-      (simple-vector-bind (x y width height)
-          (if (= clipping-depth 0)
-              (progn (gl:enable :scissor-test)
-                     clipping)
-              (overlay-rectangles (gl:get-integer :scissor-box)
-                                  clipping))
-        (gl:push-attrib :scissor)
-        (gl:scissor x y width height)
-        (incf clipping-depth)))))
+  (let ((clipping
+         (simple-vector-bind (dx dy dw dh) (viewport)
+           (declare (ignore dw))
+           (vector x (+ (- dh y height) dy) (+ width dx) (+ height dy)))))
+    (simple-vector-bind (x y width height)
+        (if (= *clipping-depth* 0)
+            (progn (gl:enable :scissor-test)
+                   clipping)
+            (overlay-rectangles (gl:get-integer :scissor-box)
+                                clipping))
+      (gl:push-attrib :scissor)
+      (gl:scissor x y width height)
+      (incf *clipping-depth*))))
 
 (defun undo-clipping ()
-  (with-accessors ((clipping-depth clipping-depth)) *df-state*
-    (gl:pop-attrib)
-    (decf clipping-depth)
-    (when (= clipping-depth 0)
-      (gl:disable :scissor-test))))
+  (gl:pop-attrib)
+  (decf *clipping-depth*)
+  (when (= *clipping-depth* 0)
+    (gl:disable :scissor-test))))
 
 (defmacro with-clipping ((x y width height) &body body)
   (let ((make-clip (gensym)))

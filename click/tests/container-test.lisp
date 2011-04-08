@@ -17,8 +17,6 @@
 
 (defun test-container-manually ()
   (with-display-system ()
-    (load-sprite-path (asdf:system-relative-pathname 
-                       :click-tests "test-sprites"))
     (add-igo *root-container* 
              (make-instance 'container :x 10 :y 10
                             :width 100 :height 100)
