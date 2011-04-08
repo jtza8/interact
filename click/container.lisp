@@ -26,7 +26,7 @@
 (defclass container (igo)
   ((visible :initarg :visible
             :initform t)
-   (igos :initform '()
+   (igos :initform (make-array 5 :fill-pointer 0 :adjustable t)
          :reader igos)
    (height :initform -1)
    (width :initform -1)
@@ -87,17 +87,24 @@
 
 (defmethod add-igo ((container container) igo &optional tag)
   (check-type igo igo)
-  (setf (parent igo) container)
   (with-slots (igos) container
-    (pushnew igo igos))
+    (loop for existing across igos
+          when (eq existing igo) do (return-from add-igo))
+    (setf (parent igo) container)
+    (vector-push-extend igo igos))
   (add-listener container igo)
   (when (keywordp tag)
     (tag-igo container igo tag)))
 
 (defmethod remove-igo ((container container) igo &key (remove-listeners t))
   (with-slots (igos tags) container
-    (setf igos (delete-if (lambda (other-igo) (eq igo other-igo))
-                          igos))
+    (setf igos (loop with new-vector = (make-array (length igos) 
+                                                   :fill-pointer 0
+                                                   :adjustable t)
+                     for existing across igos
+                     unless (eq existing igo) 
+                       do (vector-push-extend existing new-vector)
+                     finally (return new-vector)))
     (remove-tag container igo)
     (when remove-listeners
       (dolist (event-type (desired-events igo))
@@ -112,8 +119,8 @@
                       (absolute-y container)
                       width height)
         (draw-background container)
-        (dolist (igo (reverse (slot-value container 'igos)))
-          (draw igo))))))
+        (loop for igo across (slot-value container 'igos)
+              do (draw igo))))))
 
 (defmethod draw-background ((container container))
   (with-slots (x y width height background) container
