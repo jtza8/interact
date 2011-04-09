@@ -4,11 +4,6 @@
 
 (in-package :click)
 
-(defclass display-functions-state ()
-  ((clipping-depth :initarg :clipping-depth
-                   :initform 0
-                   :accessor clipping-depth)))
-
 (defparameter *clipping-depth* 0)
 
 (defun translate (x y)

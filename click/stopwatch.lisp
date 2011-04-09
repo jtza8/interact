@@ -20,11 +20,11 @@
    (time-func :initform nil)))
 
 (defmethod initialize-instance :after ((watch stopwatch) &key
-                                       (mode :subjective))
+                                       (mode :local))
   (with-slots (time-func) watch
     (setf time-func (case mode
-                      (:subjective (lambda () (lap *global-stopwatch*)))
-                      (:objective #'get-internal-real-time)
+                      (:local (lambda () (lap *global-stopwatch*)))
+                      (:global #'get-internal-real-time)
                       (otherwise (error 'program-error
                                         "incorrect time mode"))))))
 
@@ -55,4 +55,4 @@
           run-time 0
           running nil)))
 
-(setf *global-stopwatch* (make-instance 'stopwatch :mode :objective))
+(setf *global-stopwatch* (make-instance 'stopwatch :mode :global))
