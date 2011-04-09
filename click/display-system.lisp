@@ -4,15 +4,21 @@
 
 (in-package :click)
 
-(defun init-display-system (&key (width 800) (height 600) (full-screen nil)
-                           (bg-color '(1 1 1 0)) (window-title "Lisp"))
+(defun prepare-click ()
+  (reset *global-stopwatch*)
+  (rt:clear-tree *sprite-tree*)
+  (set-up-root-container)
+  (setf *clipping-depth* 0))
+
+(defun start-display-system (&key (width 800) (height 600) (full-screen nil)
+                             (bg-color '(1 1 1 0)) (title "Lisp"))
   (sdl:init-video)
   (let ((flags (list sdl:sdl-opengl)))
     (when full-screen (push sdl:sdl-fullscreen flags))
     (sdl:window width height
                 :bpp 32
                 :flags flags
-                :title-caption window-title))
+                :title-caption title))
   (setf (sdl:frame-rate) 60
         cl-opengl-bindings:*gl-get-proc-address*
         #'sdl-cffi::sdl-gl-get-proc-address)
@@ -26,13 +32,11 @@
   (gl:enable :blend)
   (gl:enable :texture-2d)
   (gl:blend-func :src-alpha :one-minus-src-alpha)
-  (gl:clear :color-buffer-bit))
+  (gl:clear :color-buffer-bit)
+  (prepare-click))
 
 (defun quit-display-system ()
-  (sdl:quit-video)
-  (reset *global-stopwatch*)
-  (set-up-root-container)
-  (rt:clear-tree *sprite-tree*))
+  (sdl:quit-video))
 
 (defun run-display-system ()
   (start *global-stopwatch*)
@@ -55,8 +59,7 @@
       (cffi:foreign-free event))))
 
 (defmacro with-display-system ((&rest args) &body body)
-  `(progn (init-display-system ,@args)
+  `(progn (start-display-system ,@args)
           (unwind-protect (progn ,@body 
                                  (run-display-system))
             (quit-display-system))))
-  

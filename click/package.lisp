@@ -25,7 +25,7 @@
            #:sprite-node
            #:sprite-node-from
            #:init-click
-           #:init-display-system
+           #:start-display-system
            #:invalid-event
            #:invalid-event-type
            #:invalid-sprite-node

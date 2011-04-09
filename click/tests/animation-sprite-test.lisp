@@ -5,7 +5,7 @@
 (in-package :click)
 
 (defun test-animation-sprite-manually ()
-  (init-display-system)
+  (start-display-system)
   (load-sprite-path (asdf:system-relative-pathname :click-tests
                                                    "test-sprites"))
   (let* ((container (make-instance 'container :height 0 :width 0 :x 0 :y 0))

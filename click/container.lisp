@@ -28,8 +28,9 @@
             :initform t)
    (igos :initform (make-array 5 :fill-pointer 0 :adjustable t)
          :reader igos)
-   (height :initform -1)
-   (width :initform -1)
+   (clipping :initarg :clipping
+             :initform t
+             :accessor clipping)
    (background :initform nil
                :reader background)
    (tags :initform '())))
@@ -111,16 +112,20 @@
         (remove-listener container igo event-type)))))
 
 (defmethod draw ((container container))
-  (with-slots (visible x y width height) container
+  (with-slots (visible clipping x y width height) container
     (unless visible
       (return-from draw))
     (with-translate (x y)
-      (with-clipping ((absolute-x container)
+      (when clipping
+        (clip-display (absolute-x container)
                       (absolute-y container)
-                      width height)
-        (draw-background container)
-        (loop for igo across (slot-value container 'igos)
-              do (draw igo))))))
+                      width height))
+      (unwind-protect
+           (progn (draw-background container)
+                  (loop for igo across (slot-value container 'igos)
+                        do (draw igo)))
+        (when clipping
+          (undo-clipping))))))
 
 (defmethod draw-background ((container container))
   (with-slots (x y width height background) container
@@ -129,5 +134,5 @@
     (draw-at background x y :width width :height height :mode :tile)))
 
 (defun set-up-root-container ()
-  (setf *root-container* (make-instance 'container)))
+  (setf *root-container* (make-instance 'container :clipping nil)))
 (set-up-root-container)

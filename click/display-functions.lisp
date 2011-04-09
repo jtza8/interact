@@ -64,11 +64,10 @@
   (gl:pop-attrib)
   (decf *clipping-depth*)
   (when (= *clipping-depth* 0)
-    (gl:disable :scissor-test))))
+    (gl:disable :scissor-test)))
 
 (defmacro with-clipping ((x y width height) &body body)
-  (let ((make-clip (gensym)))
-    `(let ((,make-clip (and (>= ,height 0) (>= ,width 0))))
-       (when ,make-clip (clip-display ,x ,y ,width ,height))
-       (unwind-protect (progn ,@body)
-         (when ,make-clip (undo-clipping))))))
+  `(progn
+     (clip-display ,x ,y ,width ,height)
+     (unwind-protect (progn ,@body)
+       (undo-clipping))))
