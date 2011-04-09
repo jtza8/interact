@@ -41,4 +41,7 @@
       (add-listener dummy listener-1)
       (send-event dummy #1='(:dummy-event 1 3 5)) 
       (assert-equal #1# (latest-event listener-1))
-      (assert-false (equal #1# (latest-event listener-2))))))
+      (assert-false (equal #1# (latest-event listener-2)))
+      (assert-true (find listener-1 (getf (listeners dummy) :dummy-event)))
+      (remove-listener dummy listener-1)
+      (assert-false (find listener-1 (getf (listeners dummy) :dummy-event))))))

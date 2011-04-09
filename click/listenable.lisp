@@ -59,8 +59,8 @@
 (defmethod remove-listener ((listenable listenable) listener 
                             &optional event-type)
   (when (null event-type)
-    (dolist (event (desired-events listener))
-      (remove-listener listenable listener event))
+    (loop for (event nil) on (desired-events listener) by #'cddr
+          do (remove-listener listenable listener event))
     (return-from remove-listener))
   (with-slots (listeners) listenable
     (let ((event-listeners (getf listeners event-type)))

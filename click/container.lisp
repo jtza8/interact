@@ -108,8 +108,7 @@
                      finally (return new-vector)))
     (remove-tag container igo)
     (when remove-listeners
-      (dolist (event-type (desired-events igo))
-        (remove-listener container igo event-type)))))
+      (remove-listener container igo))))
 
 (defmethod draw ((container container))
   (with-slots (visible clipping x y width height) container
