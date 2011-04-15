@@ -32,6 +32,7 @@
              :initform t
              :accessor clipping)
    (background :initform nil
+               :initarg :background
                :reader background)
    (tags :initform '())))
 
@@ -111,20 +112,12 @@
       (remove-listener container igo))))
 
 (defmethod draw ((container container))
-  (with-slots (visible clipping x y width height) container
+  (with-slots (visible x y width height) container
     (unless visible
       (return-from draw))
-    (with-translate (x y)
-      (when clipping
-        (clip-display (absolute-x container)
-                      (absolute-y container)
-                      width height))
-      (unwind-protect
-           (progn (draw-background container)
-                  (loop for igo across (slot-value container 'igos)
-                        do (draw igo)))
-        (when clipping
-          (undo-clipping))))))
+    (draw-background container)
+    (loop for igo across (slot-value container 'igos)
+       do (draw igo))))
 
 (defmethod draw-background ((container container))
   (with-slots (x y width height background) container

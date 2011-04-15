@@ -63,54 +63,17 @@
 (defun test-clipping-manually ()
   (with-display-system ()
     (add-igo *root-container* 
-             (make-instance 'container :x 10 :y 10
-                            :width 100 :height 100)
+             (make-instance 'container :x 100 :y 100
+                            :width 100 :height 100 :rotation 20
+                            :pivot-x 50 :pivot-y 50
+                            :background (make-instance 'color-sprite
+                                                       :color '(0.5 0.5 0.5)
+                                                       :width 100 :height 100))
              :container-a)
     (add-igo (igo-of *root-container* :container-a)
-             (make-instance 'simple-igo 
-                            :sprite
-                            (make-instance 'color-sprite
-                                           :color '(1.0 0.0 0.0)
-                                           :width 100 :height 100)))
-    (add-igo *root-container* 
-             (make-instance 'container :x 120 :y 10
-                            :width 50 :height 50)
-             :container-b)
-    (add-igo (igo-of *root-container* :container-b)
-             (make-instance 'simple-igo 
-                            :sprite
-                            (make-instance 'color-sprite
-                                           :color '(1.0 0.0 0.0)
-                                           :width 100 :height 100)))
-    (add-igo *root-container* 
-             (make-instance 'container :x 240 :y 10
-                            :width 100 :height 100)
-             :container-c)
-    (add-igo (igo-of *root-container* :container-c)
-             (make-instance 'simple-igo 
-                            :sprite
-                            (make-instance 'color-sprite
-                                           :color '(0.0 1.0 0.0)
-                                           :width 100 :height 100)))
-    (add-igo (igo-of *root-container* :container-c)
-             (make-instance 'container :x 70 :y 60
-                            :width 50 :height 50)
-             :container-d)
-    (add-igo (igo-of (igo-of *root-container* :container-c) :container-d)
-             (make-instance 'simple-igo 
-                            :sprite
-                            (make-instance 'color-sprite
-                                           :color '(0.0 0.0 1.0)
-                                           :width 100 :height 100)))
-    (add-igo (igo-of (igo-of *root-container* :container-c) :container-d)
-             (make-instance 'container :x -10 :y 0
-                            :width 25 :height 25)
-             :container-e)
-    (add-igo (igo-of (igo-of (igo-of *root-container* :container-c)
-                             :container-d)
-                     :container-e)
-             (make-instance 'simple-igo 
-                            :sprite
-                            (make-instance 'color-sprite
-                                           :color '(1.0 0.0 0.0)
-                                           :width 100 :height 100)))))
+             (make-instance 'simple-igo
+                            :width 50 :height 50 :rotation 20
+                            :pivot-x 25 :pivot-y 25
+                            :sprite (make-instance 'color-sprite
+                                                   :color '(1.0 0.0 0.0)
+                                                   :width 50 :height 50)))))

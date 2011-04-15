@@ -7,10 +7,19 @@
 (defclass igo (listenable listener)
   ((x :initform 0
       :initarg :x
-      :reader x)
+      :accessor x)
    (y :initform 0
       :initarg :y
-      :reader y)
+      :accessor y)
+   (pivot-x :initform 0
+            :initarg :pivot-x
+            :accessor pivot-x)
+   (pivot-y :initform 0
+            :initarg :pivot-y
+            :accessor pivot-y)
+   (rotation :initform 0
+             :initarg :rotation
+             :accessor rotation)
    (left-margin :initform 0
                 :initarg :left-margin)
    (right-margin :initform 0
@@ -22,12 +31,21 @@
    (width :initform 50
           :initarg :width
           :reader width)
-   (height :initform 20
+   (height :initform 50
            :initarg :height
            :reader height)
    (parent :initform nil
            :initarg :parent
            :accessor parent)))
+
+(defmethod draw :around ((igo igo))
+  (with-slots (x y pivot-x pivot-y rotation width height) igo
+    (gl:matrix-mode :modelview)
+    (gl:with-pushed-matrix
+      (gl:translate (+ x pivot-x) (+ y pivot-y) 0)
+      (gl:rotate rotation 0 0 1)
+      (gl:translate (- pivot-x) (- pivot-y) 0)
+      (call-next-method))))
 
 (defmethod absolute-pos ((igo igo))
   (with-slots (parent x y) igo

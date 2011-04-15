@@ -5,21 +5,43 @@
 (in-package :click)
 
 (defparameter *clipping-depth* 0)
+(defparameter *translations* '())
+(defparameter *rotations* '())
 
 (defun translate (x y)
   (gl:matrix-mode :modelview)
-  (gl:push-matrix)
-  (gl:translate x y 0))
+  (gl:translate x y 0)
+  (push (list x y 0) *translations*))
 
 (defun undo-translate ()
   (gl:matrix-mode :modelview)
-  (gl:pop-matrix))
+  (let ((translation (pop *translations*)))
+    (when (null translation) (return-from undo-translate))
+    (apply #'gl:translate (mapcar #'- translation))))
 
 (defmacro with-translate ((x y) &body body)
   `(progn
      (translate ,x ,y)
      (unwind-protect (progn ,@body)
        (undo-translate))))
+
+(defun rotate (radians)
+  (let ((degrees (* (/ radians (* 2 PI)) 360.0)))
+    (gl:matrix-mode :modelview)
+    (gl:rotate degrees 0 0 1)
+    (push degrees *rotations*)))
+
+(defun undo-rotate ()
+  (gl:matrix-mode :modelview)
+  (let ((rotation (pop *rotations*)))
+    (when (null rotation) (return-from undo-rotate))
+    (gl:rotate rotation 0 0 -1)))
+
+(defmacro with-rotate (radians &body body)
+  `(progn
+     (rotate ,radians)
+     (unwind-protect (progn ,@body)
+       (undo-rotate))))
 
 (defmacro simple-vector-bind ((&rest variables) src-vector &body body)
   `(let ,(loop for variable in variables

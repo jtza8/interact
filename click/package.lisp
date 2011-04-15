@@ -29,12 +29,14 @@
    #:prepare-click
    #:quit-display-system
    #:read-sheet-header
+   #:rotate
    #:run-display-system
    #:set-up-root-container
    #:sprite-node
    #:start-display-system
    #:translate
    #:undo-clipping
+   #:undo-rotation
    #:undo-translate
    #:write-sheet-header
 
@@ -80,6 +82,8 @@
    #:igos
    #:listeners
    #:parent
+   #:pivot-x
+   #:pivot-y
    #:provided-events
    #:reason
    #:texture
@@ -92,6 +96,7 @@
    #:with-display-system
    #:with-event-keys
    #:with-image-sequence
+   #:with-rotate
    #:with-translate
 
    ; Classes
