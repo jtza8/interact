@@ -14,5 +14,5 @@
           height (height sprite))))
 
 (defmethod draw ((igo simple-igo))
-  (with-slots (sprite x y) igo
-    (draw-at sprite x y)))
+  (with-slots (sprite) igo
+    (draw-at sprite 0 0)))

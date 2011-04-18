@@ -74,9 +74,9 @@
              :container-a)
     (add-igo (igo-of *root-container* :container-a)
              (make-instance 'simple-igo
-                            :width 64 :height 64 :rotation 10
-                            :x 50 :y 0
-                            :pivot-x 0 :pivot-y 0
+                            :width 64 :height 64 :rotation 45
+                            :x 18 :y 18
+                            :pivot-x 32 :pivot-y 32
                             :sprite (sprite-node :test-sheet)))
     (add-igo (igo-of *root-container* :container-a)
              (make-instance 'interactive-container

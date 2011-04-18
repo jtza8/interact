@@ -7,8 +7,7 @@
 (defun prepare-click ()
   (reset *global-stopwatch*)
   (rt:clear-tree *sprite-tree*)
-  (set-up-root-container)
-  (setf *clipping-depth* 0))
+  (set-up-root-container))
 
 (defun start-display-system (&key (width 800) (height 600) (full-screen nil)
                              (bg-color '(1 1 1 0)) (title "Lisp"))
