@@ -12,7 +12,6 @@
                       :depends-on ("test-package" "dummy-igo"))
                (:file "event-converter-test"
                       :depends-on ("dummy-listener"))
-               (:file "display-functions-test" :depends-on ("test-package"))
                (:file "image-handling-test" :depends-on ("test-package"))
                (:file "image-sequence-test" :depends-on ("test-package"))
                (:file "sprite-sheet-test" :depends-on ("image-sequence-test"))
@@ -20,7 +19,9 @@
                       :depends-on ("test-package" "dummy-igo"))
                (:file "simple-igo"
                       :depends-on ("test-package"))
+               (:file "interactive-container" :depends-on ("test-package"))
                (:file "container-test"
-                      :depends-on ("test-package" "simple-igo"))
+                      :depends-on ("test-package" "simple-igo" 
+                                   "interactive-container"))
                (:file "animation-sprite-test"
                       :depends-on ("test-package" "simple-igo"))))

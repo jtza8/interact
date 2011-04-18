@@ -38,4 +38,4 @@
                         collect `(defmethod ,message ((sprite animation-sprite))
                                    (with-slots (stopwatch) sprite
                                      (,message stopwatch)))))))
-  (messages-to-stopwatch start stop reset))
+  (messages-to-stopwatch start stop))

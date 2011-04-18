@@ -60,10 +60,12 @@
     (send-event container #1='(:key-down :key :a))
     (assert-equal #1# (latest-event dummy))))
 
-(defun test-clipping-manually ()
-  (with-display-system ()
+(defun test-rotation-manually ()
+  (with-display-system (:bg-color '(0 0 0 1))
+    (load-sprite-path (asdf:system-relative-pathname 
+                       :click-tests "test-sprites"))
     (add-igo *root-container* 
-             (make-instance 'container :x 100 :y 100
+             (make-instance 'interactive-container :x 100 :y 100
                             :width 100 :height 100 :rotation 20
                             :pivot-x 50 :pivot-y 50
                             :background (make-instance 'color-sprite
@@ -72,8 +74,13 @@
              :container-a)
     (add-igo (igo-of *root-container* :container-a)
              (make-instance 'simple-igo
-                            :width 50 :height 50 :rotation 20
-                            :pivot-x 25 :pivot-y 25
-                            :sprite (make-instance 'color-sprite
-                                                   :color '(1.0 0.0 0.0)
-                                                   :width 50 :height 50)))))
+                            :width 64 :height 64 :rotation 10
+                            :x 50 :y 0
+                            :pivot-x 0 :pivot-y 0
+                            :sprite (sprite-node :test-sheet)))
+    (add-igo (igo-of *root-container* :container-a)
+             (make-instance 'interactive-container
+                            :width 64 :height 64 :rotation 0
+                            :x 100 :y 0
+                            :pivot-x 0 :pivot-y 0
+                            :background (sprite-node :test-sheet)))))

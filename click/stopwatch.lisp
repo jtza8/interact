@@ -49,10 +49,12 @@
         (- (funcall time-func) time-marker)
         run-time)))
 
-(defmethod reset ((watch stopwatch))
+(defmethod reset ((watch stopwatch) &key (auto-start nil))
   (with-slots (time-marker running run-time) watch
     (setf time-marker nil
           run-time 0
-          running nil)))
+          running nil))
+  (when auto-start
+    (start watch)))
 
 (setf *global-stopwatch* (make-instance 'stopwatch :mode :global))

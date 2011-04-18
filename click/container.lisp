@@ -120,10 +120,10 @@
        do (draw igo))))
 
 (defmethod draw-background ((container container))
-  (with-slots (x y width height background) container
+  (with-slots (width height background) container
     (when (null background)
       (return-from draw-background))
-    (draw-at background x y :width width :height height :mode :tile)))
+    (draw-at background 0 0 :width width :height height :mode :tile)))
 
 (defun set-up-root-container ()
   (setf *root-container* (make-instance 'container :clipping nil)))

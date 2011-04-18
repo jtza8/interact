@@ -13,8 +13,7 @@
                (:file "sdl-events" :depends-on ("package"))
                (:file "event-converter" :depends-on
                       ("listenable" "sdl-events"))
-               (:file "display-functions" :depends-on ("package"))
-               (:file "sprite" :depends-on ("display-functions"))
+               (:file "sprite" :depends-on ("package"))
                (:file "color-sprite" :depends-on ("sprite"))
                (:file "texture-sprite" :depends-on ("sprite"))
                (:file "animation-sprite" :depends-on ("sprite" "stopwatch"))
