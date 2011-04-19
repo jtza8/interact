@@ -40,7 +40,7 @@
                  :load-function #'load-sprite))
 
 (defun sprite-node (&rest path)
-  (apply #'rt:node *sprite-tree* path))
+  (diverge (apply #'rt:node *sprite-tree* path)))
 
 (defsetf sprite-node (&rest path) (value)
   `(setf (rt:node *sprite-tree* ,@path) ,value))

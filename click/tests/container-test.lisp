@@ -64,23 +64,24 @@
   (with-display-system (:bg-color '(0 0 0 1))
     (load-sprite-path (asdf:system-relative-pathname 
                        :click-tests "test-sprites"))
+    (add-listener *root-container* 
+                  (make-instance 'event-assistant 
+                                 :quit-button :escape))
     (add-igo *root-container* 
-             (make-instance 'interactive-container :x 100 :y 100
-                            :width 100 :height 100 :rotation 20
-                            :pivot-x 50 :pivot-y 50
+             (make-instance 'interactive-container
+                            :x 100 :y 100 :width 100 :height 100
+                            :pivot-x 50 :pivot-y 50 :rotation 20
                             :background (make-instance 'color-sprite
                                                        :color '(0.5 0.5 0.5)
                                                        :width 100 :height 100))
              :container-a)
     (add-igo (igo-of *root-container* :container-a)
              (make-instance 'simple-igo
-                            :width 64 :height 64 :rotation 45
-                            :x 18 :y 18
-                            :pivot-x 32 :pivot-y 32
+                            :x 18 :y 18 :width 64 :height 64
+                            :pivot-x 32 :pivot-y 32 :rotation 45
                             :sprite (sprite-node :test-sheet)))
     (add-igo (igo-of *root-container* :container-a)
              (make-instance 'interactive-container
-                            :width 64 :height 64 :rotation 0
-                            :x 100 :y 0
-                            :pivot-x 0 :pivot-y 0
+                            :x 100 :y 0 :width 64 :height 64
+                            :pivot-x 0 :pivot-y 0 :rotation 0
                             :background (sprite-node :test-sheet)))))
