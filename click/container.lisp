@@ -72,7 +72,7 @@
   (with-slots (tags) container
     (when (null tags) (return-from remove-tag))
     (setf tags (loop for (key value) on tags by #'cddr
-                  unless (eq (if (subtypep (type-of identifier) 'igo) 
+                  unless (eq (if (typep identifier 'igo)
                                  value key)
                              identifier)
                   collect key and collect value))))
@@ -125,6 +125,27 @@
       (return-from draw-background))
     (draw-at background 0 0 :width width :height height :mode :tile)))
 
+
+(declaim (inline set-up-root-container add-root-listener 
+                 remove-root-listener add-root-igo
+                 remove-root-igo igo-of-root
+                 root-tag-of root-tag-igo
+                 root-remove-tag))
 (defun set-up-root-container ()
   (setf *root-container* (make-instance 'container :clipping nil)))
-(set-up-root-container)
+(defun add-root-listener (listener &optional event-type)
+  (add-listener *root-container* listener event-type))
+(defun remove-root-listener (listener &optional event-type)
+  (remove-listener *root-container* listener event-type))
+(defun add-root-igo (igo &optional tag)
+  (add-igo *root-container* igo tag))
+(defun remove-root-igo (igo &key (remove-listeners t))
+  (remove-igo *root-container* igo :remove-listeners remove-listeners))
+(defun igo-of-root (tag)
+  (igo-of *root-container* tag))
+(defun root-tag-of (igo)
+  (tag-of *root-container* igo))
+(defun root-tag-igo (igo tag)
+  (tag-igo *root-container* igo tag))
+(defun root-remove-tag (identifier)
+  (remove-tag *root-container* identifier))

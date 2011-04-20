@@ -16,10 +16,12 @@
    #:*sprite-tree*
 
    ; Functions
+   #:add-root-igo
+   #:add-root-listener
    #:build-sprite-sheet
-   #:clip-display
    #:event-data
    #:event-type
+   #:igo-of-root
    #:image-to-sprite
    #:list-image-file-sequence
    #:load-image-sprite
@@ -29,15 +31,16 @@
    #:prepare-click
    #:quit-display-system
    #:read-sheet-header
-   #:rotate
+   #:remove-root-igo
+   #:remove-root-listener
+   #:root-remove-tag
+   #:root-tag-igo
+   #:root-tag-of
    #:run-display-system
+   #:set-up-root-container
    #:set-up-root-container
    #:sprite-node
    #:start-display-system
-   #:translate
-   #:undo-clipping
-   #:undo-rotation
-   #:undo-translate
    #:write-sheet-header
 
    ; Methods
@@ -92,17 +95,15 @@
    #:y
 
    ; Macros
-   #:with-clipping
    #:with-display-system
    #:with-event-keys
    #:with-image-sequence
-   #:with-rotate
-   #:with-translate
 
    ; Classes
    #:animation-sprite
    #:color-sprite
    #:container
+   #:event-assistant
    #:event-converter
    #:igo
    #:listenable
