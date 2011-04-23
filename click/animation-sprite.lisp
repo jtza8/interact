@@ -25,12 +25,12 @@
                    :height height :width width
                    :fps fps :sprite-vector sprite-vector)))
 
-(defmethod draw-at ((sprite animation-sprite) x y &key 
+(defmethod draw-sprite ((sprite animation-sprite) x y &key 
                     height width (mode :tile))
   (with-slots (fps sprite-vector stopwatch) sprite
     (let ((frame-number (rem (truncate (/ (* (lap stopwatch) fps) 1000))
                              (length sprite-vector))))
-      (draw-at (aref sprite-vector frame-number) x y))))
+      (draw-sprite (aref sprite-vector frame-number) x y))))
 
 (macrolet ((messages-to-stopwatch (&rest messages)
              `(progn

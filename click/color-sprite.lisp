@@ -13,7 +13,7 @@
    (height :initarg :height
            :initform 0)))
 
-(defmethod draw-at ((sprite color-sprite) x y &key width height mode)
+(defmethod draw-sprite ((sprite color-sprite) x y &key width height mode)
   (declare (ignore mode))
   (with-slots (color (normal-width width) (normal-height height)) sprite
     (when (null width)

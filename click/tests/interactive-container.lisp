@@ -5,29 +5,24 @@
 (in-package :click)
 
 (defclass interactive-container (container)
-  ((timer :initform (make-instance 'stopwatch))
-   (button :initform nil)))
+  ((buttons :initform nil)))
 
 (defmethod initialize-instance :after ((container interactive-container) &key)
   (desire-events container :key-down #'keyboard-event :key-up #'keyboard-event))
 
 (defmethod draw :before ((container interactive-container))
-  (with-slots (rotation button timer) container
-    (case button
-      (:left (incf rotation (/ (lap timer) 10))
-             (reset timer :auto-start t))
-      (:right (decf rotation (/ (lap timer) 10))
-              (reset timer :auto-start t)))))
+  (with-slots (rotation buttons) container
+    (case (car buttons)
+      (:left (incf rotation 2))
+      (:right (decf rotation 2)))))
 
 (defmethod keyboard-event ((container interactive-container) event)
-  (with-slots (button timer) container
+  (with-slots (buttons timer) container
     (case (event-type event)
       (:key-down (with-event-keys (key) event
                    (when (find key '(:left :right))
-                     (start timer)
-                     (setf button key))))
+                     (push key buttons))))
       (:key-up (with-event-keys (key) event
                  (when (find key '(:left :right))
-                   (reset timer)
-                   (setf button nil))))))
+                   (setf buttons (remove key buttons)))))))
   (send-event container event))

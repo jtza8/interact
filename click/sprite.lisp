@@ -28,7 +28,7 @@
       (gl:tex-coord (pop coords) (pop coords))
       (gl:vertex x (+ y height)))))
 
-(defgeneric draw-at (sprite x y &key width height mode)
+(defgeneric draw-sprite (sprite x y &key width height mode)
   (:documentation
    "Draw at the specified coordinates."))
 

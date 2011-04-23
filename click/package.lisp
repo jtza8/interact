@@ -52,7 +52,7 @@
    #:desire-events
    #:diverge
    #:draw
-   #:draw-at
+   #:draw-sprite
    #:draw-background
    #:handle-event
    #:igo-of

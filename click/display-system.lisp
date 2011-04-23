@@ -39,7 +39,9 @@
 
 (defun run-display-system ()
   (start *global-stopwatch*)
-  (let ((event (sdl:new-event)) quit)
+  (let ((event (sdl:new-event))
+        (frame-watch (make-instance 'stopwatch)) quit)
+    (start frame-watch)
     (unwind-protect
          (loop 
             until quit
@@ -51,10 +53,12 @@
                        (send-event *root-container* (parse-sdl-event event))))
             do (progn
                  (gl:clear :color-buffer-bit)
+                 (send-event *root-container* '(:update-frame))
                  (draw *root-container*)
                  (gl:flush)
                  (sdl:update-display)
-                 (sleep 1/60)))
+                 (sleep (max (- 1/60 (/ (lap frame-watch) 1000)) 0))
+                 (reset frame-watch :auto-start t)))
       (cffi:foreign-free event))))
 
 (defmacro with-display-system ((&rest args) &body body)
