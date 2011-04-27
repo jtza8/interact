@@ -113,7 +113,7 @@
       (remove-listener container igo))))
 
 (defmethod draw ((container container))
-  (with-slots (visible x y width height) container
+  (with-slots (visible) container
     (unless visible
       (return-from draw))
     (draw-background container)
@@ -124,7 +124,7 @@
   (with-slots (width height background) container
     (when (null background)
       (return-from draw-background))
-    (draw-sprite background 0 0 :width width :height height :mode :tile)))
+    (draw-sprite background :width width :height height :mode :tile)))
 
 
 (declaim (inline set-up-root-container add-root-listener 

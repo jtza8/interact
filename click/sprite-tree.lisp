@@ -37,10 +37,11 @@
 
 (defparameter *sprite-tree*
   (make-instance 'rt:resource-tree 
-                 :load-function #'load-sprite))
+                 :load-function #'load-sprite
+                 :free-function #'free))
 
 (defun sprite-node (&rest path)
-  (diverge (apply #'rt:node *sprite-tree* path)))
+  (apply #'rt:node *sprite-tree* path))
 
 (defsetf sprite-node (&rest path) (value)
   `(setf (rt:node *sprite-tree* ,@path) ,value))
@@ -49,3 +50,11 @@
   (rt:load-path *sprite-tree* path 
                 :recursive recursive
                 :parent-node-path parent-node-path))
+
+(defmethod import-sprite-nodes ((hash-table hash-table) &rest sprite-paths)
+  (dolist (path-form sprite-paths)
+    (let* ((first (car path-form))
+           (second (cadr path-form))
+           (custom-name (listp first)))
+      (setf (gethash (if custom-name second (car (last first))) hash-table)
+            (apply #'sprite-node (if custom-name first path-form))))))

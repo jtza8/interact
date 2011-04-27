@@ -11,7 +11,7 @@
              (with-slots (message) condition
                (princ message stream)))))
 
-(defmacro assert-pixel-index-cond (condition message &optional (places '()))
+(defmacro check-pixel-index (condition message &optional (places '()))
   `(assert ,condition ,places 'pixel-index-error 
            :message ,message))
 

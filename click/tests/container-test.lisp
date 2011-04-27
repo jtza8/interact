@@ -78,9 +78,9 @@
              (make-instance 'simple-igo
                             :x 18 :y 18 :width 64 :height 64
                             :pivot-x 32 :pivot-y 32 :rotation 45
-                            :sprite (sprite-node :test-sheet)))
+                            :sprite (diverge (sprite-node :test-sheet))))
     (add-igo (igo-of-root :container-a)
              (make-instance 'interactive-container
                             :x 100 :y 0 :width 64 :height 64
                             :pivot-x 0 :pivot-y 0 :rotation 0
-                            :background (sprite-node :test-sheet)))))
+                            :background (diverge (sprite-node :test-sheet))))))

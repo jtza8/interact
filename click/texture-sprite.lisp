@@ -9,7 +9,8 @@
             :initform (error "No texture name given.")
             :reader texture)))
 
-(defmethod draw-sprite ((sprite texture-sprite) x y &key width height (mode :tile))
+(defmethod draw-sprite ((sprite texture-sprite) &key (x 0) (y 0) width height
+                        (mode :tile))
   (declare (ignore mode))
   (with-slots ((normal-width width) (normal-height height) texture) sprite
     (gl:bind-texture :texture-2d texture)
@@ -22,3 +23,6 @@
                                  (/ width normal-width) 0
                                  (/ width normal-width) (/ height normal-height)
                                  0 (/ height normal-height)))))
+
+(defmethod free ((sprite texture-sprite))
+  (gl:delete-textures (list (texture sprite))))

@@ -89,6 +89,7 @@
    #:pivot-y
    #:provided-events
    #:reason
+   #:rotation
    #:texture
    #:width
    #:x
