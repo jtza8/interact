@@ -25,7 +25,10 @@
 
 (defmethod provide-events ((listenable listenable) &rest events)
   (with-slots (provided-events) listenable
-    (setf provided-events (delete-duplicates (cons provided-events events)))))
+    (if (null provided-events)
+        (setf provided-events (delete-duplicates events))
+        (setf provided-events 
+              (delete-duplicates (nconc provided-events events))))))
 
 (declaim (inline event-type event-data))
 (defun event-type (event) (car event))
@@ -39,11 +42,12 @@
        ,@body)))
 
 (defmethod add-listener ((listenable listenable) listener &optional event-type)
-  (when (null event-type)
-    (loop for (event nil) on (desired-events listener) by #'cddr
-          do (add-listener listenable listener event))
-    (return-from add-listener))
   (with-slots (listeners provided-events) listenable
+    (when (null event-type)
+      (loop for (event) on (desired-events listener) by #'cddr
+            do (when (find event provided-events)
+                 (add-listener listenable listener event)))
+      (return-from add-listener))
     (assert (find event-type provided-events) (event-type)
             'invalid-event-type
             :reason "Unlistenable event type"

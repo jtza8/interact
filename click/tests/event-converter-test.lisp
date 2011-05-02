@@ -12,7 +12,7 @@
                                    :mappable-events '(:jump)))
         (listener (make-instance 'dummy-listener
                                  :desired-events '(:jump))))
-    (map-input controller (key-up-handler #\a #1='(:jump)))
+    (map-input controller (key-down-handler #\a #1='(:jump)))
     (add-listener controller listener)
     (handle-event controller '(:key-down :key #\b))
     (assert-equal nil (latest-event listener))

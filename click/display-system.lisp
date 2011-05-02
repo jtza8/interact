@@ -4,35 +4,53 @@
 
 (in-package :click)
 
+(internal define-global-settings *display-settings*)
+(define-global-settings (*display-settings*)
+  (screen-width :width 800)
+  (screen-height :height 600)
+  (full-screen :full-screen nil :read)
+  (window-title :window-title "Lisp")
+  (screen-bg-color :bg-color '(1 1 1 1)))
+
 (defun prepare-click ()
   (reset *global-stopwatch*)
   (rt:clear-tree *sprite-tree*)
   (set-up-root-container))
 
-(defun start-display-system (&key (width 800) (height 600) (full-screen nil)
-                             (bg-color '(1 1 1 0)) (title "Lisp"))
-  (sdl:init-video)
+(internal update-display-mode)
+(defun update-display-mode ()
   (let ((flags (list sdl:sdl-opengl)))
-    (when full-screen (push sdl:sdl-fullscreen flags))
-    (sdl:window width height
+    (when (full-screen) (push sdl:sdl-fullscreen flags))
+    (sdl:window (screen-width) (screen-height)
                 :bpp 32
                 :flags flags
-                :title-caption title))
-  (setf (sdl:frame-rate) 60
-        cl-opengl-bindings:*gl-get-proc-address*
-        #'sdl-cffi::sdl-gl-get-proc-address)
+                :title-caption (window-title)))
   (gl:matrix-mode :projection)
   (gl:load-identity)
-  (gl:ortho 0 width height 0 0 1)
+  (gl:ortho 0 (screen-width) (screen-height) 0 0 1)
   (gl:matrix-mode :modelview)
   (gl:load-identity)
-  (gl:viewport 0 0 width height)
-  (apply #'gl:clear-color bg-color)
+  (gl:viewport 0 0 (screen-width) (screen-height)))
+
+(defun start-display-system ()
+  (sdl:init-video)
+  (setf cl-opengl-bindings:*gl-get-proc-address*
+        #'sdl-cffi::sdl-gl-get-proc-address)
+  (update-display-mode)
+  (apply #'gl:clear-color (screen-bg-color))
   (gl:enable :blend)
   (gl:enable :texture-2d)
   (gl:blend-func :src-alpha :one-minus-src-alpha)
   (gl:clear :color-buffer-bit)
   (prepare-click))
+
+(defsetf full-screen () (value)
+  `(progn 
+     (setf (gethash :full-screen *display-settings*) ,value)
+     (update-display-mode)))
+
+(defun toggle-fullscreen ()
+  (setf (full-screen) (not (full-screen))))
 
 (defun quit-display-system ()
   (sdl:quit-video))
@@ -53,17 +71,21 @@
                        (send-event *root-container* (parse-sdl-event event))))
             do (progn
                  (gl:clear :color-buffer-bit)
-                 (send-event *root-container* '(:update-frame))
+                 (send-event *root-container* '(:before-frame))
                  (draw *root-container*)
                  (gl:flush)
                  (sdl:update-display)
+                 (send-event *root-container* '(:after-frame))
                  (sleep (max (- 1/60 (/ (lap frame-watch) 1000)) 0))
                  (reset frame-watch :auto-start t)))
       (cffi:foreign-free event))))
 
 (defmacro with-display-system ((&rest args) &body body)
-  `(progn (start-display-system ,@args)
-          (unwind-protect (progn ,@body 
-                                 (run-display-system))
-            (quit-display-system))))
+  `(progn 
+     ,@(loop for (setting value) on args by #'cddr
+             collect `(setf (,(intern (symbol-name setting))) ,value))
+     (start-display-system)
+     (unwind-protect (progn ,@body 
+                            (run-display-system))
+       (quit-display-system))))
 

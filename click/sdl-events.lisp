@@ -4,12 +4,14 @@
 
 (in-package :click)
 
+(internal chop-sdl-key)
 (defun chop-sdl-key (keyword &optional (prefix "SDL-KEY"))
   (let ((name (nstring-upcase (symbol-name keyword))))
     (if (string= (subseq name 0 (length prefix)) prefix)
         (intern (subseq name (1+ (length prefix))) 'keyword)
         keyword)))
 
+(internal parse-sdl-event)
 (defun parse-sdl-event (sdl-event)
   (flet ((display-state-event ()
            `(:display-state 

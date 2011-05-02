@@ -11,7 +11,7 @@
   ; Mega-über-macro-simplification... ENGADGE!
   ; Overkill much? =P
   (flet ((assert-header (header message frame-width frame-height
-                                frame-count fps looping)
+                         frame-count fps looping)
            (flet ((make-msg (attribute)
                     (format nil "~a ~a" attribute message)))
              (macrolet ((expand-assert (name)
@@ -49,13 +49,12 @@
                                        *test-image-sequence-path*)))
 
 (defun test-load-sprite-sheet-manually ()
-  (start-display-system :sprite-path *test-sprite-path*)
-  (let* ((container (make-instance 'container :height 100 :width 100 :x 10 :y 10))
-         (sprite (load-sprite-sheet 
-                  (merge-pathnames "test-sheet.ss.png" *test-image-path*)))
-         (igo (make-instance 'simple-igo :x 10 :y 10 :sprite sprite)))
-    (add-igo container igo :simple-igo))
-  (run-display-system))
+  (with-display-system ()
+    (load-sprite-path *test-sprite-path*)
+    (let* ((sprite (load-sprite-sheet 
+                    (merge-pathnames "test-sheet.ss.png" *test-image-path*)))
+           (igo (make-instance 'simple-igo :x 10 :y 10 :sprite sprite)))
+      (add-root-igo igo :simple-igo))))
 
 (def-test-method test-load-sprites ((test sprite-sheet-test))
   (let ((bogus-jpg-path (merge-pathnames "bogus.jpg" *test-image-path*))

@@ -31,7 +31,7 @@
     (let ((frame-number (rem (truncate (/ (* (lap stopwatch) fps) 1000))
                              (length sprite-vector))))
       (draw-sprite (aref sprite-vector frame-number)
-                   :x x :y y :mode mode :height height :width width))))q
+                   :x x :y y :mode mode :height height :width width))))
 
 (defmethod free ((sprite animation-sprite))
   (with-slots (sprite-vector) sprite

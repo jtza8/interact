@@ -4,7 +4,7 @@
 
 (in-package :click)
 
-(defclass event-converter (listenable)
+(defclass event-converter (listener listenable)
   ((predicates :initform (make-array 20 :adjustable t 
                                      :fill-pointer 0
                                      :element-type 'function))))
@@ -17,6 +17,7 @@
   (with-slots (predicates) controller
     (vector-push-extend event-predicate predicates)))
 
+(internal handle-event)
 (defmethod handle-event ((controller event-converter) event)
   (with-slots (predicates) controller
     (loop for predicate across predicates
@@ -25,7 +26,7 @@
             do (send-event controller result)
             and return nil)))
 
-(defun key-up-handler (key event)
+(defun key-down-handler (key event)
   (lambda (input)
     (when (and (eq (event-type input) :key-down)
                (string= (getf (event-data input) :key) key))

@@ -4,9 +4,11 @@
 
 (in-package :click)
 
+(internal memset)
 (cffi:defcfun ("memset" memset) :pointer
   (dest :pointer) (value :int) (size :unsigned-int))
 
+(internal write-sheet-header)
 (defun write-sheet-header (frame-width frame-height frame-count fps looping 
                            &optional (image :current-image))
   (il:with-bound-image image
@@ -28,6 +30,7 @@
         (setf (cffi:mem-aref pointer :uint16) (- #xffff item))
         (cffi:incf-pointer pointer bytes-per-pixel)))))
 
+(internal read-sheet-header)
 (defun read-sheet-header (&optional (image :current-image))
   (il:with-bound-image image
     (let* ((height (il:image-height))
@@ -65,6 +68,8 @@
         (il:tex-image width height 1 bytes-per-pixel pixel-format
                       data-type (cffi:null-pointer))
         (ecase pixel-format
+          (:luminance (il:clear-image 0))
+          (:luminance-alpha (il:clear-image 0 0))
           (:rgb (il:clear-image 0 0 0))
           (:rgba (il:clear-image 0 0 0 0)))
         (write-sheet-header frame-width frame-height frame-count fps looping)

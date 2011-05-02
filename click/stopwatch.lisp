@@ -57,4 +57,5 @@
   (when auto-start
     (start watch)))
 
+(internal *global-stopwatch*)
 (setf *global-stopwatch* (make-instance 'stopwatch :mode :global))

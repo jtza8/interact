@@ -4,6 +4,7 @@
 
 (in-package :click)
 
+(internal pixel-index-error)
 (define-condition pixel-index-error (error)
   ((message :initarg :message
             :initform (error "must specify message")))
@@ -11,6 +12,7 @@
              (with-slots (message) condition
                (princ message stream)))))
 
+(internal check-pixel-index)
 (defmacro check-pixel-index (condition message &optional (places '()))
   `(assert ,condition ,places 'pixel-index-error 
            :message ,message))
@@ -67,7 +69,8 @@
                                           ,property
                                           ,unsupported-message)))))
   (define-property-errors
-      format "unsupported format ~s. Supported formats: :RGB :RGBA :BGR :BGRA"
+      format "unsupported format ~s. Supported formats: :RGB :RGBA :BGR :BGRA ~
+              :LUMINANCE :LUMINANCE-ALPHA"
       type "unsupported type ~s. Currently only 8-bit unsigned integers are ~
             supported."
       dimensions "unsupported dimensions ~s"))

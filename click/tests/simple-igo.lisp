@@ -15,4 +15,4 @@
 
 (defmethod draw ((igo simple-igo))
   (with-slots (sprite) igo
-    (draw-sprite sprite 0 0)))
+    (draw-sprite sprite)))

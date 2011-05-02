@@ -6,5 +6,6 @@
                 (:module "asteroids"
                          :depends-on ("package")
                          :components ((:file "asteroid")
+                                      (:file "asteroid-container")
                                       (:file "asteroids"
                                              :depends-on ("asteroid"))))))

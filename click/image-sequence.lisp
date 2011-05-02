@@ -4,6 +4,7 @@
 
 (in-package :click)
 
+(internal list-image-file-sequence)
 (defun list-image-file-sequence (sequence-path)
   (let ((regex (let* ((file-name (file-namestring sequence-path)) regex-str)
                  (setf regex-str (ppcre:regex-replace "\." file-name "\\.")
@@ -16,6 +17,7 @@
                   collect path)
            #'string< :key #'namestring)))
 
+(internal open-image-sequence)
 (defun open-image-sequence (path-list)
   (flet ((image-dimensions ()
            (list :width (il:image-width)
@@ -27,8 +29,6 @@
                (assert (fad:file-exists-p path))
                (il:bind-image image)
                (il:load-image path)
-               (il:check-error)
-               (format-image)
                (if (null required-dimensions)
                    (setf required-dimensions (image-dimensions))
                    (unless (equal required-dimensions (image-dimensions))
@@ -40,6 +40,7 @@
                (push image images))
           finally (return (reverse images)))))
 
+(internal with-image-sequence)
 (defmacro with-image-sequence ((variable sequence) &body body)
   `(let ((,variable (open-image-sequence ,sequence)))
      (unwind-protect (progn ,@body)

@@ -4,6 +4,7 @@
 
 (in-package :click)
 
+(internal parse-color-sprite)
 (defun parse-color-sprite (entry)
   (assert (and (listp entry)
                (eq (car entry) :color)
@@ -16,6 +17,7 @@
     (print color)
     (print rest)))
 
+(internal parse-sprites)
 (defun parse-sprites (sprites-conf-path)
   (unless (fad:file-exists-p sprites-conf-path)
     (return-from parse-sprites))
@@ -35,6 +37,7 @@
            (load-sprite-sheet file))
           (t (load-image-sprite file)))))
 
+(internal *sprite-tree*)
 (defparameter *sprite-tree*
   (make-instance 'rt:resource-tree 
                  :load-function #'load-sprite
@@ -51,6 +54,7 @@
                 :recursive recursive
                 :parent-node-path parent-node-path))
 
+(internal import-sprite-nodes)
 (defmethod import-sprite-nodes ((hash-table hash-table) &rest sprite-paths)
   (dolist (path-form sprite-paths)
     (let* ((first (car path-form))

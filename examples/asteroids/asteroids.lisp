@@ -5,9 +5,26 @@
 (in-package :click-examples)
 
 (defun asteroids ()
-  (click:with-display-system (:bg-color '(0 0 0 1) :title "Asteroids Demo")
+  (with-display-system (:screen-bg-color '(0 0 0 1)
+                        :window-title "Asteroids Demo"
+                        :screen-width 800 :screen-height 600)
     (load-sprite-path 
      (asdf:system-relative-pathname :click-examples #p"asteroids/sprites"))
     (add-root-listener
-     (make-instance 'event-assistant :quit-key :escape))
-    (add-root-igo (make-instance 'asteroid :x 100 :y 200))))
+     (make-instance 'event-assistant
+                    :quit-key :escape
+                    :fullscreen-key :F12))
+    (let ((asteroid (make-instance 'asteroid :x 100 :y 200))
+          (container (make-instance 'asteroid-container
+                                    :height (screen-height)
+                                    :width (screen-width)))
+          (controller (make-instance 'event-converter
+                                     :mappable-events '(:asteroid-explosion))))
+      (desire-events controller :key-down #'handle-event)
+      (map-input controller
+                 (click::key-down-handler
+                  :e `(:asteroid-explosion :source ,asteroid)))
+      (add-listener container controller)
+      (add-listener controller container)
+      (add-igo container asteroid)
+      (add-root-igo container))))

@@ -42,7 +42,7 @@
                   :joy-axis-motion :joy-hat-motion :joy-ball-motion
                   :joy-button-down :joy-button-up :quit :sys-wm-event
                   :display-resize :display-exposure :user-event
-                  :update-frame)
+                  :before-frame :after-frame)
   (desire-events container :display-state #'send-event :key-down #'send-event 
                  :key-up #'send-event :mouse-motion #'send-event
                  :mouse-button-down #'send-event :mouse-button-up #'send-event 
@@ -51,7 +51,8 @@
                  :joy-button-down #'send-event :joy-button-up #'send-event
                  :quit #'send-event :sys-wm-event #'send-event 
                  :display-resize #'send-event :display-exposure #'send-event
-                 :user-event #'send-event :update-frame #'send-event))
+                 :user-event #'send-event :before-frame #'send-event
+                 :after-frame #'send-event))
 
 (defmethod tag-igo ((container container) (igo igo) tag)
   (with-slots (tags) container
@@ -132,6 +133,7 @@
                  remove-root-igo igo-of-root
                  root-tag-of root-tag-igo
                  root-remove-tag))
+(internal set-up-root-container)
 (defun set-up-root-container ()
   (setf *root-container* (make-instance 'container :clipping nil)))
 (defun add-root-listener (listener &optional event-type)

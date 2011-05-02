@@ -4,9 +4,11 @@
 
 (in-package :click)
 
+(internal memcpy)
 (cffi:defcfun ("memcpy" memcpy) :pointer
   (dest :pointer) (src :pointer) (size :unsigned-int))
 
+(internal image-to-sprite)
 (defun image-to-sprite (&optional (image :current-image))
   (il:with-bound-image image
     (let ((texture (car (gl:gen-textures 1)))
@@ -21,7 +23,7 @@
                        format :unsigned-byte (il:get-data))
       (make-instance 'texture-sprite :texture texture :width width
                      :height height))))
-  
+
 (defun load-image-sprite (file)
   (il:with-images (image)
     (il:with-bound-image (setf image (il:gen-image))
@@ -29,12 +31,14 @@
       (case (il:image-format)
         ((:rgb :bgr) (il:convert-image :rgb :unsigned-byte))
         ((:rgba :bgra) (il:convert-image :rgba :unsigned-byte))
+        ((:luminance) (il:convert-image :luminance :unsigned-byte))
         ((:luminance-alpha) (il:convert-image :luminance-alpha :unsigned-byte))
         (otherwise (error 'image-format-error 
                           :actual-format (il:image-format))))
       (ilu:flip-image)
       (image-to-sprite))))
 
+(internal image-data-pos)
 (defun image-data-pos (x y &optional (image :current-image))
   (il:with-bound-image image
     (let ((width (il:image-width))
@@ -48,6 +52,7 @@
       (cffi:inc-pointer (il:get-data) (* (+ x (* y width))
                                          (il:image-bytes-per-pixel))))))
 
+(internal blit)
 (defun blit (source dest-x dest-y dest-z src-x src-y src-z width height depth
              &key (allow-clipping t))
   (declare (ignore dest-z src-z depth))
@@ -83,6 +88,7 @@
                       (funcall src-data-pos src-x (+ y src-y))
                       src-row-size))))))
 
+(internal overlay-image)
 (defun overlay-image (source x y z &key (allow-clipping t))
   (blit source x y z 0 0 0 (il:image-width source) (il:image-height source) 1
         :allow-clipping allow-clipping))

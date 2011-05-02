@@ -61,11 +61,13 @@
     (assert-equal #1# (latest-event dummy))))
 
 (defun test-rotation-manually ()
-  (with-display-system (:bg-color '(0 0 0 1))
+  (with-display-system (:screen-bg-color '(0 0 0 1) 
+                        :screen-width 1280 :screen-height 800)
     (load-sprite-path (asdf:system-relative-pathname 
                        :click-tests "test-sprites"))
     (add-root-listener (make-instance 'event-assistant 
-                                      :quit-key :escape))
+                                      :quit-key :escape
+                                      :fullscreen-key :F12))
     (add-root-igo (make-instance 'interactive-container
                                  :x 100 :y 100 :width 100 :height 100
                                  :pivot-x 50 :pivot-y 50 :rotation 20

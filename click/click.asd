@@ -4,32 +4,26 @@
   :author "Jens Thiede"
   :licence "BSD-Style License"
   :depends-on ("cffi" "lispbuilder-sdl" "resource-tree" "cl-opengl" "cl-devil"
-               "cl-fad" "cl-ppcre")
+               "cl-fad" "cl-ppcre" "meta-package")
+  :serial t
   :components ((:file "package")
-               (:file "utils" :depends-on ("package"))
-               (:file "stopwatch" :depends-on ("package"))
-               (:file "listener" :depends-on ("package"))
-               (:file "listenable" :depends-on ("listener"))
-               (:file "sdl-events" :depends-on ("package"))
-               (:file "event-assistant" :depends-on
-                      ("listenable" "sdl-events"))
-               (:file "event-converter" :depends-on
-                      ("listenable" "sdl-events"))
-               (:file "sprite" :depends-on ("package"))
-               (:file "color-sprite" :depends-on ("sprite"))
-               (:file "texture-sprite" :depends-on ("sprite"))
-               (:file "animation-sprite" :depends-on ("sprite" "stopwatch"))
-               (:file "image-conditions" :depends-on ("package"))
-               (:file "image-handling" :depends-on 
-                      ("image-conditions" "texture-sprite"))
-               (:file "image-sequence" :depends-on ("package"))
-               (:file "sprite-sheet" :depends-on 
-                      ("image-handling" "image-sequence" "texture-sprite"
-                       "animation-sprite"))
-               (:file "sprite-tree" :depends-on
-                      ("color-sprite" "texture-sprite" "animation-sprite"))
-               (:file "font-tools" :depends-on ("texture-sprite"))
-               (:file "igo" :depends-on
-                      ("listenable" "listener" "sprite-tree"))
-               (:file "container" :depends-on ("igo"))
-               (:file "display-system" :depends-on ("container" "stopwatch"))))
+               (:file "macros")
+               (:file "stopwatch")
+               (:file "listener")
+               (:file "listenable")
+               (:file "sdl-events")
+               (:file "event-assistant")
+               (:file "event-converter")
+               (:file "sprite")
+               (:file "color-sprite")
+               (:file "texture-sprite")
+               (:file "animation-sprite")
+               (:file "image-conditions")
+               (:file "image-handling")
+               (:file "image-sequence")
+               (:file "sprite-sheet")
+               (:file "sprite-tree")
+               (:file "igo")
+               (:file "container")
+               (:file "display-system")
+               (:file "export")))

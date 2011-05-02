@@ -23,6 +23,7 @@
 (defmethod free ((sprite sprite))
   ())
 
+(internal rectangle)
 (defun rectangle (x y width height &key (tex-coords '(0 0 1 0 1 1 0 1)))
   "Draws the currently bound texture as a 2D \"surface\""
   (let ((coords tex-coords)
