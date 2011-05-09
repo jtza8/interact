@@ -35,6 +35,8 @@
       (return-from load-sprite))
     (cond ((ppcre:scan "\\.ss\\.\\w+$" file-name)
            (load-sprite-sheet file))
+          ((ppcre:scan "\\.fnt\\.\\w+$" file-name)
+           ())
           (t (load-image-sprite file)))))
 
 (internal *sprite-tree*)
@@ -53,6 +55,7 @@
   (rt:load-path *sprite-tree* path 
                 :recursive recursive
                 :parent-node-path parent-node-path))
+<<<<<<< Updated upstream
 
 (internal import-sprite-nodes)
 (defmethod import-sprite-nodes ((hash-table hash-table) &rest sprite-paths)
@@ -62,3 +65,5 @@
            (custom-name (listp first)))
       (setf (gethash (if custom-name second (car (last first))) hash-table)
             (apply #'sprite-node (if custom-name first path-form))))))
+=======
+>>>>>>> Stashed changes

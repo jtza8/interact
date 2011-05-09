@@ -72,23 +72,72 @@
                          "clipping not alowed, x axis is clipped")
       (check-pixel-index (>= (- dest-height dest-y) height)
                          "clipping not alowed, y axis is clipped"))
+    (il:enable :origin-set)
+    (il:origin-func (il:image-origin))
     (il:with-images (source-clone)
       (let* ((image (if (and (eq (il:image-type source) data-type)
-                             (eq (il:image-format source) data-format))
+                             (eq (il:image-format source) data-format)
+                             (eq (il:image-origin source) (il:image-origin)))
                         source
                         (il:with-bound-image source-clone
                           (il:copy-image source)
                           (il:convert-image data-format data-type)
                           (il:check-error)
-                          source-clone)))
-             (src-data-pos (lambda (x y) 
-                             (image-data-pos x y image))))
+                          source-clone))))
         (loop for y from 0 upto (1- (min (- dest-height dest-y) height))
            do (memcpy (image-data-pos dest-x (+ y dest-y))
-                      (funcall src-data-pos src-x (+ y src-y))
+                      (image-data-pos src-x (+ y src-y) image)
                       src-row-size))))))
 
 (internal overlay-image)
 (defun overlay-image (source x y z &key (allow-clipping t))
   (blit source x y z 0 0 0 (il:image-width source) (il:image-height source) 1
         :allow-clipping allow-clipping))
+
+(internal write-pixel-header)
+(defun write-pixel-header (image &rest arguments)
+  (il:with-bound-image image
+    (let* ((width (il:image-width))
+           (height (il:image-height))
+           (bytes-per-pixel (il:image-bytes-per-pixel))
+           (header-byte-size (* (reduce #'+ arguments :key #'car)
+                                bytes-per-pixel))
+           (pixel-count (ceiling (/ header-byte-size bytes-per-pixel)))
+           (header-pixel-size (* pixel-count bytes-per-pixel))
+           (header-row-size (* width bytes-per-pixel))
+           (pointer (ecase (il:image-origin)
+                      (:origin-lower-left (image-data-pos 0 (1- height)))
+                      (:origin-upper-left (image-data-pos 0 0)))))
+      (assert (>= header-row-size header-pixel-size) ()
+              "too little space to write header in")
+      (memset pointer #xff header-row-size)
+      (loop for (size value) in arguments
+            do (destructuring-bind (type subtrahend)
+                   (ecase size
+                     (1 '(:uint8 #xff))
+                     (2 '(:uint16 #xffff))
+                     (4 '(:uint32 #xffffffff)))
+                 (setf (cffi:mem-aref pointer type) (- subtrahend value))
+                 (cffi:incf-pointer pointer
+                                    (* (ceiling (/ size bytes-per-pixel))
+                                       bytes-per-pixel)))))))
+
+(internal read-pixel-header)
+(defun read-pixel-header (image &rest arguments)
+  (il:with-bound-image image
+    (let* ((height (il:image-height))
+           (bytes-per-pixel (il:image-bytes-per-pixel))
+           (pointer (ecase (il:image-origin)
+                      (:origin-lower-left (image-data-pos 0 (1- height)))
+                      (:origin-upper-left (image-data-pos 0 0)))))
+      (loop for size in arguments
+            collect (destructuring-bind (type subtrahend)
+                        (ecase size
+                          (1 '(:uint8 #xff))
+                          (2 '(:uint16 #xffff))
+                          (4 '(:uint32 #xffffffff)))
+                      (let ((value (- subtrahend (cffi:mem-aref pointer type))))
+                        (cffi:incf-pointer pointer 
+                                           (* (ceiling (/ size bytes-per-pixel))
+                                              bytes-per-pixel))
+                        value))))))

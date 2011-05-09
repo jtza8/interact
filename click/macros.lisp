@@ -4,6 +4,7 @@
 
 (in-package :click)
 
+(internal define-global-settings)
 (defmacro define-global-settings ((global-variable) &body helper-args)
   `(progn
      (defparameter ,global-variable (make-hash-table))

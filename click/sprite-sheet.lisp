@@ -11,43 +11,20 @@
 (internal write-sheet-header)
 (defun write-sheet-header (frame-width frame-height frame-count fps looping 
                            &optional (image :current-image))
-  (il:with-bound-image image
-    (let* ((width (il:image-width))
-           (height (il:image-height))
-           (bytes-per-pixel (il:image-bytes-per-pixel))
-           (header-byte-size (* 5 bytes-per-pixel))
-           (pixel-count (ceiling (/ header-byte-size bytes-per-pixel)))
-           (header-pixel-size (* pixel-count bytes-per-pixel))
-           (header-row-size (* width bytes-per-pixel))
-           (pointer (ecase (il:image-origin)
-                      (:origin-lower-left (image-data-pos 0 (1- height)))
-                      (:origin-upper-left (image-data-pos 0 0)))))
-      (assert (>= header-row-size header-pixel-size) ()
-              "too little space to write header in")
-      (memset pointer #xff header-row-size)
-      (dolist (item (list frame-width frame-height frame-count
-                          fps (if looping #x0001 #x0000)))
-        (setf (cffi:mem-aref pointer :uint16) (- #xffff item))
-        (cffi:incf-pointer pointer bytes-per-pixel)))))
+  (write-pixel-header image 
+                      `(2 ,frame-width) `(2 ,frame-height) 
+                      `(2 ,frame-count) `(1 ,fps)
+                      `(1 ,(if looping #x0001 #x0000))))
 
 (internal read-sheet-header)
 (defun read-sheet-header (&optional (image :current-image))
-  (il:with-bound-image image
-    (let* ((height (il:image-height))
-           (bytes-per-pixel (il:image-bytes-per-pixel))
-           (pointer (ecase (il:image-origin)
-                      (:origin-lower-left (image-data-pos 0 (1- height)))
-                      (:origin-upper-left (image-data-pos 0 0)))))
-      (flet ((read-value () 
-               (let ((value (- #xffff (cffi:mem-aref pointer :uint16))))
-                 (cffi:incf-pointer pointer bytes-per-pixel)
-                 value)))
-        (list* :frame-width (read-value)
-               :frame-height (read-value)
-               :frame-count (read-value)
-               :fps (read-value)
-               (let ((flags (read-value)))
-                 (list :looping (logbitp 0 flags))))))))
+  (let ((values (read-pixel-header image 2 2 2 1 1)))
+    (list* :frame-width (pop values)
+         :frame-height (pop values)
+         :frame-count (pop values)
+         :fps (pop values)
+         (let ((flags (pop values)))
+           (list :looping (logbitp 0 flags))))))
            
 
 (defun build-sprite-sheet (sequence-path fps &key (looping t) (max-columns 5)
@@ -67,11 +44,8 @@
         (il:bind-image sprite-sheet)
         (il:tex-image width height 1 bytes-per-pixel pixel-format
                       data-type (cffi:null-pointer))
-        (ecase pixel-format
-          (:luminance (il:clear-image 0))
-          (:luminance-alpha (il:clear-image 0 0))
-          (:rgb (il:clear-image 0 0 0))
-          (:rgba (il:clear-image 0 0 0 0)))
+        (il:clear-colour 0 0 0 0)
+        (il:clear-image)
         (write-sheet-header frame-width frame-height frame-count fps looping)
         (tagbody
           (let ((sequence-pointer sequence))

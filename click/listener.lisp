@@ -8,7 +8,6 @@
   ((desired-events :initform '()
                    :reader desired-events)))
 
-
 (defmethod select-handler ((listener listener) event-type)
   (getf (slot-value listener 'desired-events) event-type))
 

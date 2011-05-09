@@ -19,7 +19,7 @@
                (:file "texture-sprite")
                (:file "animation-sprite")
                (:file "image-conditions")
-               (:file "image-handling")
+               (:file "image-editing")
                (:file "image-sequence")
                (:file "sprite-sheet")
                (:file "sprite-tree")

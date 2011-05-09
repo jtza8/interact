@@ -7,10 +7,10 @@
 (defparameter *test-image-path*
   (asdf:system-relative-pathname :click-tests "test-images/"))
 
-(defclass image-handling-test (test-case)
+(defclass image-editing-test (test-case)
   ())
 
-(def-test-method test-image-data-pos ((test image-handling-test))
+(def-test-method test-image-data-pos ((test image-editing-test))
   (il:with-images (image)
     (il:bind-image image)
     (il:tex-image 100 100 1 3 :rgb :unsigned-byte (cffi:null-pointer))
@@ -35,7 +35,8 @@
         (il:load-image (merge-pathnames #p"src-image.png"
                                         *test-image-path*))
         (il:check-error))
-      (il:clear-image 0 0 0 0)
+      (il:clear-colour 0 0 0 0)
+      (il:clear-image)
       (time (blit src-image 10 200 0 64 64 0 64 64 0))
       (blit src-image 470 200 0 64 0 0 64 64 0)
       (blit src-image 70 480 0 0 0 0 64 64 0)
@@ -43,14 +44,16 @@
       (il:save-image (merge-pathnames #p"blit-test.png"
                                       *test-image-path*)))))
 
-(def-test-method test-blit ((test image-handling-test))
+(def-test-method test-blit ((test image-editing-test))
   (il:with-images (src dst)
     (il:bind-image src)
     (il:tex-image 64 128 1 3 :bgr :unsigned-byte (cffi:null-pointer))
-    (il:clear-image 255 0 0)
+    (il:clear-colour 255 0 0 255)
+    (il:clear-image)
     (il:bind-image dst)
     (il:tex-image 256 512 1 3 :rgb :unsigned-byte (cffi:null-pointer))
-    (il:clear-image 0 0 0)
+    (il:clear-colour 0 0 0 0)
+    (il:clear-image)
     (blit src 10 12 0 0 0 0 64 128 1)
     (assert-equal :bgr (il:image-format src))
     (assert-condition 'pixel-index-error (blit src 0 0 0 0 0 0 65 128 0))
@@ -80,20 +83,23 @@
         (il:load-image (merge-pathnames #p"src-image.png"
                                         *test-image-path*))
         (il:check-error))
-      (il:clear-image 0 0 0 0)
+      (il:clear-colour 0 0 0 0)
+      (il:clear-image)
       (time (overlay-image src-image 10 200 0))
       (il:enable :file-overwrite)
       (il:save-image (merge-pathnames #p"overlay-image-test.png"
                                       *test-image-path*)))))
 
-(def-test-method test-overlay-image ((test image-handling-test))
+(def-test-method test-overlay-image ((test image-editing-test))
   (il:with-images (src dst)
     (il:bind-image src)
     (il:tex-image 64 128 1 3 :bgr :unsigned-byte (cffi:null-pointer))
-    (il:clear-image 255 0 0)
+    (il:clear-colour 255 0 0 0)
+    (il:clear-image)
     (il:bind-image dst)
     (il:tex-image 256 512 1 3 :rgb :unsigned-byte (cffi:null-pointer))
-    (il:clear-image 0 0 0)
+    (il:clear-colour 0 0 0 0)
+    (il:clear-image)
     (overlay-image src 10 12 0)
     (assert-equal :bgr (il:image-format src))
     (overlay-image src 192 0 0)
@@ -106,3 +112,14 @@
     (assert-condition 'pixel-index-error 
                       (overlay-image dst 0 0 0 :allow-clipping nil))))
 
+(def-test-method test-write-and-read-pixel-header ((test image-editing-test))
+  (il:with-images (image-1 image-2)
+    (il:with-bound-image image-1
+      (il:tex-image 192 1 1 2 :luminance-alpha :unsigned-byte 
+                    (cffi:null-pointer)))
+    (write-pixel-header image-1 '(1 32) '(4 42390) '(1 123))
+    (assert-equal '(32 42390 123) (read-pixel-header image-1 1 4 1))
+    (il:with-bound-image image-2
+      (il:tex-image 1 1 1 1 :luminance :unsigned-byte (cffi:null-pointer)))
+    (assert-condition 'error (write-pixel-header image-2 '(2 8)))
+    (write-pixel-header image-2 '(1 8))))

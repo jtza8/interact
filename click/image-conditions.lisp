@@ -76,6 +76,18 @@
       dimensions "unsupported dimensions ~s"))
 
 
+(define-condition file-existance-error (error)
+  ((file-name :initarg file-name
+              :initform (error "must specify file-name")))
+  (:report (lambda (condition stream)
+             (with-slots (file-name) condition
+               (format stream "file: \"~a\" does not exist." file-name)))))
+
+(defmacro check-file-existance (file-name &rest places)
+  `(assert (fad:file-exists-p ,file-name) ,places
+           'file-existance-error
+           :file-name ,file-name))
+
 (define-condition file-format-error (error)
   ((pattern :initarg :pattern 
             :initform (error "must specify pattern")))

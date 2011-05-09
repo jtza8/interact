@@ -27,7 +27,8 @@
    (il:with-images (test)
       (il:bind-image test)
       (il:tex-image 64 64 1 4 :rgba :unsigned-byte (cffi:null-pointer))
-      (il:clear-image 0 0 0 0)
+      (il:clear-colour 0 0 0 0)
+      (il:clear-image)
       (write-sheet-header 8 7 60 12 t)
       (assert-header (read-sheet-header) "pre-write assert" 8 7 60 12 t)
       (il:enable :file-overwrite)
@@ -40,7 +41,7 @@
       (assert-header (read-sheet-header) "post-write assert" 8 7 60 12 t))))
 
 (defun test-build-sprite-sheet-manually ()
-  (build-sprite-sheet (merge-pathnames #p"sequence*.png"
+  (build-sprite-sheet (merge-pathnames #p"sequence-*.png"
                                        *test-image-sequence-path*)
                       30
                       :file-overwrite t
