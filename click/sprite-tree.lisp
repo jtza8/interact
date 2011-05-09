@@ -55,15 +55,3 @@
   (rt:load-path *sprite-tree* path 
                 :recursive recursive
                 :parent-node-path parent-node-path))
-<<<<<<< Updated upstream
-
-(internal import-sprite-nodes)
-(defmethod import-sprite-nodes ((hash-table hash-table) &rest sprite-paths)
-  (dolist (path-form sprite-paths)
-    (let* ((first (car path-form))
-           (second (cadr path-form))
-           (custom-name (listp first)))
-      (setf (gethash (if custom-name second (car (last first))) hash-table)
-            (apply #'sprite-node (if custom-name first path-form))))))
-=======
->>>>>>> Stashed changes
