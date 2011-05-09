@@ -22,8 +22,7 @@
                                      :mappable-events '(:asteroid-explosion))))
       (desire-events controller :key-down #'handle-event)
       (map-input controller
-                 (click::key-down-handler
-                  :e `(:asteroid-explosion :source ,asteroid)))
+                 (key-down-handler :e `(:asteroid-explosion :source ,asteroid)))
       (add-listener container controller)
       (add-listener controller container)
       (add-igo container asteroid)

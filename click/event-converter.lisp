@@ -17,7 +17,6 @@
   (with-slots (predicates) controller
     (vector-push-extend event-predicate predicates)))
 
-(internal handle-event)
 (defmethod handle-event ((controller event-converter) event)
   (with-slots (predicates) controller
     (loop for predicate across predicates
@@ -29,5 +28,5 @@
 (defun key-down-handler (key event)
   (lambda (input)
     (when (and (eq (event-type input) :key-down)
-               (string= (getf (event-data input) :key) key))
+               (eq (getf (event-data input) :key) key))
       event)))
