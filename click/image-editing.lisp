@@ -8,25 +8,47 @@
 (cffi:defcfun ("memcpy" memcpy) :pointer
   (dest :pointer) (src :pointer) (size :unsigned-int))
 
+(internal power-size)
+(defun power-size (value base)
+  (expt base (ceiling (log value base))))
+
+(defun natural-power-p (value base)
+  (= (rem (log value base) 1) 0))
+
 (internal image-to-sprite)
-(defun image-to-sprite (&optional (image :current-image))
+(defun image-to-sprite (&optional destructive (image :current-image))
   (il:with-bound-image image
-    (let ((texture (car (gl:gen-textures 1)))
-          (format (il:image-format))
-          (type (il:image-type))
-          (width (il:image-width))
-          (height (il:image-height)))
+    (let* ((texture (car (gl:gen-textures 1)))
+           (format (il:image-format))
+           (type (il:image-type))
+           (width (il:image-width))
+           (height (il:image-height))
+           (ideal-width (power-size width 2))
+           (ideal-height (power-size height 2))
+           (image-copy (il:gen-image)))
       (assert (eq type :unsigned-byte) () 'image-type-error :actual-type type)
+      (unless (and (natural-power-p width 2) (natural-power-p height 2))
+        ;; (unless destructive
+        ;;   (il:bind-image image-copy)
+        ;;   (il:copy-image (if (eq image :current-image)
+        ;;                      (il:get-integer :cur-image))))
+        (ilu:image-parameter :placement :lower-left)
+        (ilu:enlarge-canvas ideal-width ideal-height 1))
       (gl:bind-texture :texture-2d texture)
       (gl:tex-parameter :texture-2d :texture-min-filter :linear)
-      (gl:tex-image-2d :texture-2d 0 format width height 0
+      (gl:tex-image-2d :texture-2d 0 format ideal-width ideal-height 0
                        format :unsigned-byte (il:get-data))
-      (make-instance 'texture-sprite :texture texture :width width
-                     :height height))))
+      (il:delete-images image-copy)
+      (make-instance 'texture-sprite :texture texture
+                     :width width :height height
+                     :texture-width ideal-width
+                     :texture-height ideal-height))))
 
 (defun load-image-sprite (file)
   (il:with-images (image)
     (il:with-bound-image (setf image (il:gen-image))
+      (il:enable :origin-set)
+      (il:origin-func :origin-lower-left)
       (il:load-image (namestring file))
       (case (il:image-format)
         ((:rgb :bgr) (il:convert-image :rgb :unsigned-byte))
@@ -82,7 +104,6 @@
                         (il:with-bound-image source-clone
                           (il:copy-image source)
                           (il:convert-image data-format data-type)
-                          (il:check-error)
                           source-clone))))
         (loop for y from 0 upto (1- (min (- dest-height dest-y) height))
            do (memcpy (image-data-pos dest-x (+ y dest-y))

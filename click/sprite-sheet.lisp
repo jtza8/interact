@@ -76,7 +76,6 @@
     (il:enable :origin-set)
     (il:origin-func :origin-lower-left)
     (il:load-image path)
-    (il:check-error)
     (let* ((width (il:image-width))
            (height (il:image-height))
            (image-format (il:image-format))

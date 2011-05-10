@@ -8,16 +8,19 @@
   ((texture :initarg :texture
             :initform (error "No texture name given.")
             :reader texture)
+   (texture-width :initarg :texture-width
+                  :initform (error "No texture-width given."))
+   (texture-height :initarg :texture-height
+                   :initform (error "No texture-height given."))
    (vbo :initarg :vbo
         :initform (car (gl:gen-buffers 1)))))
 
 (defmethod update-vbo ((sprite texture-sprite))
-  (with-slots (vbo width height) sprite
+  (with-slots (vbo width height texture-width texture-height) sprite
     (let* ((entry-type :int)
            (entry-size (cffi:foreign-type-size entry-type))
-           (vertex-count 4)
-           (uv-count 4)
-           (entries (list 0 0 0 0 1 0 width 0 1 1 width height 0 1 0 height))
+           (entries (list 0 0 0 0 width 0 width 0 width height
+                          width height 0 height 0 height))
            (entry-count (length entries)))
       (cffi:with-foreign-object (data entry-type entry-count)
         (let ((pointer data))
@@ -29,36 +32,38 @@
                          :static-draw)
         (%gl:tex-coord-pointer 2 entry-type (* entry-size 4)
                                (cffi:null-pointer))
-        (%gl:vertex-pointer 2 :int (* entry-size 4)
-                            (cffi:make-pointer (* entry-size 2)))
+        (%gl:vertex-pointer 2 entry-type (* entry-size 4)
+                            (cffi:null-pointer))
         (gl:bind-buffer :array-buffer 0)))))
 
 (defmethod initialize-instance :after ((sprite texture-sprite) &key)
-  (update-vbo sprite))
+  (when (use-vbo)
+    (update-vbo sprite)))
 
 (defmethod draw-sprite ((sprite texture-sprite) &key (x 0) (y 0) width height
                         (mode :tile))
-  (declare (ignore mode x y width height))
-  (with-slots ((normal-width width) (normal-height height) texture vbo) sprite
-    ;; (gl:scale texture-width texture-height 1)
+  (declare (ignore mode width height))
+  (with-slots (texture texture-width texture-height width height vbo) sprite
     (gl:bind-texture :texture-2d texture)
     (gl:tex-parameter :texture-2d :texture-wrap-s :repeat)
     (gl:tex-parameter :texture-2d :texture-wrap-t :repeat)
-    (when (null width) (setf width normal-width))
-    (when (null height) (setf height normal-height))
-    (gl:bind-buffer :array-buffer vbo)
-    (gl:enable-client-state :texture-coord-array)
-    (gl:enable-client-state :vertex-array)
-    (%gl:draw-arrays :quads 0 4)
-    (gl:disable-client-state :vertex-array)
-    (gl:disable-client-state :texture-coord-array)
-    ;; (rectangle x y width height
-    ;;            :tex-coords (list 0 0
-    ;;                              (/ width normal-width) 0
-    ;;                              (/ width normal-width) (/ height normal-height)
-    ;;                              0 (/ height normal-height)))
-    (gl:bind-buffer :array-buffer 0)
-    ))
+    (gl:matrix-mode :texture)
+    (gl:with-pushed-matrix
+      (gl:scale (/ 1 texture-width) (/ 1 texture-height) 1)
+      (if (use-vbo)
+          (progn
+            (gl:bind-buffer :array-buffer vbo)
+            (gl:enable-client-state :texture-coord-array)
+            (gl:enable-client-state :vertex-array)
+            (%gl:draw-arrays :quads 0 4)
+            (gl:disable-client-state :vertex-array)
+            (gl:disable-client-state :texture-coord-array)
+            (gl:bind-buffer :array-buffer 0))
+          (rectangle x y width height
+                     :tex-coords (list 0 0 width 0 width height 0 height))))
+    (gl:matrix-mode :modelview)))
 
 (defmethod free ((sprite texture-sprite))
-  (gl:delete-textures (list (texture sprite))))
+  (with-slots (vbo texture) sprite
+    (gl:delete-buffers (list vbo))
+    (gl:delete-textures (list texture))))

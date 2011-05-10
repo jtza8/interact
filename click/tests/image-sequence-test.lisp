@@ -13,20 +13,20 @@
 
 (def-test-method test-list-image-file-sequence ((test image-sequence-test))
   (let ((paths (list-image-file-sequence 
-                (merge-pathnames "sequence*.png" 
+                (merge-pathnames "sequence-*.png" 
                                  *test-image-sequence-path*))))
-    (assert-equal 20 (length paths))
+    (assert-equal 10 (length paths))
     (loop for path in paths
-          for i upfrom 1
-          do (assert-true (string= (format nil "sequence~4,'0d.png" i)
-                                   (file-namestring path))))))
+          for i upfrom 0
+          do (assert-equal(format nil "sequence-~2,'0d.png" i)
+                          (file-namestring path)))))
 
 (def-test-method test-open-image-sequence ((test image-sequence-test))
-  (let* ((sequence-path-pattern (merge-pathnames "sequence*.png" 
+  (let* ((sequence-path-pattern (merge-pathnames "sequence-*.png" 
                                                  *test-image-sequence-path*))
          (path-list (list-image-file-sequence sequence-path-pattern))
-        (bogus-file (merge-pathnames "sequence-bogus.png"
-                                     *test-image-sequence-path*)))
+         (bogus-file (merge-pathnames "sequence-bogus.png"
+                                      *test-image-sequence-path*)))
     (assert-condition 'image-dimensions-error
                       (apply #'il:delete-images
                              (open-image-sequence (cons bogus-file path-list))))

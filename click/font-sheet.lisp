@@ -21,7 +21,7 @@
                          &optional (ascii-offset 33) (glyph-count 93))
   (il:with-images (image)
     (il:with-bound-image image
-      (check-file-existance file-name file-name)
+      (check-file-existance file-name)
       (il:load-image (namestring file-name))
       (il:clear-colour 0 0 0 0)
       (ilu:image-parameter :placement :lower-left)
@@ -32,9 +32,7 @@
       (il:save-image (namestring file-name)))))
 
 (defun load-font-sheet (file)
-  (assert (cl-fad:file-exists-p file) (file)
-          'file-existance-error
-          :file-name (namestring file))
+  (check-file-existance file)
   (il:with-images (font-sheet)
     (il:with-bound-image font-sheet
       (il:load-image (namestring file))

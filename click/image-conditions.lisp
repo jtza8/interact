@@ -83,8 +83,10 @@
              (with-slots (file-name) condition
                (format stream "file: \"~a\" does not exist." file-name)))))
 
-(defmacro check-file-existance (file-name &rest places)
-  `(assert (fad:file-exists-p ,file-name) ,places
+(defmacro check-file-existance (file-name)
+  `(assert (fad:file-exists-p ,file-name) ,(if (symbolp file-name)
+                                               (list file-name)
+                                               nil)
            'file-existance-error
            :file-name ,file-name))
 

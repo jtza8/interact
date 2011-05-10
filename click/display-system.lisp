@@ -6,11 +6,12 @@
 
 (internal define-global-settings *display-settings*)
 (define-global-settings (*display-settings*)
-  (screen-width :width 800)
-  (screen-height :height 600)
-  (full-screen :full-screen nil :read)
-  (window-title :window-title "Lisp")
-  (screen-bg-color :bg-color '(1 1 1 1)))
+  (screen-width 800)
+  (screen-height 600)
+  (full-screen nil :read)
+  (window-title "Lisp")
+  (screen-bg-color '(1 1 1 1))
+  (use-vbo nil))
 
 (defun prepare-click ()
   (reset *global-stopwatch*)
@@ -46,7 +47,7 @@
 
 (defsetf full-screen () (value)
   `(progn 
-     (setf (gethash :full-screen *display-settings*) ,value)
+     (set-full-screen ,value)
      (update-display-mode)))
 
 (defun toggle-fullscreen ()

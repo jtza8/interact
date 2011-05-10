@@ -65,4 +65,5 @@
     (assert-equal nil (load-sprite bogus-jpg-path))
     (let ((sprite (load-sprite test-image-path)))
       (assert-true (typep sprite 'texture-sprite))
-      (gl:delete-textures (list (texture sprite))))))
+      (gl:delete-textures (list (texture sprite))))
+    ))

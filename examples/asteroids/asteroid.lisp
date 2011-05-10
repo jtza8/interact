@@ -17,7 +17,7 @@
   (with-slots (size sprite offset rotation velocity
                width height pivot-x pivot-y)
       asteroid
-    (setf sprite (diverge (sprite-node :asteroid :test-sheet))
+    (setf sprite (diverge (sprite-node :asteroid :mess))
           width (width sprite)
           height (height sprite)
           offset (- (sqrt (+ (expt width 2) (expt height 2))))

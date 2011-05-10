@@ -30,11 +30,9 @@
       (il:bind-image dest-image)
       (il:tex-image dest-width dest-height 1 bytes-per-pixel dest-format
                     dest-type (cffi:null-pointer))
-      (il:check-error)
       (il:with-bound-image src-image
         (il:load-image (merge-pathnames #p"src-image.png"
-                                        *test-image-path*))
-        (il:check-error))
+                                        *test-image-path*)))
       (il:clear-colour 0 0 0 0)
       (il:clear-image)
       (time (blit src-image 10 200 0 64 64 0 64 64 0))
@@ -76,13 +74,11 @@
       (il:bind-image dest-image)
       (il:tex-image dest-width dest-height 1 bytes-per-pixel dest-format
                     dest-type (cffi:null-pointer))
-      (il:check-error)
       (il:with-bound-image src-image
         (il:enable :origin-set)
         (il:origin-func :origin-lower-left)
         (il:load-image (merge-pathnames #p"src-image.png"
-                                        *test-image-path*))
-        (il:check-error))
+                                        *test-image-path*)))
       (il:clear-colour 0 0 0 0)
       (il:clear-image)
       (time (overlay-image src-image 10 200 0))

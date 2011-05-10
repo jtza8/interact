@@ -5,9 +5,9 @@
 (in-package :click-examples)
 
 (defun asteroids ()
-  (with-display-system (:screen-bg-color '(0 0 0 1)
-                        :window-title "Asteroids Demo"
-                        :screen-width 800 :screen-height 600)
+  (with-display-system (screen-bg-color '(0 0 0 1)
+                        window-title "Asteroids Demo"
+                        screen-width 1280 screen-height 800)
     (load-sprite-path 
      (asdf:system-relative-pathname :click-examples #p"asteroids/sprites"))
     (add-root-listener
