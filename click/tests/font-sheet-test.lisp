@@ -17,3 +17,13 @@
       (assert-equal 93 (getf header :glyph-count))
       (assert-equal 12 (getf header :glyph-width))
       (assert-equal 16 (getf header :glyph-height)))))
+
+(defun test-bitmap-font-manually ()
+  (with-display-system (screen-bg-color '(0 0 0 0))
+    (add-root-igo 
+     (make-instance 
+      'simple-igo 
+      :sprite (load-font-sheet 
+               (asdf:system-relative-pathname
+                :click-tests
+                #p"test-fonts/bitmap-font.fnt.png"))))))

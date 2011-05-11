@@ -101,7 +101,6 @@
                                        image-type (cffi:null-pointer))
                          (blit sheet 0 0 0 (* x frame-width) (* y frame-height)
                                0 frame-width frame-height 0)
-                         (ilu:flip-image)
                          (setf (aref sprite-vector (- frame-count images-left))
                                (image-to-sprite))
                          (decf images-left)))))

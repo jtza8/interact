@@ -6,23 +6,6 @@
 
 (defvar *root-container*)
 
-(define-condition tag-error (error)
-  ((fault :initarg :fault
-          :initform :fault)
-   (tag :initarg :tag
-        :initform nil)
-   (igo :initarg :igo
-        :initform nil))
-  (:report (lambda (condition stream)
-             (with-slots (fault tag igo) condition
-               (case fault
-                 (:tag (format stream "Tag ~s for igo ~s must be unique"
-                               tag igo))
-                 (:igo (format stream "Widget ~s already has tag ~s"
-                                  igo tag))
-                 (:invalid-tag (format stream "Couldn't find tag ~s" tag))
-                 (otherwise (format stream "Unknown fault: ~s" fault)))))))
-
 (defclass container (igo)
   ((visible :initarg :visible
             :initform t)
@@ -56,18 +39,17 @@
 
 (defmethod tag-igo ((container container) (igo igo) tag)
   (with-slots (tags) container
-    (multiple-value-bind (fault tag igo)
-        (loop
-           for (tag-key tag-value) on tags by #'cddr do
-             (cond
-               ((eq tag-key tag)
-                (return (values :tag tag-key tag-value)))
-               ((eq tag-value igo)
-                (return (values :igo tag-key tag-value))))
-           finally
-             (return (values nil nil nil)))
+    (destructuring-bind (fault tag igo)
+        (loop for (tag-key tag-value) on tags by #'cddr
+              do (cond
+                   ((eq tag-key tag)
+                    (return `(:duplicate-tag ,tag-key ,tag-value)))
+                   ((eq tag-value igo)
+                    (return `(:double-tag ,tag-key ,tag-value))))
+              finally
+                (return '(nil nil nil)))
       (assert (not fault) (tag igo)
-              'tag-error :fault fault :tag tag :igo igo))
+              'igo-tag-error :fault fault :tag tag :igo igo))
     (setf (getf tags tag) igo)))
 
 (defmethod remove-tag ((container container) identifier)
@@ -81,7 +63,7 @@
 
 (defmethod igo-of ((container container) tag)
   (let ((value (getf (slot-value container 'tags) tag)))
-    (assert value (value) 'tag-error :fault :invalid-tag :tag tag)
+    (assert value (value) 'igo-tag-error :fault :invalid-tag :tag tag)
     value))
 
 (defmethod tag-of ((container container) (igo igo))
@@ -89,8 +71,7 @@
         when (eql value igo) do (return key)
         finally (return nil)))
 
-(defmethod add-igo ((container container) igo &optional tag)
-  (check-type igo igo)
+(defmethod add-igo ((container container) (igo igo) &optional tag)
   (with-slots (igos) container
     (loop for existing across igos
           when (eq existing igo) do (return-from add-igo))

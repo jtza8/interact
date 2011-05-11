@@ -10,8 +10,7 @@
   (screen-height 600)
   (full-screen nil :read)
   (window-title "Lisp")
-  (screen-bg-color '(1 1 1 1))
-  (use-vbo nil))
+  (screen-bg-color '(1 1 1 1)))
 
 (defun prepare-click ()
   (reset *global-stopwatch*)

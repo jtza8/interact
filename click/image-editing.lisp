@@ -27,6 +27,7 @@
            (ideal-height (power-size height 2))
            (image-copy (il:gen-image)))
       (assert (eq type :unsigned-byte) () 'image-type-error :actual-type type)
+      (ilu:flip-image)
       (unless (and (natural-power-p width 2) (natural-power-p height 2))
         (if destructive
             (progn
@@ -64,7 +65,6 @@
         ((:luminance-alpha) (il:convert-image :luminance-alpha :unsigned-byte))
         (otherwise (error 'image-format-error 
                           :actual-format (il:image-format))))
-      (ilu:flip-image)
       (image-to-sprite t))))
 
 (internal image-data-pos)

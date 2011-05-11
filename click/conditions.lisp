@@ -4,6 +4,25 @@
 
 (in-package :click)
 
+(define-condition igo-tag-error (error)
+  ((fault :initarg :fault
+          :initform (error "must specify fault"))
+   (tag :initarg :tag
+        :initform nil)
+   (igo :initarg :igo
+        :initform nil))
+  (:report (lambda (condition stream)
+             (with-slots (fault tag igo) condition
+               (case fault
+                 (:duplicate-tag
+                  (format stream "Tag ~s for igo ~s must be unique"
+                          tag igo))
+                 (:double-tag
+                  (format stream "IGO ~s already has tag ~s"
+                          igo tag))
+                 (:tag-not-found (format stream "Couldn't find tag ~s" tag))
+                 (otherwise (format stream "Unknown fault: ~s" fault)))))))
+
 (internal pixel-index-error)
 (define-condition pixel-index-error (error)
   ((message :initarg :message
@@ -75,24 +94,20 @@
             supported."
       dimensions "unsupported dimensions ~s"))
 
-
-(define-condition file-existance-error (error)
-  ((file-name :initarg file-name
-              :initform (error "must specify file-name")))
+(define-condition file-existance-error (file-error)
+  ()
   (:report (lambda (condition stream)
-             (with-slots (file-name) condition
-               (format stream "file: \"~a\" does not exist." file-name)))))
+             (format stream "file \"~a\" does not exist"
+                     (file-error-pathname condition)))))
 
-(defmacro check-file-existance (file-name)
-  `(assert (fad:file-exists-p ,file-name) ,(if (symbolp file-name)
-                                               (list file-name)
-                                               nil)
+(defmacro check-file-existance (pathname)
+  `(assert (fad:file-exists-p ,pathname)
+           ,(if (symbolp pathname) (list pathname) nil)
            'file-existance-error
-           :file-name ,file-name))
+           :pathname ,pathname))
 
-(define-condition file-format-error (error)
-  ((pattern :initarg :pattern 
-            :initform (error "must specify pattern")))
-  (:report (lambda (condition stream)
-             (with-slots (pattern) condition
-               (format stream "file format (~a) not supported." pattern)))))
+;; (define-condition file-extension-error (file-error)
+;;   ()
+;;   (:report (lambda (condition stream)
+;;              (format stream "file extension \".~a\" not supported"
+;;                      (pathname-type (file-error-pathname condition))))))

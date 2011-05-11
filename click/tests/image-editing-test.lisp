@@ -4,9 +4,6 @@
 
 (in-package :click)
 
-(defparameter *test-image-path*
-  (asdf:system-relative-pathname :click-tests "test-images/"))
-
 (defclass image-editing-test (test-case)
   ())
 
