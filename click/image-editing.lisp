@@ -28,12 +28,19 @@
            (image-copy (il:gen-image)))
       (assert (eq type :unsigned-byte) () 'image-type-error :actual-type type)
       (unless (and (natural-power-p width 2) (natural-power-p height 2))
-        ;; (unless destructive
-        ;;   (il:bind-image image-copy)
-        ;;   (il:copy-image (if (eq image :current-image)
-        ;;                      (il:get-integer :cur-image))))
-        (ilu:image-parameter :placement :lower-left)
-        (ilu:enlarge-canvas ideal-width ideal-height 1))
+        (if destructive
+            (progn
+              (ilu:image-parameter :placement :lower-left)
+              (ilu:enlarge-canvas ideal-width ideal-height 1))
+            (progn
+              (let ((original-image (il:get-integer :cur-image)))
+                (il:bind-image image-copy)
+                (il:tex-image ideal-width ideal-height 1
+                              (il:image-bytes-per-pixel original-image)
+                              (il:image-format original-image)
+                              (il:image-type original-image)
+                              (cffi:null-pointer))
+                (overlay-image original-image 0 0 0)))))
       (gl:bind-texture :texture-2d texture)
       (gl:tex-parameter :texture-2d :texture-min-filter :linear)
       (gl:tex-image-2d :texture-2d 0 format ideal-width ideal-height 0
@@ -58,7 +65,7 @@
         (otherwise (error 'image-format-error 
                           :actual-format (il:image-format))))
       (ilu:flip-image)
-      (image-to-sprite))))
+      (image-to-sprite t))))
 
 (internal image-data-pos)
 (defun image-data-pos (x y &optional (image :current-image))
