@@ -57,5 +57,5 @@
 
 (defmethod free ((sprite texture-sprite))
   (with-slots (vbo texture) sprite
-    (gl:delete-buffers (list vbo))
+    ;; (gl:delete-buffers (list vbo))
     (gl:delete-textures (list texture))))

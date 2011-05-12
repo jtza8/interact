@@ -128,7 +128,9 @@
     (let* ((width (il:image-width))
            (height (il:image-height))
            (bytes-per-pixel (il:image-bytes-per-pixel))
-           (header-byte-size (* (reduce #'+ arguments :key #'car)
+           (header-byte-size (* (reduce #'+ arguments :key 
+                                        (lambda (x)
+                                          (cffi:foreign-type-size (car x))))
                                 bytes-per-pixel))
            (pixel-count (ceiling (/ header-byte-size bytes-per-pixel)))
            (header-pixel-size (* pixel-count bytes-per-pixel))
@@ -138,16 +140,12 @@
                       (:origin-upper-left (image-data-pos 0 0)))))
       (assert (>= header-row-size header-pixel-size) ()
               "too little space to write header in")
-      (memset pointer #xff header-row-size)
-      (loop for (size value) in arguments
-            do (destructuring-bind (type subtrahend)
-                   (ecase size
-                     (1 '(:uint8 #xff))
-                     (2 '(:uint16 #xffff))
-                     (4 '(:uint32 #xffffffff)))
-                 (setf (cffi:mem-aref pointer type) (- subtrahend value))
+      (loop for (type value) in arguments
+            do (progn
+                 (setf (cffi:mem-aref pointer type) value)
                  (cffi:incf-pointer pointer
-                                    (* (ceiling (/ size bytes-per-pixel))
+                                    (* (ceiling (/ (cffi:foreign-type-size type)
+                                                   bytes-per-pixel))
                                        bytes-per-pixel)))))))
 
 (internal read-pixel-header)
@@ -158,14 +156,11 @@
            (pointer (ecase (il:image-origin)
                       (:origin-lower-left (image-data-pos 0 (1- height)))
                       (:origin-upper-left (image-data-pos 0 0)))))
-      (loop for size in arguments
-            collect (destructuring-bind (type subtrahend)
-                        (ecase size
-                          (1 '(:uint8 #xff))
-                          (2 '(:uint16 #xffff))
-                          (4 '(:uint32 #xffffffff)))
-                      (let ((value (- subtrahend (cffi:mem-aref pointer type))))
-                        (cffi:incf-pointer pointer 
-                                           (* (ceiling (/ size bytes-per-pixel))
-                                              bytes-per-pixel))
-                        value))))))
+      (loop for type in arguments
+            collect (let ((value (cffi:mem-aref pointer type)))
+                      (cffi:incf-pointer pointer 
+                                         (* (ceiling
+                                             (/ (cffi:foreign-type-size type)
+                                                bytes-per-pixel))
+                                            bytes-per-pixel))
+                      value)))))

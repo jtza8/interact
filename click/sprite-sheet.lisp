@@ -12,13 +12,14 @@
 (defun write-sheet-header (frame-width frame-height frame-count fps looping 
                            &optional (image :current-image))
   (write-pixel-header image 
-                      `(2 ,frame-width) `(2 ,frame-height) 
-                      `(2 ,frame-count) `(1 ,fps)
-                      `(1 ,(if looping #x0001 #x0000))))
+                      `(:uint16 ,frame-width) `(:uint16 ,frame-height) 
+                      `(:uint16 ,frame-count) `(:uint8 ,fps)
+                      `(:uint8 ,(if looping #x0001 #x0000))))
 
 (internal read-sheet-header)
 (defun read-sheet-header (&optional (image :current-image))
-  (let ((values (read-pixel-header image 2 2 2 1 1)))
+  (let ((values (read-pixel-header image :uint16 :uint16 
+                                   :uint16 :uint8 :uint8)))
     (list* :frame-width (pop values)
          :frame-height (pop values)
          :frame-count (pop values)

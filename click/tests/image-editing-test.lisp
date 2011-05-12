@@ -110,9 +110,10 @@
     (il:with-bound-image image-1
       (il:tex-image 192 1 1 2 :luminance-alpha :unsigned-byte 
                     (cffi:null-pointer)))
-    (write-pixel-header image-1 '(1 32) '(4 42390) '(1 123))
-    (assert-equal '(32 42390 123) (read-pixel-header image-1 1 4 1))
+    (write-pixel-header image-1 '(:uint8 32) '(:uint32 42390) '(:int8 -123))
+    (assert-equal '(32 42390 -123) (read-pixel-header image-1 :uint8
+                                                      :uint32 :int8))
     (il:with-bound-image image-2
       (il:tex-image 1 1 1 1 :luminance :unsigned-byte (cffi:null-pointer)))
-    (assert-condition 'error (write-pixel-header image-2 '(2 8)))
-    (write-pixel-header image-2 '(1 8))))
+    (assert-condition 'error (write-pixel-header image-2 '(:uint16 8)))
+    (write-pixel-header image-2 '(:uint8 8))))
