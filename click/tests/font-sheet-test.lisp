@@ -19,15 +19,3 @@
       (assert-equal 16 (getf header :glyph-height))
       (assert-equal -1 (getf header :tracking)))))
 
-(defun test-bitmap-font-manually ()
-  (with-display-system (screen-bg-color '(0.5 0.5 0.5 0))
-    (let* ((font-sprite (load-font-sheet
-                         (asdf:system-relative-pathname
-                          :click-tests
-                          #p"test-fonts/8x16.fnt.png")))
-           (font-igo (make-instance 'simple-igo :sprite font-sprite
-                                    :x 100 :y 100)))
-      (add-root-igo font-igo)
-      (setf (rotation font-igo) 0
-            (message font-sprite)
-            "The quick brown fox jumps over the lazy dog."))))

@@ -38,7 +38,7 @@
     (let ((glyph-index (- (char-code char) ascii-offset)))
       (assert (and (<= 0 glyph-index)
                    (< glyph-index (length glyph-vector)))
-              () "index error")
+              (char) 'bitmap-char-error :character char)
       (aref glyph-vector glyph-index))))
 
 (defmethod draw-sprite ((sprite bitmap-font-sprite) &key
@@ -50,3 +50,8 @@
           do (draw-sprite (fetch-glyph sprite char)
                           :x (+ x (* i (+ glyph-width tracking)))
                           :y y))))
+
+(defmethod free ((sprite bitmap-font-sprite))
+  (with-slots (glyph-vector) sprite
+    (loop for glyph across glyph-vector
+          do (free glyph))))

@@ -26,4 +26,6 @@
                (:file "animation-sprite-test"
                       :depends-on ("test-package" "simple-igo"))
                (:file "font-sheet-test"
+                      :depends-on ("test-package"))
+               (:file "bitmap-font-sprite-test"
                       :depends-on ("test-package" "simple-igo"))))

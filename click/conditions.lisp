@@ -4,6 +4,19 @@
 
 (in-package :click)
 
+(define-condition index-error (error)
+  ((index :initarg :index
+          :initform (error "must specify index")))
+  (:report (lambda (condition stream)
+             (with-slots (index) condition
+               (format stream "invalid index \"~a\"" index)))))
+
+(define-condition bitmap-char-error (index-error)
+  ((index :initarg :character))
+  (:report (lambda (condition stream)
+             (with-slots (index) condition
+               (format stream "invalid bitmap character \"~a\"" index)))))
+
 (define-condition igo-tag-error (error)
   ((fault :initarg :fault
           :initform (error "must specify fault"))

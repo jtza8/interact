@@ -85,7 +85,7 @@
      ,@(loop for (setting value) on args by #'cddr
              collect `(setf (,(intern (symbol-name setting))) ,value))
      (start-display-system)
-     (unwind-protect (progn ,@body 
+     (unwind-protect (progn ,@body
                             (run-display-system))
        (quit-display-system))))
 
