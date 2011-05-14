@@ -12,8 +12,7 @@
                   :initform (error "must specify sprite vector"))
    (stopwatch :initform (make-instance 'stopwatch))))
 
-(defmethod initialize-instance :after ((sprite animation-sprite) 
-                                       &key (start t))
+(defmethod initialize-instance :after ((sprite animation-sprite) &key (start t))
   (with-slots (sprite-vector stopwatch) sprite
     (check-type sprite-vector vector)
     (assert (> (length sprite-vector) 0))
@@ -25,13 +24,11 @@
                    :height height :width width
                    :fps fps :sprite-vector sprite-vector)))
 
-(defmethod draw-sprite ((sprite animation-sprite)
-                        &key (x 0) (y 0) height width (mode :tile))
+(defmethod draw-sprite ((sprite animation-sprite) &key (x 0) (y 0))
   (with-slots (fps sprite-vector stopwatch) sprite
     (let ((frame-number (rem (truncate (/ (* (lap stopwatch) fps) 1000))
                              (length sprite-vector))))
-      (draw-sprite (aref sprite-vector frame-number)
-                   :x x :y y :mode mode :height height :width width))))
+      (draw-sprite (aref sprite-vector frame-number) :x x :y y))))
 
 (defmethod free ((sprite animation-sprite))
   (with-slots (sprite-vector) sprite

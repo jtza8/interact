@@ -36,7 +36,7 @@
     (cond ((ppcre:scan "\\.ss\\.\\w+$" file-name)
            (load-sprite-sheet file))
           ((ppcre:scan "\\.fnt\\.\\w+$" file-name)
-           ())
+           (load-font-sheet file))
           (t (load-image-sprite file)))))
 
 (internal *sprite-tree*)

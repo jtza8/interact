@@ -18,17 +18,20 @@
    (tracking :initform (error "must specify tracking")
              :initarg :tracking
              :accessor tracking)
+   (color :initform '(1.0 1.0 1.0 1.0)
+          :initarg :color
+          :accessor color)
    (width :initform 0)
    (height :initform 0)
-   (message :initform ""
-            :reader message)))
+   (text :initform ""
+            :reader text)))
 
-(defmethod (setf message) (value (sprite bitmap-font-sprite))
+(defmethod (setf text) (value (sprite bitmap-font-sprite))
   (with-slots (width height glyph-width glyph-height
-               glyph-vector message) sprite
-    (setf message value
-          width (* glyph-width (length message))
-          height (if (> (length message) 0) glyph-height 0))))
+               glyph-vector text) sprite
+    (setf text value
+          width (* glyph-width (length text))
+          height (if (> (length text) 0) glyph-height 0))))
 
 (defmethod initialize-instance :after ((sprite bitmap-font-sprite) &key)
   ())
@@ -41,15 +44,27 @@
               (char) 'bitmap-char-error :character char)
       (aref glyph-vector glyph-index))))
 
-(defmethod draw-sprite ((sprite bitmap-font-sprite) &key
-                        (x 0) (y 0) width height mode)
-  (with-slots (message glyph-width tracking) sprite
-    (loop for char across message
-          for i upfrom 0
-          when (not (char= char #\Space))
+(defmethod draw-sprite ((sprite bitmap-font-sprite) &key (x 0) (y 0))
+  (with-slots (text glyph-width tracking color) sprite
+    (gl:with-pushed-attrib (:current-bit)
+      (apply #'gl:color color)
+      (loop for char across text
+         for i upfrom 0
+         when (not (char= char #\Space))
           do (draw-sprite (fetch-glyph sprite char)
                           :x (+ x (* i (+ glyph-width tracking)))
-                          :y y))))
+                          :y y)))))
+
+(defmethod diverge ((sprite bitmap-font-sprite))
+  (with-slots (ascii-offset glyph-width glyph-height 
+               glyph-vector tracking color) sprite
+    (make-instance 'bitmap-font-sprite
+                   :ascii-offset ascii-offset
+                   :glyph-width glyph-width
+                   :glyph-height glyph-height
+                   :glyph-vector glyph-vector
+                   :tracking tracking
+                   :color color)))
 
 (defmethod free ((sprite bitmap-font-sprite))
   (with-slots (glyph-vector) sprite

@@ -16,7 +16,7 @@
 (defmethod diverge ((sprite sprite))
   sprite)
 
-(defgeneric draw-sprite (sprite &key x y width height mode)
+(defgeneric draw-sprite (sprite &key x y)
   (:documentation
    "Draw at the specified coordinates."))
 

@@ -14,7 +14,12 @@
      (make-instance 'event-assistant
                     :quit-key :escape
                     :fullscreen-key :F12))
-    (let ((asteroid (make-instance 'asteroid :x 100 :y 200))
+    (let* ((asteroid (make-instance 'asteroid :x 100 :y 200))
+           (font (diverge (sprite-node :fonts :8x16)))
+           (fps-counter
+            (make-instance 'fps-counter
+                           :font-sprite font
+                           :x 10 :y (- (screen-height) (glyph-height font) 10)))
           (container (make-instance 'asteroid-container
                                     :height (screen-height)
                                     :width (screen-width)))
@@ -26,4 +31,5 @@
       (add-listener container controller)
       (add-listener controller container)
       (add-igo container asteroid)
-      (add-root-igo container))))
+      (add-root-igo container)
+      (add-root-igo fps-counter))))

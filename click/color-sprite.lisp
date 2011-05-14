@@ -14,13 +14,9 @@
            :initform 0)))
 
 (defmethod draw-sprite ((sprite color-sprite)
-                        &key (x 0) (y 0) width height mode)
+                        &key (x 0) (y 0))
   (declare (ignore mode))
-  (with-slots (color (normal-width width) (normal-height height)) sprite
-    (when (null width)
-      (setf width normal-width))
-    (when (null height)
-      (setf height normal-height))
+  (with-slots (color width height) sprite
     (gl:push-attrib :current-bit)
     (gl:with-primitive :quads
       (apply #'gl:color color)

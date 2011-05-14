@@ -28,4 +28,5 @@
                (:file "igo")
                (:file "container")
                (:file "display-system")
+               (:file "fps-counter")
                (:file "export")))
