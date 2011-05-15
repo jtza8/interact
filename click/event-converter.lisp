@@ -9,6 +9,8 @@
                                      :fill-pointer 0
                                      :element-type 'function))))
 
+(define-instance-maker event-converter)
+
 (defmethod initialize-instance :after ((controller event-converter)
                                        &key mappable-events)
   (apply #'provide-events controller mappable-events))

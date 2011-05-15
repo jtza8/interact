@@ -56,10 +56,9 @@
   (sdl:quit-video))
 
 (defun run-display-system ()
-  (start *global-stopwatch*)
-  (let ((event (sdl:new-event))
-        (frame-watch (make-instance 'stopwatch)) quit)
-    (start frame-watch)
+  (reset *global-stopwatch* t)
+  (start *frame-stopwatch*)
+  (let ((event (sdl:new-event)) quit)
     (unwind-protect
          (loop 
             until quit
@@ -76,8 +75,8 @@
                  (gl:flush)
                  (sdl:update-display)
                  (send-event *root-container* '(:after-frame))
-                 (sleep (max (- 1/60 (/ (lap frame-watch) 1000)) 0))
-                 (reset frame-watch :auto-start t)))
+                 ;; (sleep (max (- 1/60 (/ (frame-time) 1000)) 0))
+                 (reset *frame-stopwatch* t)))
       (cffi:foreign-free event))))
 
 (defmacro with-display-system ((&rest args) &body body)

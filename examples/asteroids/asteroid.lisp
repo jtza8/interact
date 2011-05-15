@@ -8,16 +8,18 @@
   ((size :initform :large
          :initarg :size
          :reader size)
-   (rotation-speed :initform (- (random 11) 5))
-   (velocity :initform (cons (random 5) (random 360)))
+   (rotation-speed :initform (- (random 101) 50))
+   (velocity :initform (cons (random 200) (random 360)))
    sprite
    offset))
+
+(define-instance-maker asteroid)
 
 (defmethod initialize-instance :after ((asteroid asteroid) &key)
   (with-slots (size sprite offset rotation velocity
                width height pivot-x pivot-y)
       asteroid
-    (setf sprite (diverge (sprite-node :asteroid :mess))
+    (setf sprite (diverge (sprite-node :asteroid :large))
           width (width sprite)
           height (height sprite)
           offset (- (sqrt (+ (expt width 2) (expt height 2))))
@@ -48,10 +50,11 @@
 (defmethod after-frame-event ((asteroid asteroid) event)
   (with-slots (offset rotation velocity rotation-speed height width x y)
       asteroid
-    (incf rotation rotation-speed)
-    (incf x (* (car velocity) (cos (cdr velocity))))
-    (incf y (* (car velocity) (sin (cdr velocity))))
-    (cond ((< x offset) (setf x (screen-width)))
-          ((> x (screen-width)) (setf x offset)))
-    (cond ((< y offset) (setf y (screen-height)))
-          ((> y (screen-height)) (setf y offset)))))
+    (let ((time-delta (/ (frame-time) 1000.0)))
+      (incf rotation (* rotation-speed time-delta))
+      (incf x (* (car velocity) time-delta (cos (cdr velocity))))
+      (incf y (* (car velocity) time-delta (sin (cdr velocity))))
+      (cond ((< x offset) (setf x (screen-width)))
+            ((> x (screen-width)) (setf x offset)))
+      (cond ((< y offset) (setf y (screen-height)))
+            ((> y (screen-height)) (setf y offset))))))

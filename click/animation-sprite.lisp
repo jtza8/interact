@@ -12,6 +12,8 @@
                   :initform (error "must specify sprite vector"))
    (stopwatch :initform (make-instance 'stopwatch))))
 
+(define-instance-maker animation-sprite)
+
 (defmethod initialize-instance :after ((sprite animation-sprite) &key (start t))
   (with-slots (sprite-vector stopwatch) sprite
     (check-type sprite-vector vector)

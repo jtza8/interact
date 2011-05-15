@@ -26,3 +26,10 @@
                                 (setf (aref ,global-variable ,index) value))))
                         ,(when (find setter-mode '(:write :read-write))
                            `(defsetf ,function-name ,set-function-name))))))
+
+(defmacro define-instance-maker (class-name)
+  (let ((instance-maker (intern (format nil "MAKE-~s" class-name))))
+    `(progn (declaim (inline ,instance-maker))
+            (defun ,instance-maker
+                (&rest args)
+              (apply #'make-instance ',class-name args)))))

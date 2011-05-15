@@ -19,6 +19,8 @@
    (running :initform nil)
    (time-func :initform nil)))
 
+(define-instance-maker stopwatch)
+
 (defmethod initialize-instance :after ((watch stopwatch) &key
                                        (mode :local))
   (with-slots (time-func) watch
@@ -49,7 +51,7 @@
         (- (funcall time-func) time-marker)
         run-time)))
 
-(defmethod reset ((watch stopwatch) &key (auto-start nil))
+(defmethod reset ((watch stopwatch) &optional (auto-start nil))
   (with-slots (time-marker running run-time) watch
     (setf time-marker nil
           run-time 0
@@ -59,3 +61,8 @@
 
 (internal *global-stopwatch*)
 (setf *global-stopwatch* (make-instance 'stopwatch :mode :global))
+
+(internal *frame-stopwatch*)
+(defparameter *frame-stopwatch* (make-stopwatch))
+(declaim (inline frame-time))
+(defun frame-time () (lap *frame-stopwatch*))

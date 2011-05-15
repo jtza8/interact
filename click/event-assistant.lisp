@@ -10,6 +10,8 @@
    (fullscreen-key :initarg :fullscreen-key
                    :initform nil)))
 
+(define-instance-maker event-assistant)
+
 (defmethod initialize-instance :after ((assistant event-assistant) &key)
   (with-slots (quit-key fullscreen-key) assistant
     (when (notevery #'null (list quit-key fullscreen-key))

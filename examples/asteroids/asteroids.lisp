@@ -10,21 +10,17 @@
                         screen-width 1280 screen-height 800)
     (load-sprite-path 
      (asdf:system-relative-pathname :click-examples #p"asteroids/sprites"))
-    (add-root-listener
-     (make-instance 'event-assistant
-                    :quit-key :escape
-                    :fullscreen-key :F12))
-    (let* ((asteroid (make-instance 'asteroid :x 100 :y 200))
+    (add-root-listener (make-event-assistant :quit-key :escape
+                                             :fullscreen-key :F12))
+    (let* ((asteroid (make-asteroid :x 100 :y 200))
            (font (diverge (sprite-node :fonts :8x16)))
-           (fps-counter
-            (make-instance 'fps-counter
-                           :font-sprite font
-                           :x 10 :y (- (screen-height) (glyph-height font) 10)))
-          (container (make-instance 'asteroid-container
-                                    :height (screen-height)
-                                    :width (screen-width)))
-          (controller (make-instance 'event-converter
-                                     :mappable-events '(:asteroid-explosion))))
+           (fps-counter (make-fps-counter :font-sprite font
+                                          :x 10 :y (- (screen-height)
+                                                      (glyph-height font) 10)))
+           (container (make-asteroid-container :height (screen-height)
+                                               :width (screen-width)))
+           (controller (make-event-converter :mappable-events
+                                             '(:asteroid-explosion))))
       (desire-events controller :key-down #'handle-event)
       (map-input controller
                  (key-down-handler :e `(:asteroid-explosion :source ,asteroid)))

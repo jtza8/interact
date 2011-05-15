@@ -19,6 +19,8 @@
                :reader background)
    (tags :initform '())))
 
+(define-instance-maker container)
+
 (defmethod initialize-instance :after ((container container) &key)
   (provide-events container :display-state :key-down :key-up :mouse-motion
                   :mouse-button-down :mouse-button-up :parent-move 
@@ -36,6 +38,7 @@
                  :display-resize #'send-event :display-exposure #'send-event
                  :user-event #'send-event :before-frame #'send-event
                  :after-frame #'send-event))
+
 
 (defmethod tag-igo ((container container) (igo igo) tag)
   (with-slots (tags) container

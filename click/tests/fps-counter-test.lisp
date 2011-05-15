@@ -10,5 +10,4 @@
                                                      "test-fonts"))
     (let ((fps-counter (make-instance 'fps-counter
                                       :font-sprite (sprite-node :8x16))))
-      (add-root-igo fps-counter)
-      )))
+      (add-root-igo fps-counter))))

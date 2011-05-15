@@ -7,6 +7,8 @@
 (defclass asteroid-container (container)
   ())
 
+(define-instance-maker asteroid-container)
+
 (defmethod initialize-instance :after ((container asteroid-container) &key)
   (desire-events container
                  :asteroid-explosion #'asteroid-explosion-event)
@@ -28,7 +30,8 @@
       (add-igo container (make-instance 'asteroid :size new-size :x x :y y)))))
 
 (defmethod before-frame-event ((container asteroid-container) event)
-  (let ((listeners (getf (slot-value container 'listeners) :asteroid-collision)))
+  (let ((listeners (getf (slot-value container 'listeners)
+                         :asteroid-collision)))
     (dolist (a listeners)
       (dolist (b listeners)
         (when (eq a b)

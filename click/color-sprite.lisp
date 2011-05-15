@@ -13,6 +13,8 @@
    (height :initarg :height
            :initform 0)))
 
+(define-instance-maker color-sprite)
+
 (defmethod draw-sprite ((sprite color-sprite)
                         &key (x 0) (y 0))
   (declare (ignore mode))
