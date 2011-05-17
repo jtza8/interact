@@ -164,3 +164,18 @@
                                                 bytes-per-pixel))
                                             bytes-per-pixel))
                       value)))))
+
+(defmacro with-vecto-canvas-as-texture ((width height &optional texture)
+                                        &body body)
+  (let ((final-texture (gensym "TEXTURE-")))
+    `(vecto:with-canvas (:width ,width :height ,height)
+       ,@body
+       (let ((,final-texture ,(if (null texture)
+                                  (car (gl:gen-textures 1))
+                                  texture)))
+         (gl:bind-texture :texture-2d ,final-texture)
+         (gl:tex-parameter :texture-2d :texture-min-filter :linear)
+         (gl:tex-image-2d :texture-2d 0 :rgba ,width ,height
+                          0 :rgba :unsigned-byte
+                          (vecto::image-data vecto::*graphics-state*))
+         ,final-texture))))

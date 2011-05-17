@@ -4,7 +4,7 @@
   :author "Jens Thiede"
   :licence "BSD-Style License"
   :depends-on ("cffi" "lispbuilder-sdl" "resource-tree" "cl-opengl" "cl-devil"
-               "cl-fad" "cl-ppcre" "meta-package")
+               "cl-fad" "cl-ppcre" "meta-package" "vecto")
   :serial t
   :components ((:file "package")
                (:file "conditions")
@@ -24,6 +24,7 @@
                (:file "sprite-sheet")
                (:file "font-sheet")
                (:file "bitmap-font-sprite")
+               (:file "vector-sprite")
                (:file "sprite-tree")
                (:file "igo")
                (:file "container")

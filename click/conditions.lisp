@@ -17,6 +17,14 @@
              (with-slots (index) condition
                (format stream "invalid bitmap character \"~a\"" index)))))
 
+(define-condition coordinate-error (index-error)
+  ((index :initarg :component))
+  (:report (lambda (condition stream)
+             (with-slots (index) condition
+               (format stream "coordinate is of a lesser dimension. ~
+                               Cannot access \"~a\""
+                       index)))))
+
 (define-condition igo-tag-error (error)
   ((fault :initarg :fault
           :initform (error "must specify fault"))
