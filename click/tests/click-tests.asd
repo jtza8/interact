@@ -30,4 +30,5 @@
                (:file "bitmap-font-sprite-test"
                       :depends-on ("test-package" "simple-igo"))
                (:file "fps-counter-test"
-                      :depends-on ("test-package"))))
+                      :depends-on ("test-package"))
+               (:file "polygon-sprite-test")))

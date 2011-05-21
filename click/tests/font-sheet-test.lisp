@@ -7,12 +7,12 @@
 (defclass font-sheet-test (test-case)
   ())
 
-(def-test-method test-bitmap-font-header ((test font-sheet-test))
+(def-test-method test-font-sheet-header ((test font-sheet-test))
   (il:with-images (image)
     (il:with-bound-image image
       (il:tex-image 5 1 1 1 :luminance :unsigned-byte (cffi:null-pointer)))
-    (write-bitmap-font-header 33 94 12 16 -1 image)
-    (let ((header (read-bitmap-font-header image)))
+    (write-font-sheet-header 33 94 12 16 -1 image)
+    (let ((header (read-font-sheet-header image)))
       (assert-equal 33 (getf header :ascii-offset))
       (assert-equal 94 (getf header :glyph-count))
       (assert-equal 12 (getf header :glyph-width))

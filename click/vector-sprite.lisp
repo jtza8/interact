@@ -7,10 +7,15 @@
 (defclass vector-sprite (texture-sprite)
   ((texture :initform nil)))
 
-(defmethod initialize-instance :around ((sprite vector-sprite) &key)
-  (call-next-method)
-  (provide-events sprite :texture-update)
+(defmethod initialize-instance :after ((sprite texture-sprite) &key)
   (update-texture sprite))
 
-(defmethod update-texture ((sprite vector-sprite))
-  (send-event sprite `(:texture-update :origin ,sprite)))
+(defmethod update-texture ((sprite texture-sprite))
+  (error "No UPDATE-TEXTURE method specified for ~s." sprite))
+
+(defmacro define-vector-sprite-writers (class-name &body slot-names)
+  `(progn ,@(loop for slot-name in slot-names
+                  collect `(defmethod (setf ,slot-name)
+                               (value (sprite ,class-name))
+                             (setf (slot-value sprite ',slot-name) value)
+                             (update-texture sprite)))))

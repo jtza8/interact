@@ -8,49 +8,30 @@
 (cffi:defcfun ("memcpy" memcpy) :pointer
   (dest :pointer) (src :pointer) (size :unsigned-int))
 
-(internal power-size)
-(defun power-size (value base)
+(internal power-scale)
+(defun power-scale (value base)
   (expt base (ceiling (log value base))))
 
 (defun natural-power-p (value base)
   (= (rem (log value base) 1) 0))
 
 (internal image-to-sprite)
-(defun image-to-sprite (&optional destructive (image :current-image))
+(defun image-to-sprite (&optional (image :current-image))
   (il:with-bound-image image
     (let* ((texture (car (gl:gen-textures 1)))
            (format (il:image-format))
            (type (il:image-type))
            (width (il:image-width))
-           (height (il:image-height))
-           (ideal-width (power-size width 2))
-           (ideal-height (power-size height 2))
-           (image-copy (il:gen-image)))
+           (height (il:image-height)))
       (assert (eq type :unsigned-byte) () 'image-type-error :actual-type type)
       (ilu:flip-image)
-      (unless (and (natural-power-p width 2) (natural-power-p height 2))
-        (if destructive
-            (progn
-              (ilu:image-parameter :placement :lower-left)
-              (ilu:enlarge-canvas ideal-width ideal-height 1))
-            (progn
-              (let ((original-image (il:get-integer :cur-image)))
-                (il:bind-image image-copy)
-                (il:tex-image ideal-width ideal-height 1
-                              (il:image-bytes-per-pixel original-image)
-                              (il:image-format original-image)
-                              (il:image-type original-image)
-                              (cffi:null-pointer))
-                (overlay-image original-image 0 0 0)))))
+      (overlay-image image 0 0 0)
       (gl:bind-texture :texture-2d texture)
       (gl:tex-parameter :texture-2d :texture-min-filter :linear)
-      (gl:tex-image-2d :texture-2d 0 format ideal-width ideal-height 0
+      (gl:tex-image-2d :texture-2d 0 format width height 0
                        format :unsigned-byte (il:get-data))
-      (il:delete-images image-copy)
       (make-instance 'texture-sprite :texture texture
-                     :width width :height height
-                     :texture-width ideal-width
-                     :texture-height ideal-height))))
+                     :width width :height height))))
 
 (defun load-image-sprite (file)
   (il:with-images (image)
@@ -65,7 +46,7 @@
         ((:luminance-alpha) (il:convert-image :luminance-alpha :unsigned-byte))
         (otherwise (error 'image-format-error 
                           :actual-format (il:image-format))))
-      (image-to-sprite t))))
+      (image-to-sprite))))
 
 (internal image-data-pos)
 (defun image-data-pos (x y &optional (image :current-image))
@@ -164,6 +145,27 @@
                                                 bytes-per-pixel))
                                             bytes-per-pixel))
                       value)))))
+
+(internal define-pixel-stamper)
+(defmacro define-pixel-stamper (name (&rest arguments) header-writer)
+  (let ((image (gensym "IMAGE-")))
+    `(defun ,name (,@(append '(file-name)
+                             arguments
+                             (if (not (find 'cl:&key arguments))
+                                 '(cl:&key overwrite-header)
+                                 '(overwrite-header))))
+       (il:with-images (,image)
+         (il:with-bound-image ,image
+           (check-file-existance file-name)
+           (il:load-image (namestring file-name))
+           (unless overwrite-header
+             (il:clear-colour 0 0 0 0)
+             (ilu:image-parameter :placement :lower-left)
+             (ilu:enlarge-canvas (il:image-width) (1+ (il:image-height)) 1))
+           (,header-writer ,@arguments)
+           (il:enable :file-overwrite)
+           (il:save-image (namestring file-name)))))))
+
 
 (defmacro with-vecto-canvas-as-texture ((width height &optional texture)
                                         &body body)

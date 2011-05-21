@@ -16,7 +16,7 @@
 (defclass stopwatch ()
   ((time-marker :initform nil)
    (run-time :initform 0)
-   (running :initform nil)
+   (running :initform nil :reader running-p)
    (time-func :initform nil)))
 
 (define-instance-maker stopwatch)

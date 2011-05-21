@@ -7,10 +7,12 @@
 (defclass animation-sprite (sprite)
   ((fps :initarg :fps
         :initform (error "must specify fps")
-        :reader fps)
+        :accessor fps)
    (sprite-vector :initarg :sprite-vector
                   :initform (error "must specify sprite vector"))
-   (stopwatch :initform (make-instance 'stopwatch))))
+   (stopwatch :initform (make-instance 'stopwatch))
+   (repeating :initform t
+              :initarg :looping)))
 
 (define-instance-maker animation-sprite)
 
@@ -21,15 +23,24 @@
     (when start (start stopwatch))))
 
 (defmethod diverge ((sprite animation-sprite))
-  (with-slots (height width fps sprite-vector) sprite
+  (with-slots (height width fps sprite-vector repeating) sprite
     (make-instance 'animation-sprite
                    :height height :width width
-                   :fps fps :sprite-vector sprite-vector)))
+                   :fps fps :sprite-vector sprite-vector
+                   :looping repeating)))
 
 (defmethod draw-sprite ((sprite animation-sprite) &key (x 0) (y 0))
-  (with-slots (fps sprite-vector stopwatch) sprite
-    (let ((frame-number (rem (truncate (/ (* (lap stopwatch) fps) 1000))
-                             (length sprite-vector))))
+  (with-slots (fps sprite-vector stopwatch repeating) sprite
+    (let* ((frame-counter (truncate (/ (* (lap stopwatch) fps) 1000)))
+           (frame-count (length sprite-vector))
+           (frame-number (if repeating
+                             (rem frame-counter frame-count)
+                             (if (>= frame-counter frame-count)
+                                 (progn
+                                   (when (running-p stopwatch)
+                                     (stop stopwatch))
+                                   (1- frame-count))
+                                 frame-counter))))
       (draw-sprite (aref sprite-vector frame-number) :x x :y y))))
 
 (defmethod free ((sprite animation-sprite))

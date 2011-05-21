@@ -4,27 +4,27 @@
 
 (in-package :click)
 
-(defclass color-sprite (sprite)
-  ((color :initarg :color
-          :initform (error "No color specified.")
-          :reader color)
+(defclass colour-sprite (sprite)
+  ((colour :initarg :colour
+          :initform (error "No colour specified.")
+          :reader colour)
    (width :initarg :width
           :initform 0)
    (height :initarg :height
            :initform 0)))
 
-(define-instance-maker color-sprite)
+(define-instance-maker colour-sprite)
 
-(defmethod draw-sprite ((sprite color-sprite)
+(defmethod draw-sprite ((sprite colour-sprite)
                         &key (x 0) (y 0))
   (declare (ignore mode))
-  (with-slots (color width height) sprite
+  (with-slots (colour width height) sprite
     (gl:push-attrib :current-bit)
     (gl:with-primitive :quads
-      (apply #'gl:color color)
+      (apply #'gl:colour colour)
       (gl:vertex x y)
       (gl:vertex (+ x width) y)
       (gl:vertex (+ x width) (+ y height))
       (gl:vertex x (+ y height))
-      (gl:color 1 1 1))
+      (gl:colour 1 1 1))
     (gl:pop-attrib)))

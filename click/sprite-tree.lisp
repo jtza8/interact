@@ -4,17 +4,17 @@
 
 (in-package :click)
 
-(internal parse-color-sprite)
-(defun parse-color-sprite (entry)
+(internal parse-colour-sprite)
+(defun parse-colour-sprite (entry)
   (assert (and (listp entry)
-               (eq (car entry) :color)
+               (eq (car entry) :colour)
                (>= (length entry) 3))
           () "invalid entry")
   (let ((path (cadr entry))
-        (color (caddr entry))
+        (colour (caddr entry))
         (rest (subseq entry 3)))
     (print path)
-    (print color)
+    (print colour)
     (print rest)))
 
 (internal parse-sprites)
@@ -25,7 +25,7 @@
     (loop for entry = (read file nil 'end-of-file)
        until (eq entry 'end-of-file)
        do (ecase (car entry)
-            (:color (parse-color-sprite entry))))))
+            (:colour (parse-colour-sprite entry))))))
 
 (defun load-sprite (file)
   (let ((file-name (string-downcase (file-namestring file))))

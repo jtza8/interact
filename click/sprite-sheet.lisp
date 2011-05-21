@@ -8,25 +8,28 @@
 (cffi:defcfun ("memset" memset) :pointer
   (dest :pointer) (value :int) (size :unsigned-int))
 
-(internal write-sheet-header)
-(defun write-sheet-header (frame-width frame-height frame-count fps looping 
-                           &optional (image :current-image))
-  (write-pixel-header image 
+(internal write-sprite-sheet-header)
+(defun write-sprite-sheet-header (frame-width frame-height frame-count fps
+                                  looping &optional (image :current-image))
+  (write-pixel-header image
                       `(:uint16 ,frame-width) `(:uint16 ,frame-height) 
                       `(:uint16 ,frame-count) `(:uint8 ,fps)
                       `(:uint8 ,(if looping #x0001 #x0000))))
 
-(internal read-sheet-header)
-(defun read-sheet-header (&optional (image :current-image))
+(internal read-sprite-sheet-header)
+(defun read-sprite-sheet-header (&optional (image :current-image))
   (let ((values (read-pixel-header image :uint16 :uint16 
                                    :uint16 :uint8 :uint8)))
     (list* :frame-width (pop values)
-         :frame-height (pop values)
-         :frame-count (pop values)
-         :fps (pop values)
-         (let ((flags (pop values)))
-           (list :looping (logbitp 0 flags))))))
-           
+           :frame-height (pop values)
+           :frame-count (pop values)
+           :fps (pop values)
+           (let ((flags (pop values)))
+             (list :looping (logbitp 0 flags))))))
+
+(define-pixel-stamper stamp-sprite-sheet (frame-width frame-height frame-count
+                                          fps looping)
+  write-sprite-sheet-header)
 
 (defun build-sprite-sheet (sequence-path fps &key (looping t) (max-columns 5)
                            sheet-file-name file-overwrite)
@@ -47,7 +50,8 @@
                       data-type (cffi:null-pointer))
         (il:clear-colour 0 0 0 0)
         (il:clear-image)
-        (write-sheet-header frame-width frame-height frame-count fps looping)
+        (write-sprite-sheet-header frame-width frame-height 
+                                   frame-count fps looping)
         (tagbody
           (let ((sequence-pointer sequence))
             (loop for sequence-y from (1- (ceiling (/ frame-count max-columns)))
@@ -70,8 +74,7 @@
         (il:save-image sheet-file-name)))))
 
 (defun load-sprite-sheet (path)
-  (assert (fad:file-exists-p path) ()
-          "File doesn't exist: ~a" path)
+  (check-file-existance path)
   (il:with-images (sheet)
     (il:bind-image sheet)
     (il:enable :origin-set)
@@ -82,12 +85,12 @@
            (image-format (il:image-format))
            (image-type (il:image-type))
            (bytes-per-pixel (il:image-bytes-per-pixel))
-           (header (read-sheet-header))
+           (header (read-sprite-sheet-header))
            (frame-width (getf header :frame-width))
            (frame-height (getf header :frame-height))
            (frame-count (getf header :frame-count))
            (fps (getf header :fps))
-;           (looping (getf header :looping))
+           (looping (getf header :looping))
            (sprite-vector (make-array frame-count))
            (images-left frame-count))
       (tagbody
@@ -110,4 +113,5 @@
                      :sprite-vector sprite-vector
                      :fps fps
                      :height frame-height
-                     :width frame-width))))
+                     :width frame-width
+                     :looping looping))))

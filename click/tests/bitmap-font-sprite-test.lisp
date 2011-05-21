@@ -20,7 +20,7 @@
 
 (defun test-bitmap-font-manually ()
   (let (font-sprite font-igo)
-    (with-display-system (screen-bg-color '(0.5 0.5 0.5 0))
+    (with-display-system (screen-bg-colour '(0.5 0.5 0.5 0))
       (setf font-sprite (load-font-sheet
                          (asdf:system-relative-pathname
                           :click-tests

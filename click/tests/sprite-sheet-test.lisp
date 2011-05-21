@@ -7,7 +7,7 @@
 (defclass sprite-sheet-test (test-case)
   ())
 
-(def-test-method test-sheet-header ((test sprite-sheet-test))
+(def-test-method test-sprite-sheet-header ((test sprite-sheet-test))
   ; Mega-über-macro-simplification... ENGADGE!
   ; Overkill much? =P
   (flet ((assert-header (header message frame-width frame-height
@@ -29,8 +29,8 @@
       (il:tex-image 64 64 1 4 :rgba :unsigned-byte (cffi:null-pointer))
       (il:clear-colour 0 0 0 0)
       (il:clear-image)
-      (write-sheet-header 8 7 60 12 t)
-      (assert-header (read-sheet-header) "pre-write assert" 8 7 60 12 t)
+      (write-sprite-sheet-header 8 7 60 12 t)
+      (assert-header (read-sprite-sheet-header) "pre-write assert" 8 7 60 12 t)
       (il:enable :file-overwrite)
       (il:save-image (merge-pathnames #p"header-test.png"
                                       *test-image-path*)))
@@ -38,7 +38,8 @@
       (il:bind-image test)
       (il:load-image (merge-pathnames #p"header-test.png"
                                       *test-image-path*))
-      (assert-header (read-sheet-header) "post-write assert" 8 7 60 12 t))))
+      (assert-header (read-sprite-sheet-header) "post-write assert"
+                     8 7 60 12 t))))
 
 (defun test-build-sprite-sheet-manually ()
   (build-sprite-sheet (merge-pathnames #p"sequence-*.png"
