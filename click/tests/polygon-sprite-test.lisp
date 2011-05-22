@@ -7,12 +7,6 @@
 (defclass test-polygon-sprite (test-case)
   ())
 
-(def-test-method test-add-points ((test test-polygon-sprite))
-  (let ((polygon (make-polygon-sprite :width 64 :height 64)))
-    (assert-equal '() (points polygon))
-    (add-points polygon #(10 10) #(2 4))
-    (assert-true (find #(10 10) (points polygon)))))
-
 (defun test-polygon-sprite-manually ()
   (with-display-system (screen-width 800
                         screen-height 600

@@ -7,10 +7,10 @@
 (defclass vector-sprite (texture-sprite)
   ((texture :initform nil)))
 
-(defmethod initialize-instance :after ((sprite texture-sprite) &key)
+(defmethod initialize-instance :after ((sprite vector-sprite) &key)
   (update-texture sprite))
 
-(defmethod update-texture ((sprite texture-sprite))
+(defmethod update-texture ((sprite vector-sprite))
   (error "No UPDATE-TEXTURE method specified for ~s." sprite))
 
 (defmacro define-vector-sprite-writers (class-name &body slot-names)

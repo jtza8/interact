@@ -44,7 +44,7 @@
 (defmethod draw-sprite ((sprite bitmap-font-sprite) &key (x 0) (y 0))
   (with-slots (text glyph-width tracking colour) sprite
     (gl:with-pushed-attrib (:current-bit)
-      (apply #'gl:colour colour)
+      (apply #'gl:color colour)
       (loop for char across text
          for i upfrom 0
          when (not (char= char #\Space))

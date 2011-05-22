@@ -16,7 +16,7 @@
                (:file "event-assistant")
                (:file "event-converter")
                (:file "sprite")
-               (:file "color-sprite")
+               (:file "colour-sprite")
                (:file "texture-sprite")
                (:file "animation-sprite")
                (:file "image-editing")

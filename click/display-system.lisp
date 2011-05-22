@@ -37,11 +37,11 @@
   (setf cl-opengl-bindings:*gl-get-proc-address*
         #'sdl-cffi::sdl-gl-get-proc-address)
   (update-display-mode)
-  (apply #'gl:clear-colour (screen-bg-colour))
+  (apply #'gl:clear-color (screen-bg-colour))
   (gl:enable :blend)
   (gl:enable :texture-2d)
   (gl:blend-func :src-alpha :one-minus-src-alpha)
-  (gl:clear :colour-buffer-bit)
+  (gl:clear :color-buffer-bit)
   (prepare-click))
 
 (defsetf full-screen () (value)
@@ -69,7 +69,7 @@
                          (setf quit t))
                        (send-event *root-container* (parse-sdl-event event))))
             do (progn
-                 (gl:clear :colour-buffer-bit)
+                 (gl:clear :color-buffer-bit)
                  (send-event *root-container* '(:before-frame))
                  (draw *root-container*)
                  (gl:flush)

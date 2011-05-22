@@ -21,10 +21,10 @@
   (with-slots (colour width height) sprite
     (gl:push-attrib :current-bit)
     (gl:with-primitive :quads
-      (apply #'gl:colour colour)
+      (apply #'gl:color colour)
       (gl:vertex x y)
       (gl:vertex (+ x width) y)
       (gl:vertex (+ x width) (+ y height))
       (gl:vertex x (+ y height))
-      (gl:colour 1 1 1))
+      (gl:color 1 1 1))
     (gl:pop-attrib)))
