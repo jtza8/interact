@@ -9,6 +9,8 @@
   (asdf:system-relative-pathname :click "tests/test-sprites"))
 (defparameter *test-image-path*
   (asdf:system-relative-pathname :click-tests "test-images/"))
+(defparameter *test-fonts-path*
+  (asdf:system-relative-pathname :click "tests/test-fonts/"))
 
 (start-display-system)
 (sdl:quit-video)

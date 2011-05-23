@@ -26,6 +26,7 @@
                (:file "bitmap-font-sprite")
                (:file "vector-sprite")
                (:file "polygon-sprite")
+               (:file "ttf-sprite")
                (:file "sprite-tree")
                (:file "igo")
                (:file "container")

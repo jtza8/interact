@@ -22,12 +22,13 @@
     (assert (> (length sprite-vector) 0))
     (when start (start stopwatch))))
 
-(defmethod diverge ((sprite animation-sprite))
+(defmethod diverge ((sprite animation-sprite) &rest init-args)
   (with-slots (height width fps sprite-vector repeating) sprite
-    (make-instance 'animation-sprite
-                   :height height :width width
-                   :fps fps :sprite-vector sprite-vector
-                   :looping repeating)))
+    (apply #'make-instance 'animation-sprite
+           (append init-args
+                   (list :height height :width width
+                         :fps fps :sprite-vector sprite-vector
+                         :looping repeating)))))
 
 (defmethod draw-sprite ((sprite animation-sprite) &key (x 0) (y 0))
   (with-slots (fps sprite-vector stopwatch repeating) sprite

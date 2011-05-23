@@ -26,6 +26,8 @@
    (text :initform ""
          :reader text)))
 
+(define-instance-maker bitmap-font-sprite)
+
 (defmethod (setf text) (value (sprite bitmap-font-sprite))
   (with-slots (width height glyph-width glyph-height
                glyph-vector text) sprite
@@ -52,16 +54,17 @@
                           :x (+ x (* i (+ glyph-width tracking)))
                           :y y)))))
 
-(defmethod diverge ((sprite bitmap-font-sprite))
+(defmethod diverge ((sprite bitmap-font-sprite) &rest init-args)
   (with-slots (ascii-offset glyph-width glyph-height 
                glyph-vector tracking colour) sprite
-    (make-instance 'bitmap-font-sprite
-                   :ascii-offset ascii-offset
-                   :glyph-width glyph-width
-                   :glyph-height glyph-height
-                   :glyph-vector glyph-vector
-                   :tracking tracking
-                   :colour colour)))
+    (apply #'make-instance 'bitmap-font-sprite
+           (append init-args
+                   (list :ascii-offset ascii-offset
+                         :glyph-width glyph-width
+                         :glyph-height glyph-height
+                         :glyph-vector glyph-vector
+                         :tracking tracking
+                         :colour colour)))))
 
 (defmethod free ((sprite bitmap-font-sprite))
   (with-slots (glyph-vector) sprite

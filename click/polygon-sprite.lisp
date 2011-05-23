@@ -20,26 +20,22 @@
 
 (define-instance-maker polygon-sprite)
 
-(defmethod initialize-instance :after ((sprite polygon-sprite) &key)
-  (update-texture sprite))
+(define-vector-sprite-writers polygon-sprite
+  points fill-colour line-colour line-width)
 
 (defmethod update-texture ((sprite polygon-sprite))
   (with-slots (texture width height points fill-colour 
                line-colour line-width) sprite
-    (setf texture
-          (with-vecto-canvas-as-texture (width height)
-            (vecto:set-line-width line-width)
-            (apply #'vecto:set-rgba-stroke line-colour)
-            (apply #'vecto:set-rgba-fill fill-colour)
-            (loop for i from 1 upto (1- (length points))
-                  for point = (aref points i)
-                  initially (vecto:move-to (aref (aref points 0) 0)
-                                           (aref (aref points 0) 1))
-                  do (vecto:line-to (aref point 0) (aref point 1))
-                  finally 
-                    (progn
-                      (vecto:close-subpath)
-                      (vecto:fill-and-stroke)))))))
-
-(define-vector-sprite-writers polygon-sprite
-  points fill-colour line-colour line-width)
+    (with-vecto-canvas-as-texture (width height texture)
+      (vecto:set-line-width line-width)
+      (apply #'vecto:set-rgba-stroke line-colour)
+      (apply #'vecto:set-rgba-fill fill-colour)
+      (loop for i from 1 upto (1- (length points))
+         for point = (aref points i)
+         initially (vecto:move-to (aref (aref points 0) 0)
+                                  (aref (aref points 0) 1))
+         do (vecto:line-to (aref point 0) (aref point 1))
+         finally 
+           (progn
+             (vecto:close-subpath)
+             (vecto:fill-and-stroke))))))

@@ -13,7 +13,8 @@
            :initform (error "No height given.")
            :reader height)))
 
-(defmethod diverge ((sprite sprite))
+(defmethod diverge ((sprite sprite) &rest init-args)
+  (declare (ignore init-args))
   sprite)
 
 (defgeneric draw-sprite (sprite &key x y)

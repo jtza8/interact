@@ -5,7 +5,7 @@
 (in-package :click)
 
 (defclass vector-sprite (texture-sprite)
-  ((texture :initform nil)))
+  ((texture :initform (car (gl:gen-textures 1)))))
 
 (defmethod initialize-instance :after ((sprite vector-sprite) &key)
   (update-texture sprite))
