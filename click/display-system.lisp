@@ -17,6 +17,15 @@
   (rt:clear-tree *sprite-tree*)
   (set-up-root-container))
 
+(internal update-display-gl)
+(defun update-display-gl ()
+  (gl:matrix-mode :projection)
+  (gl:load-identity)
+  (gl:ortho 0 (screen-width) (screen-height) 0 0 1)
+  (gl:matrix-mode :modelview)
+  (gl:load-identity)
+  (gl:viewport 0 0 (screen-width) (screen-height)))
+
 (internal update-display-mode)
 (defun update-display-mode ()
   (let ((flags (list sdl:sdl-opengl)))
@@ -25,12 +34,7 @@
                 :bpp 32
                 :flags flags
                 :title-caption (window-title)))
-  (gl:matrix-mode :projection)
-  (gl:load-identity)
-  (gl:ortho 0 (screen-width) (screen-height) 0 0 1)
-  (gl:matrix-mode :modelview)
-  (gl:load-identity)
-  (gl:viewport 0 0 (screen-width) (screen-height)))
+  (update-display-gl))
 
 (defun start-display-system ()
   (sdl:init-video)
@@ -53,11 +57,12 @@
   (setf (full-screen) (not (full-screen))))
 
 (defun quit-display-system ()
+  (delete-all-cameras)
   (sdl:quit-video))
 
 (defun run-display-system ()
   (reset *global-stopwatch* t)
-  (start *frame-stopwatch*)
+  (reset *frame-stopwatch* t)
   (let ((event (sdl:new-event)) quit)
     (unwind-protect
          (loop 
@@ -69,14 +74,20 @@
                          (setf quit t))
                        (send-event *root-container* (parse-sdl-event event))))
             do (progn
-                 (gl:clear :color-buffer-bit)
                  (send-event *root-container* '(:before-frame))
-                 (draw *root-container*)
+                 (gl:clear :color-buffer-bit)
+                 (if (null *cameras*)
+                     (draw *root-container*)
+                     (do-cameras (camera)
+                       (with-active-camera camera
+                         (draw *root-container*))
+                       (draw camera)))
                  (gl:flush)
-                 (sdl:update-display)
-                 (send-event *root-container* '(:after-frame))
-                 ;; (sleep (max (- 1/60 (/ (frame-time) 1000)) 0))
-                 (reset *frame-stopwatch* t)))
+                 (when (> (lap *frame-stopwatch*) 16)
+                   (sdl:update-display)
+                   (reset *frame-stopwatch* t)
+                   (send-event *root-container* '(:display-update)))
+                 (send-event *root-container* '(:after-frame))))
       (cffi:foreign-free event))))
 
 (defmacro with-display-system ((&rest args) &body body)

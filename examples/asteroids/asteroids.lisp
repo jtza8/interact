@@ -5,9 +5,9 @@
 (in-package :click-examples)
 
 (defun asteroids ()
-  (with-display-system (screen-bg-color '(0 0 0 1)
+  (with-display-system (screen-bg-colour '(0 0 0 1)
                         window-title "Asteroids Demo"
-                        screen-width 1280 screen-height 800)
+                        screen-width 800 screen-height 600)
     (load-sprite-path 
      (asdf:system-relative-pathname :click-examples #p"asteroids/sprites"))
     (add-root-listener (make-event-assistant :quit-key :escape
@@ -16,7 +16,8 @@
            (font (diverge (sprite-node :fonts :8x16)))
            (fps-counter (make-fps-counter :font-sprite font
                                           :x 10 :y (- (screen-height)
-                                                      (glyph-height font) 10)))
+                                                      (* (glyph-height font) 2)
+                                                      10)))
            (container (make-asteroid-container :height (screen-height)
                                                :width (screen-width)))
            (controller (make-event-converter :mappable-events

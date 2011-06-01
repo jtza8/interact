@@ -42,9 +42,12 @@
   (with-slots (x y pivot-x pivot-y rotation width height) igo
     (gl:matrix-mode :modelview)
     (gl:with-pushed-matrix
-      (gl:translate (+ x pivot-x) (+ y pivot-y) 0)
-      (gl:rotate rotation 0 0 1)
-      (gl:translate (- pivot-x) (- pivot-y) 0)
+      (if (not (zerop rotation))
+          (progn
+            (gl:translate (+ x pivot-x) (+ y pivot-y) 0)
+            (gl:rotate rotation 0 0 1)
+            (gl:translate (- pivot-x) (- pivot-y) 0))
+          (gl:translate x y 0))
       (call-next-method))))
 
 (defmethod absolute-pos ((igo igo))

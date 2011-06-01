@@ -27,7 +27,7 @@
                   :joy-axis-motion :joy-hat-motion :joy-ball-motion
                   :joy-button-down :joy-button-up :quit :sys-wm-event
                   :display-resize :display-exposure :user-event
-                  :before-frame :after-frame)
+                  :before-frame :after-frame :display-update)
   (desire-events container :display-state #'send-event :key-down #'send-event 
                  :key-up #'send-event :mouse-motion #'send-event
                  :mouse-button-down #'send-event :mouse-button-up #'send-event 
@@ -37,7 +37,7 @@
                  :quit #'send-event :sys-wm-event #'send-event 
                  :display-resize #'send-event :display-exposure #'send-event
                  :user-event #'send-event :before-frame #'send-event
-                 :after-frame #'send-event))
+                 :after-frame #'send-event :display-update #'send-event))
 
 
 (defmethod tag-igo ((container container) (igo igo) tag)

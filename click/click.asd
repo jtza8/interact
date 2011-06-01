@@ -30,6 +30,7 @@
                (:file "sprite-tree")
                (:file "igo")
                (:file "container")
+               (:file "camera")
                (:file "display-system")
                (:file "fps-counter")
                (:file "export")))

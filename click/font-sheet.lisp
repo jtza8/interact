@@ -5,9 +5,9 @@
 (in-package :click)
 
 (internal write-font-sheet-header)
-(defun write-font-sheet-header (ascii-offset glyph-count glyph-width
-                                 glyph-height tracking &optional
-                                 (image :current-image))
+(defun write-font-sheet-header (glyph-width glyph-height ascii-offset
+                                glyph-count tracking &optional
+                                (image :current-image))
   (write-pixel-header image 
                       `(:uint8 ,ascii-offset) `(:uint8 ,glyph-count)
                       `(:uint8 ,glyph-width) `(:uint8 ,glyph-height)
@@ -23,7 +23,7 @@
           :tracking (pop values))))
 
 (define-pixel-stamper stamp-font-sheet (glyph-width glyph-height
-                                        &key (ascii-offset 33) (glyph-count 93)
+                                        &key (ascii-offset 33) (glyph-count 94)
                                         (tracking -1))
   write-font-sheet-header)
 

@@ -11,7 +11,7 @@
   (il:with-images (image)
     (il:with-bound-image image
       (il:tex-image 5 1 1 1 :luminance :unsigned-byte (cffi:null-pointer)))
-    (write-font-sheet-header 33 94 12 16 -1 image)
+    (write-font-sheet-header 12 16 33 94 -1 image)
     (let ((header (read-font-sheet-header image)))
       (assert-equal 33 (getf header :ascii-offset))
       (assert-equal 94 (getf header :glyph-count))

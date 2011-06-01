@@ -148,12 +148,17 @@
 
 (internal define-pixel-stamper)
 (defmacro define-pixel-stamper (name (&rest arguments) header-writer)
-  (let ((image (gensym "IMAGE-")))
-    `(defun ,name (,@(append '(file-name)
-                             arguments
-                             (if (not (find 'cl:&key arguments))
-                                 '(cl:&key overwrite-header)
-                                 '(overwrite-header))))
+  (let ((image (gensym "IMAGE-"))
+        (header-args (loop for arg in arguments
+                           if (listp arg)
+                             collect (car arg)
+                           else if (not (char= (aref (symbol-name arg) 0) #\&))
+                             collect arg))
+        (stamper-args (append '(file-name) arguments
+                              (if (not (find '&key arguments))
+                                  '(&key overwrite-header)
+                                  '(overwrite-header)))))
+    `(defun ,name (,@stamper-args)
        (il:with-images (,image)
          (il:with-bound-image ,image
            (check-file-existance file-name)
@@ -162,7 +167,7 @@
              (il:clear-colour 0 0 0 0)
              (ilu:image-parameter :placement :lower-left)
              (ilu:enlarge-canvas (il:image-width) (1+ (il:image-height)) 1))
-           (,header-writer ,@arguments)
+           (,header-writer ,@header-args)
            (il:enable :file-overwrite)
            (il:save-image (namestring file-name)))))))
 

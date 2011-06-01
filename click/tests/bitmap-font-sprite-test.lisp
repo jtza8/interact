@@ -29,12 +29,12 @@
                                     :x 100 :y 100))
       (add-root-igo font-igo)
       (setf (rotation font-igo) 0
-            (message font-sprite)
-            "The quick brown fox jumps over the lazy dog."))
+            (text font-sprite)
+            "The quick-brown fox jumps over the lazy dog.~"))
     (free font-sprite)))
 
 (def-test-method test-fetch-glyph ((test bitmap-font-sprite-test))
   (with-slots (font-sprite) test
     (assert-true (typep (fetch-glyph font-sprite #\!) 'sprite))
     (assert-true (typep (fetch-glyph font-sprite #\~) 'sprite))
-    (assert-condition 'bitmap-char-error (fetch-glyph font-sprite #\ü))))
+    (assert-condition 'bitmap-char-error (fetch-glyph font-sprite #\Newline))))

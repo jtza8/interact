@@ -9,7 +9,7 @@
             :initform (error "No texture name given.")
             :reader texture)))
 
-;; (defmethod initialize-instance :after ((sprite texture-sprite) &key) ())
+(define-instance-maker texture-sprite)
 
 (defmethod draw-sprite ((sprite texture-sprite) &key (x 0) (y 0))
   (with-slots (texture width height) sprite

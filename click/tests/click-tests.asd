@@ -31,4 +31,7 @@
                       :depends-on ("test-package" "simple-igo"))
                (:file "fps-counter-test"
                       :depends-on ("test-package"))
-               (:file "polygon-sprite-test")))
+               (:file "polygon-sprite-test"
+                      :depends-on ("test-package"))
+               (:file "camera-test"
+                      :depends-on ("test-package"))))
