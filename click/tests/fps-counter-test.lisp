@@ -9,5 +9,7 @@
     (load-sprite-path (asdf:system-relative-pathname :click-tests
                                                      "test-fonts"))
     (let ((fps-counter (make-instance 'fps-counter
-                                      :font-sprite (sprite-node :8x16))))
+                                      :font-sprite (sprite-node :8x16)
+                                      :y (- (screen-height) 42)
+                                      :x 10)))
       (add-to-root fps-counter))))

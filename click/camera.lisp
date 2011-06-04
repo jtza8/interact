@@ -15,13 +15,15 @@
    (fbo :initform (car (gl:gen-framebuffers-ext 1)))
    (texture :initform (car (gl:gen-textures 1)))
    (root :initform nil
-         :initarg :root
-         :accessor root)
+         :reader root)
    filters tex-u tex-v tex-height tex-width))
 
 (define-instance-maker camera)
 
-(defmethod initialize-instance :after ((camera camera) &key)
+(defmethod initialize-instance :after ((camera camera) &key root)
+  ;; (forward-standard-events camera)
+  (unless (null root)
+    (setf (root camera) root))
   (flet ((nearest-2^n-size (n)
            (expt 2 (ceiling (log n 2)))))
     (with-slots (width height fbo texture tex-u tex-v tex-width tex-height)
@@ -51,6 +53,22 @@
   (with-slots (texture fbo) camera
     (gl:delete-textures `(,texture))
     (gl:delete-framebuffers-ext `(,fbo))))
+
+(defmethod (setf root) (value (camera camera))
+  (with-slots (root) camera
+    (setf root value)))
+
+(defmethod listening-request :before ((camera camera) (listener listener)
+                                      event-type)
+  (when (null event-type)
+    (with-slots (parent root) camera
+      (add-listener parent root))))
+
+(defmethod listener-removal-notice :before ((camera camera) (listener listener)
+                                            event-type)
+  (when (null event-type)
+    (with-slots (parent root) camera
+      (remove-listener parent root))))
 
 ;; (defmethod add-filter ((camera camera) (filter filter))
 ;;   (shader filter))

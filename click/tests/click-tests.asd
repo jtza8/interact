@@ -33,5 +33,7 @@
                       :depends-on ("test-package"))
                (:file "polygon-sprite-test"
                       :depends-on ("test-package"))
+               (:file "ttf-sprite-test"
+                      :depends-on ("test-package"))
                (:file "camera-test"
                       :depends-on ("test-package"))))

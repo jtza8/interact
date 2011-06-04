@@ -41,9 +41,16 @@
                    `(,key (getf ,data ,(intern (symbol-name key) "KEYWORD")))))
        ,@body)))
 
-(defmethod add-listener ((listenable listenable) listener &optional event-type)
+(defmethod listening-request ((listener listener) (listenable listenable) 
+                              event-type)
+  t)
+
+(defmethod add-listener ((listenable listenable) (listener listener)
+                         &optional event-type)
   (with-slots (listeners provided-events) listenable
     (when (null event-type)
+      (when (null (listening-request listener listenable nil))
+        (return-from add-listener))
       (loop for (event) on (desired-events listener) by #'cddr
             do (when (find event provided-events)
                  (add-listener listenable listener event)))
@@ -55,13 +62,20 @@
     (unless (select-handler listener event-type)
       (warn "~S requested to listen to event ~S but doesn't provide a handler"
             listener event-type))
+    (when (null (listening-request listener listenable event-type))
+      (return-from add-listener))
     (if (eq (getf listeners event-type) nil)
         (progn (push (list listener) listeners)
                (push event-type listeners))
         (pushnew listener (getf listeners event-type)))))
 
-(defmethod remove-listener ((listenable listenable) listener 
+(defmethod listener-removal-notice ((listener listener) (listenable listenable)
+                                    event)
+  ())
+
+(defmethod remove-listener ((listenable listenable) (listener listener)
                             &optional event-type)
+  (listener-removal-notice listener listenable event-type)
   (when (null event-type)
     (loop for (event nil) on (desired-events listener) by #'cddr
           do (remove-listener listenable listener event))

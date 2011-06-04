@@ -9,5 +9,5 @@
     (load-sprite-path *test-fonts-path*)
     (let* ((sprite (diverge (sprite-node :vera) :size 30 :text "Hello World"))
            (igo (make-simple-igo :sprite sprite :x 10 :y 10
-                                 :width 800 :height 200)))
+                                 :width 800 :height 600)))
       (add-to-root igo))))

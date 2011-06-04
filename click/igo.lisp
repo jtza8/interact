@@ -68,3 +68,21 @@
     (destructuring-bind (ax ay) (absolute-pos igo)
       (and (< ax x (+ ax width))
            (< ay y (+ ay height))))))
+
+(defmethod forward-standard-events ((igo igo))
+  (provide-events igo :display-state :key-down :key-up :mouse-motion
+                  :mouse-button-down :mouse-button-up :parent-move 
+                  :joy-axis-motion :joy-hat-motion :joy-ball-motion
+                  :joy-button-down :joy-button-up :quit :sys-wm-event
+                  :display-resize :display-exposure :user-event
+                  :before-frame :after-frame :display-update)
+  (desire-events igo :display-state #'send-event :key-down #'send-event 
+                 :key-up #'send-event :mouse-motion #'send-event
+                 :mouse-button-down #'send-event :mouse-button-up #'send-event 
+                 :parent-move #'send-event :joy-axis-motion #'send-event
+                 :joy-hat-motion #'send-event :joy-ball-motion #'send-event
+                 :joy-button-down #'send-event :joy-button-up #'send-event
+                 :quit #'send-event :sys-wm-event #'send-event 
+                 :display-resize #'send-event :display-exposure #'send-event
+                 :user-event #'send-event :before-frame #'send-event
+                 :after-frame #'send-event :display-update #'send-event))
