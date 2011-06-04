@@ -6,15 +6,24 @@
 
 (defun test-camera-manually ()
   (with-display-system (screen-bg-colour '(0 0 0 1))
-    (create-camera :camera-1 :width 400 :height 600)
-    ;; (create-camera :camera-2 :x 400 :width 400 :height 600)
     (load-sprite-path *test-fonts-path*)
-    (let ((red (make-simple-igo :x 0 :y 0
+    (let ((camera-1 (make-camera :x 0 :y 0 :width 400 :height 600))
+          (camera-2 (make-camera :x 400 :y 0 :width 400 :height 600))
+          (container (make-container))
+          (red (make-simple-igo :x 0 :y 0
                                 :sprite 
-                                (make-colour-sprite :colour '(1.0 0.0 0.0 1.0)
-                                                    :width 100 :height 100)))
-          (fps-counter 
-           (make-fps-counter :font-sprite (diverge (sprite-node :8x16))
-                             :x 10 :y 10)))
-      (add-root-igo red)
-      (add-root-igo fps-counter))))
+                                (make-polygon-sprite 
+                                  :points #(#(2 2) #(200 200) #(300 2))
+                                  :width 512 :height 512
+                                  :line-colour '(1.0 1.0 1.0 1.0)
+                                  :fill-colour '(1.0 0.0 0.0 1.0)
+                                  :line-width 2)))
+          (fps-counter (make-fps-counter :font-sprite (sprite-node :8x16)
+                                         :x 10 :y 10)))
+      (add-igo container red)
+      (setf (root camera-1) container
+            (root camera-2) container)
+      (add-to-root camera-1)
+      (add-to-root camera-2)
+      (add-to-root fps-counter)
+      )))

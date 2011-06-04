@@ -15,5 +15,5 @@
                                         :points #(#(10 10) #(100 20)
                                                   #(90 85) #(5 80))))
            (igo (make-simple-igo :sprite sprite :x 100 :y 0)))
-      (add-root-igo igo)
+      (add-to-root igo)
       (setf (fill-colour sprite) '(1.0 0.0 0.0 1.0)))))

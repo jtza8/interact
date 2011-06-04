@@ -14,9 +14,10 @@
              :initarg :offset-y)
    (fbo :initform (car (gl:gen-framebuffers-ext 1)))
    (texture :initform (car (gl:gen-textures 1)))
-   (root :initarg :root
+   (root :initform nil
+         :initarg :root
          :accessor root)
-   tex-u tex-v tex-height tex-width))
+   filters tex-u tex-v tex-height tex-width))
 
 (define-instance-maker camera)
 
@@ -43,25 +44,16 @@
       (assert (gl::enum= (gl:check-framebuffer-status-ext :framebuffer-ext)
                          :framebuffer-complete-ext) ()
               "Framebuffer ~s (camera ~s) is incomplete." fbo camera)
-      (gl:bind-framebuffer-ext :framebuffer-ext 0))))
+      (gl:bind-framebuffer-ext :framebuffer-ext 0)
+      (pushnew camera *cameras*))))
 
 (defmethod free ((camera camera))
   (with-slots (texture fbo) camera
     (gl:delete-textures `(,texture))
     (gl:delete-framebuffers-ext `(,fbo))))
 
-(defmethod draw ((camera camera))
-  (with-slots (texture tex-u tex-v width height) camera
-    (gl:bind-texture :texture-2d texture)
-    (gl:with-primitives :quads
-      (gl:tex-coord 0.0 0.0)
-      (gl:vertex 0 0)
-      (gl:tex-coord tex-u 0.0)
-      (gl:vertex width 0)
-      (gl:tex-coord tex-u tex-v)
-      (gl:vertex width height)
-      (gl:tex-coord 0.0 tex-v)
-      (gl:vertex 0 height))))
+;; (defmethod add-filter ((camera camera) (filter filter))
+;;   (shader filter))
 
 (defmethod activate ((camera camera))
   (with-slots (fbo offset-x offset-y tex-width tex-height) camera
@@ -83,27 +75,24 @@
   `(unwind-protect (progn (activate ,camera) ,@body)
      (deactivate camera)))
 
-(defmacro do-cameras ((var &optional result) &body body)
-  `(progn (loop for ,var in (cdr *cameras*) by #'cddr
-                do (progn ,@body))
-          ,result))
-
-(defun create-camera (indicator &rest initargs)
-  (when (null (getf *cameras* indicator))
-    (setf (getf *cameras* indicator)
-          (apply #'make-instance 'camera initargs))))
-
-(defun get-camera (indicator)
-  (let (camera)
-    (assert (setf camera (getf *cameras* indicator)) (indicator)
-            "Camera indicator ~s doesn't name a valid camera." indicator)
-    camera))
-
-(defun delete-camera (indicator)
-  (let ((camera (get-camera indicator)))
-    (free camera)
-    (setf *cameras* (delete camera *cameras*))))
+(defmethod draw ((camera camera))
+  (with-slots (root x y texture tex-u tex-v width height) camera
+    (unless (null root)
+      (with-active-camera camera
+        (draw root))
+      (gl:with-pushed-matrix
+        (gl:translate x y 0)
+        (gl:bind-texture :texture-2d texture)
+        (gl:with-primitives :quads
+          (gl:tex-coord 0.0 0.0)
+          (gl:vertex 0 0)
+          (gl:tex-coord tex-u 0.0)
+          (gl:vertex width 0)
+          (gl:tex-coord tex-u tex-v)
+          (gl:vertex width height)
+          (gl:tex-coord 0.0 tex-v)
+          (gl:vertex 0 height))))))
 
 (defun delete-all-cameras ()
-  (do-cameras (camera) (free camera))
+  (map nil #'free *cameras*)
   (setf *cameras* '()))

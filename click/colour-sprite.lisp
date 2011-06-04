@@ -19,10 +19,6 @@
                         &key (x 0) (y 0))
   (with-slots (colour width height) sprite
     (gl:push-attrib :current-bit)
-    (gl:with-primitive :quads
-      (apply #'gl:color colour)
-      (gl:vertex x y)
-      (gl:vertex (+ x width) y)
-      (gl:vertex (+ x width) (+ y height))
-      (gl:vertex x (+ y height)))
+    (apply #'gl:color colour)
+    (gl:rect x y (+ x width) (+ y height))
     (gl:pop-attrib)))

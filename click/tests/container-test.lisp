@@ -67,7 +67,7 @@
     (add-root-listener (make-instance 'event-assistant 
                                       :quit-key :escape
                                       :fullscreen-key :F12))
-    (add-root-igo (make-instance 'interactive-container
+    (add-to-root (make-instance 'interactive-container
                                  :x 100 :y 100 :width 100 :height 100
                                  :pivot-x 50 :pivot-y 50 :rotation 20
                                  :background 

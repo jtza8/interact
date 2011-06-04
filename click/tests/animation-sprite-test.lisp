@@ -26,5 +26,5 @@
                                  :x 120 :y 10
                                  :sprite animation-2)))
       (setf (fps animation-2) 30)
-      (add-root-igo igo-1 :igo-1)
-      (add-root-igo igo-2 :igo-2))))
+      (add-to-root igo-1 :igo-1)
+      (add-to-root igo-2 :igo-2))))

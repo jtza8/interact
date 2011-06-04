@@ -76,14 +76,9 @@
             do (progn
                  (send-event *root-container* '(:before-frame))
                  (gl:clear :color-buffer-bit)
-                 (if (null *cameras*)
-                     (draw *root-container*)
-                     (do-cameras (camera)
-                       (with-active-camera camera
-                         (draw *root-container*))
-                       (draw camera)))
+                 (draw *root-container*)
                  (gl:flush)
-                 (when (> (lap *frame-stopwatch*) 16)
+                 (when (> (lap *frame-stopwatch*) 15)
                    (sdl:update-display)
                    (reset *frame-stopwatch* t)
                    (send-event *root-container* '(:display-update)))

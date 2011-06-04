@@ -27,7 +27,7 @@
                           #p"test-fonts/8x16.fnt.png"))
             font-igo (make-instance 'simple-igo :sprite font-sprite
                                     :x 100 :y 100))
-      (add-root-igo font-igo)
+      (add-to-root font-igo)
       (setf (rotation font-igo) 0
             (text font-sprite)
             "The quick-brown fox jumps over the lazy dog.~"))

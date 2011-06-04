@@ -113,8 +113,8 @@
 
 
 (declaim (inline set-up-root-container add-root-listener 
-                 remove-root-listener add-root-igo
-                 remove-root-igo igo-of-root
+                 remove-root-listener add-to-root
+                 remove-from-root igo-of-root
                  root-tag-of root-tag-igo
                  root-remove-tag))
 (internal set-up-root-container)
@@ -124,9 +124,9 @@
   (add-listener *root-container* listener event-type))
 (defun remove-root-listener (listener &optional event-type)
   (remove-listener *root-container* listener event-type))
-(defun add-root-igo (igo &optional tag)
+(defun add-to-root (igo &optional tag)
   (add-igo *root-container* igo tag))
-(defun remove-root-igo (igo &key (remove-listeners t))
+(defun remove-from-root (igo &key (remove-listeners t))
   (remove-igo *root-container* igo :remove-listeners remove-listeners))
 (defun igo-of-root (tag)
   (igo-of *root-container* tag))

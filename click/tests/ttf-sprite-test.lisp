@@ -10,4 +10,4 @@
     (let* ((sprite (diverge (sprite-node :vera) :size 30 :text "Hello World"))
            (igo (make-simple-igo :sprite sprite :x 10 :y 10
                                  :width 800 :height 200)))
-      (add-root-igo igo))))
+      (add-to-root igo))))
