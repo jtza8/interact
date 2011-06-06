@@ -171,7 +171,7 @@
            (il:enable :file-overwrite)
            (il:save-image (namestring file-name)))))))
 
-
+(internal vecto-flip)
 (defun vecto-flip (data width channels)
   (loop with flipped-data = (make-array (length data))
         with elements-in-row = (* width channels)

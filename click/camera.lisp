@@ -16,12 +16,11 @@
    (texture :initform (car (gl:gen-textures 1)))
    (root :initform nil
          :reader root)
-   filters tex-u tex-v tex-height tex-width))
+   shaders tex-u tex-v tex-height tex-width))
 
 (define-instance-maker camera)
 
 (defmethod initialize-instance :after ((camera camera) &key root)
-  ;; (forward-standard-events camera)
   (unless (null root)
     (setf (root camera) root))
   (flet ((nearest-2^n-size (n)
@@ -70,8 +69,8 @@
     (with-slots (parent root) camera
       (remove-listener parent root))))
 
-;; (defmethod add-filter ((camera camera) (filter filter))
-;;   (shader filter))
+;; (defmethod add-shader ((camera camera) (shader shader))
+;;   (shader shader))
 
 (defmethod activate ((camera camera))
   (with-slots (fbo offset-x offset-y tex-width tex-height) camera

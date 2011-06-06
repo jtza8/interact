@@ -31,6 +31,7 @@
                (:file "igo")
                (:file "container")
                (:file "camera")
+               (:file "shader")
                (:file "display-system")
                (:file "fps-counter")
                (:file "export")))

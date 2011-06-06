@@ -127,8 +127,14 @@
            'file-existance-error
            :pathname ,pathname))
 
-;; (define-condition file-extension-error (file-error)
-;;   ()
-;;   (:report (lambda (condition stream)
-;;              (format stream "file extension \".~a\" not supported"
-;;                      (pathname-type (file-error-pathname condition))))))
+(define-condition shader-error (error)
+  ((reason :initarg :reason)
+   (shader :initarg :shader))
+  (:report (lambda (condition stream)
+             (with-slots (reason shader) condition
+               (format stream
+                      (ecase reason
+                        (:creation "Couldn't create a new shader object.")
+                        (:compilation
+                         (format nil "Couldn't compile shader code:~%~s"
+                                 (gl:get-shader-info-log shader)))))))))

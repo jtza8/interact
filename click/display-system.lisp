@@ -57,6 +57,7 @@
   (setf (full-screen) (not (full-screen))))
 
 (defun quit-display-system ()
+  (delete-all-shaders)
   (delete-all-cameras)
   (sdl:quit-video))
 

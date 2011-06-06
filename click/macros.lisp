@@ -33,3 +33,12 @@
             (defun ,instance-maker
                 (&rest args)
               (apply #'make-instance ',class-name args)))))
+
+(defmacro with-try-again-restart ((&optional
+                                   (description "Re-evaluate relevant code."))
+                                  &body body)
+  (let ((again (gensym "TAG-")))
+    `(tagbody
+      ,again
+        (restart-case (progn ,@body)
+          (try-again () :report ,description (go ,again))))))
