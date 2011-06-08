@@ -34,6 +34,7 @@
                 (&rest args)
               (apply #'make-instance ',class-name args)))))
 
+(internal with-try-again-restart)
 (defmacro with-try-again-restart ((&optional
                                    (description "Re-evaluate relevant code."))
                                   &body body)

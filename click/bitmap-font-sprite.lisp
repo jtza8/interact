@@ -35,6 +35,7 @@
           width (* glyph-width (length text))
           height (if (> (length text) 0) glyph-height 0))))
 
+(internal fetch-glyph)
 (defmethod fetch-glyph ((sprite bitmap-font-sprite) char)
   (with-slots (glyph-vector ascii-offset) sprite
     (let ((glyph-index (- (char-code char) ascii-offset)))

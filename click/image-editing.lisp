@@ -12,6 +12,7 @@
 (defun power-scale (value base)
   (expt base (ceiling (log value base))))
 
+(internal natural-power-p)
 (defun natural-power-p (value base)
   (= (rem (log value base) 1) 0))
 

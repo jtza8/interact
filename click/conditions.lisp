@@ -25,6 +25,19 @@
                                Cannot access \"~a\""
                        index)))))
 
+(internal reason-reporter)
+(defmacro reason-reporter (condition stream reason-slot (&rest slots)
+                           &body cases)
+  `(with-slots (,reason-slot ,@slots) ,condition
+     (format ,stream
+             (ecase ,reason-slot
+               ,@(loop for case in cases
+                       if (> (length case) 2)
+                         collect `(,(car case)
+                                    (format nil ,@(subseq case 1)))
+                       else
+                         collect case)))))
+
 (define-condition igo-tag-error (error)
   ((fault :initarg :fault
           :initform (error "must specify fault"))
@@ -33,16 +46,10 @@
    (igo :initarg :igo
         :initform nil))
   (:report (lambda (condition stream)
-             (with-slots (fault tag igo) condition
-               (case fault
-                 (:duplicate-tag
-                  (format stream "Tag ~s for igo ~s must be unique"
-                          tag igo))
-                 (:double-tag
-                  (format stream "IGO ~s already has tag ~s"
-                          igo tag))
-                 (:tag-not-found (format stream "Couldn't find tag ~s" tag))
-                 (otherwise (format stream "Unknown fault: ~s" fault)))))))
+             (reason-reporter condition stream fault (tag igo)
+               (:duplicate-tag "Tag ~s for igo ~s must be unique" tag igo)
+               (:double-tag "IGO ~s already has tag ~s" igo tag)
+               (:tag-not-found "Couldn't find tag ~s" tag)))))
 
 (internal pixel-index-error)
 (define-condition pixel-index-error (error)
@@ -85,12 +92,12 @@
                                                         ,actual-err-string)
                                        :initarg ,actual-initarg
                                        :reader ,actual-property)
-                     (addendum :initform nil
-                               :initarg :addendum
-                               :reader addendum))
+                     (message :initform nil
+                               :initarg :message
+                               :reader message))
                     (:report (lambda (condition stream)
                                (with-slots (,expected-property ,actual-property
-                                            addendum)
+                                            message)
                                    condition
                                  (if (null ,expected-property)
                                      (format stream ,unsupported-message
@@ -100,8 +107,8 @@
                                              ',property
                                              ,expected-property
                                              ,actual-property))
-                                 (unless (null addendum)
-                                   (format stream ". ~@(~a~)" addendum)))))))))
+                                 (unless (null message)
+                                   (format stream ". ~@(~a~)" message)))))))))
            (define-property-errors (&rest arguments)
              `(progn ,@(loop for (property unsupported-message) on arguments 
                                  by #'cddr
@@ -133,13 +140,10 @@
    (shader :initarg :shader
            :reader shader))
   (:report (lambda (condition stream)
-             (with-slots (reason shader) condition
-               (format stream
-                      (ecase reason
-                        (:creation "Couldn't create a new shader object.")
-                        (:compilation
-                         (format nil "Couldn't compile shader code:~%~a"
-                                 (gl:get-shader-info-log (id shader))))))))))
+             (reason-reporter condition stream reason (shader)
+               (:creation "Couldn't create a new shader object.")
+               (:compilation "Couldn't compile shader code:~%~a"
+                             (gl:get-shader-info-log (id shader)))))))
 
 (define-condition filter-error (error)
   ((reason :initarg :reason
@@ -149,13 +153,8 @@
    (shader :initarg :shader
            :reader shader))
   (:report (lambda (condition stream)
-             (with-slots (reason filter shader) condition
-               (format stream
-                      (ecase reason
-                        (:creation "Couldn't create a new shader program.")
-                        (:uncompiled-shader
-                         (format nil "Shader ~s wasn't compiled."
-                                 shader))
-                        (:linkage
-                         (format nil "Couldn't link shader program:~%~a"
-                                 (gl:get-program-info-log (id filter))))))))))
+             (reason-reporter condition stream reason (filter shader)
+               (:creation "Couldn't create a new shader program.")
+               (:uncompiled-shader "Shader ~s wasn't compiled." shader)
+               (:linkage "Couldn't link shader program:~%~a"
+                         (gl:get-program-info-log (id filter)))))))

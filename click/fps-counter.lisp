@@ -23,6 +23,7 @@
                    :display-update #'display-update-event
                    :before-frame #'before-frame-event)))
 
+(internal display-update-event)
 (defmethod display-update-event ((igo fps-counter) event)
   (declare (ignore event))
   (with-slots (timer display-fps-line backstage-fps-line display-frames
@@ -42,6 +43,7 @@
                     backstage-frames 0)
               (reset timer t))))))
 
+(internal before-frame-event)
 (defmethod before-frame-event ((igo fps-counter) event)
   (incf (slot-value igo 'backstage-frames)))
 

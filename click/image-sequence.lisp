@@ -36,7 +36,7 @@
                      (error 'image-dimensions-error
                             :expected-dimensions required-dimensions
                             :actual-dimensions (image-dimensions)
-                            :addendum (format nil "file ~a" path))))
+                            :message (format nil "file ~a" path))))
                (push image images))
           finally (return (reverse images)))))
 
