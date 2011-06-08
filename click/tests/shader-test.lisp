@@ -8,7 +8,7 @@
   ())
 
 (def-test-method test-shader ((test shader-test))
-  (assert-condition 'shader-error (make-shader))
+  ;; (assert-condition 'shader-error (make-shader))
   (with-display-system (screen-width 640
                         screen-height 480)
     (let* ((target (make-simple-igo :sprite
@@ -18,9 +18,11 @@
            (camera (make-camera :root target :width 640 :height 480
                                 :y (- (screen-height) 110)
                                 :x 10))
-           (shader (make-shader :source-code "void foo() {}")))
-      (compile-shader shader)
-      (setf (source-code shader) "void bogus(#) {}")
-      (assert-condition 'shader-error (compile-shader shader))
+           (shader (make-shader)))
+      (assert-false (compiled-p shader))
+      (setf (source-code shader) "void foo() {}")
+      (assert-true (compiled-p shader))
+      (assert-condition 'shader-error 
+                        (setf (source-code shader) "void blah(#) {}"))
       (add-to-root camera))
     (sdl:push-quit-event)))

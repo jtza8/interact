@@ -1,9 +1,10 @@
-
 ; Use of this source code is governed by a BSD-style
 ; license that can be found in the license.txt file
 ; in the root directory of this project.
 
 (in-package :click)
+
+(defparameter *sprites* '())
 
 (defclass sprite ()
   ((width :initarg :width
@@ -12,6 +13,9 @@
    (height :initarg :height
            :initform (error "No height given.")
            :reader height)))
+
+(defmethod initialize-instance :after ((sprite sprite) &key)
+  (push sprite *sprites*))
 
 (defmethod diverge ((sprite sprite) &rest init-args)
   (declare (ignore init-args))
@@ -39,3 +43,7 @@
       (gl:vertex (+ x width) (+ y height))
       (gl:tex-coord (pop coords) (pop coords))
       (gl:vertex x (+ y height)))))
+
+(internal delete-all-sprites)
+(defun delete-all-sprites ()
+  (map nil #'free *sprites*))

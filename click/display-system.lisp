@@ -13,8 +13,6 @@
   (screen-bg-colour '(1 1 1 1)))
 
 (defun prepare-click ()
-  (reset *global-stopwatch*)
-  (rt:clear-tree *sprite-tree*)
   (set-up-root-container))
 
 (internal update-display-gl)
@@ -57,9 +55,12 @@
   (setf (full-screen) (not (full-screen))))
 
 (defun quit-display-system ()
+  (delete-all-sprites)
   (delete-all-shaders)
+  (delete-all-filters)
   (delete-all-cameras)
-  (sdl:quit-video))
+  (sdl:quit-video)
+  (reset *global-stopwatch*))
 
 (defun run-display-system ()
   (reset *global-stopwatch* t)
@@ -79,7 +80,7 @@
                  (gl:clear :color-buffer-bit)
                  (draw *root-container*)
                  (gl:flush)
-                 (when (> (lap *frame-stopwatch*) 16)
+                 (when (> (lap *frame-stopwatch*) 16) ; 16.6666ms is 60fps.
                    (sdl:update-display)
                    (reset *frame-stopwatch* t)
                    (send-event *root-container* '(:display-update)))

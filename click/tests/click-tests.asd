@@ -25,4 +25,5 @@
                (:file "polygon-sprite-test")
                (:file "ttf-sprite-test")
                (:file "camera-test")
-               (:file "shader-test")))
+               (:file "shader-test")
+               (:file "filter-test")))

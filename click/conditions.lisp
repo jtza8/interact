@@ -128,13 +128,34 @@
            :pathname ,pathname))
 
 (define-condition shader-error (error)
-  ((reason :initarg :reason)
-   (shader :initarg :shader))
+  ((reason :initarg :reason
+           :reader reason)
+   (shader :initarg :shader
+           :reader shader))
   (:report (lambda (condition stream)
              (with-slots (reason shader) condition
                (format stream
                       (ecase reason
                         (:creation "Couldn't create a new shader object.")
                         (:compilation
-                         (format nil "Couldn't compile shader code:~%~s"
-                                 (gl:get-shader-info-log shader)))))))))
+                         (format nil "Couldn't compile shader code:~%~a"
+                                 (gl:get-shader-info-log (id shader))))))))))
+
+(define-condition filter-error (error)
+  ((reason :initarg :reason
+           :reader reason)
+   (filter :initarg :filter
+           :reader filter)
+   (shader :initarg :shader
+           :reader shader))
+  (:report (lambda (condition stream)
+             (with-slots (reason filter shader) condition
+               (format stream
+                      (ecase reason
+                        (:creation "Couldn't create a new shader program.")
+                        (:uncompiled-shader
+                         (format nil "Shader ~s wasn't compiled."
+                                 shader))
+                        (:linkage
+                         (format nil "Couldn't link shader program:~%~a"
+                                 (gl:get-program-info-log (id filter))))))))))

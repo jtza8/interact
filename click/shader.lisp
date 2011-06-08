@@ -10,25 +10,32 @@
 (defclass shader ()
   ((source-code :initform ""
                 :initarg :source-code
-                :accessor source-code)
-   shader-id))
+                :reader source-code)
+   (compiled-p :initform nil
+               :reader compiled-p)
+   (shader-id :reader id)))
 
 (define-instance-maker shader)
 
 (defmethod initialize-instance :after ((shader shader) &key)
   (push shader *shaders*)
-  (with-slots (shader-id) shader
+  (with-slots (shader-id source-code) shader
     (with-try-again-restart ()
       (setf shader-id (gl:create-shader :fragment-shader))
       (when (zerop shader-id)
-        (error 'shader-error :reason :creation)))))
+        (error 'shader-error :reason :creation)))
+    (with-simple-restart (continue "Skip shader compilation for now.")
+      (unless (string= source-code "")
+        (compile-shader shader)))))
 
 (defmethod compile-shader ((shader shader))
-  (with-slots (shader-id source-code) shader
+  (with-slots (shader-id source-code compiled-p) shader
     (gl:shader-source shader-id source-code)
     (gl:compile-shader shader-id)
     (unless (gl:get-shader shader-id :compile-status)
-      (error 'shader-error :reason :compilation :shader shader-id))))
+      (setf compiled-p nil)
+      (error 'shader-error :reason :compilation :shader shader))
+    (setf compiled-p t)))
 
 (defmethod load-shader ((shader shader) file-name)
   (with-slots (shader-id source-code) shader
@@ -39,11 +46,16 @@
         (read-sequence source-code stream)
         (compile-shader shader-id)))))
 
+(defmethod (setf source-code) (value (shader shader))
+  (with-slots (source-code) shader
+    (setf source-code value)
+    (compile-shader shader)))
+
 (defmethod free ((shader shader))
   (with-slots (shader-id) shader
     (gl:delete-shader shader-id)))
 
+(internal delete-all-shaders)
 (defun delete-all-shaders ()
-  (dolist (shader *shaders*)
-    (free shader))
+  (map nil #'free *shaders*)
   (setf *shaders* '()))

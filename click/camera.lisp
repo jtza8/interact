@@ -15,7 +15,11 @@
    (fbo :initform (car (gl:gen-framebuffers-ext 1)))
    (texture :initform (car (gl:gen-textures 1)))
    (root :initform nil
+         :initarg :root
          :reader root)
+   (filter :initform nil
+           :initarg :filter
+           :accessor filter)
    shaders tex-u tex-v tex-height tex-width))
 
 (define-instance-maker camera)
@@ -69,9 +73,6 @@
     (with-slots (parent root) camera
       (remove-listener parent root))))
 
-;; (defmethod add-shader ((camera camera) (shader shader))
-;;   (shader shader))
-
 (defmethod activate ((camera camera))
   (with-slots (fbo offset-x offset-y tex-width tex-height) camera
     (gl:bind-framebuffer-ext :framebuffer-ext fbo)
@@ -93,10 +94,13 @@
      (deactivate camera)))
 
 (defmethod draw ((camera camera))
-  (with-slots (root x y texture tex-u tex-v width height) camera
+  (with-slots (root filter x y texture tex-u tex-v width height) camera
     (unless (null root)
       (with-active-camera camera
-        (draw root))
+        (if (null filter)
+            (draw root)
+            (with-active-filter filter
+              (draw root))))
       (gl:with-pushed-matrix
         (gl:translate x y 0)
         (gl:bind-texture :texture-2d texture)
@@ -110,6 +114,7 @@
           (gl:tex-coord 0.0 tex-v)
           (gl:vertex 0 height))))))
 
+(internal delete-all-cameras)
 (defun delete-all-cameras ()
   (map nil #'free *cameras*)
   (setf *cameras* '()))
