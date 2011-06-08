@@ -55,8 +55,8 @@
     (load-sprite-path *test-sprite-path*)
     (let* ((sprite (load-sprite-sheet 
                     (merge-pathnames "test-sheet.ss.png" *test-image-path*)))
-           (igo (make-instance 'simple-igo :x 10 :y 10 :sprite sprite)))
-      (add-to-root igo :simple-igo))))
+           (igo (make-instance 'painter :x 10 :y 10 :sprite sprite)))
+      (add-to-root igo :painter))))
 
 (def-test-method test-load-sprites ((test sprite-sheet-test))
   (let ((bogus-jpg-path (merge-pathnames "bogus.jpg" *test-image-path*))

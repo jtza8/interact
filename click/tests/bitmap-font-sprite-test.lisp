@@ -20,12 +20,12 @@
 
 (defun test-bitmap-font-manually ()
   (let (font-sprite font-igo)
-    (with-display-system (screen-bg-colour '(0.5 0.5 0.5 0))
+    (with-display-system (screen-colour '(0.5 0.5 0.5 0))
       (setf font-sprite (load-font-sheet
                          (asdf:system-relative-pathname
                           :click-tests
                           #p"test-fonts/8x16.fnt.png"))
-            font-igo (make-instance 'simple-igo :sprite font-sprite
+            font-igo (make-instance 'painter :sprite font-sprite
                                     :x 100 :y 100))
       (add-to-root font-igo)
       (setf (rotation font-igo) 0

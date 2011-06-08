@@ -21,7 +21,7 @@
   (declare (ignore init-args))
   sprite)
 
-(defgeneric draw-sprite (sprite &key x y)
+(defgeneric draw-sprite (sprite &key x y &allow-other-keys)
   (:documentation
    "Draw at the specified coordinates."))
 

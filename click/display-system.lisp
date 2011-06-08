@@ -10,7 +10,7 @@
   (screen-height 600)
   (full-screen nil :read)
   (window-title "Lisp")
-  (screen-bg-colour '(1 1 1 1)))
+  (screen-colour '(1 1 1 1)))
 
 (defun prepare-click ()
   (set-up-root-container))
@@ -39,7 +39,7 @@
   (setf cl-opengl-bindings:*gl-get-proc-address*
         #'sdl-cffi::sdl-gl-get-proc-address)
   (update-display-mode)
-  (apply #'gl:clear-color (screen-bg-colour))
+  (apply #'gl:clear-color (screen-colour))
   (gl:enable :blend)
   (gl:enable :texture-2d)
   (gl:blend-func :src-alpha :one-minus-src-alpha)

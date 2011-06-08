@@ -5,14 +5,14 @@
 (in-package :click)
 
 (defun test-camera-manually ()
-  (with-display-system (screen-bg-colour '(0 0 0 1)
+  (with-display-system (screen-colour '(0 0 0 1)
                         screen-width 800
                         screen-height 600)
     (load-sprite-path *test-fonts-path*)
     (let ((camera-1 (make-camera :x 0 :y 0 :width 400 :height 600))
           (camera-2 (make-camera :x 400 :y 0 :width 400 :height 600))
           (container (make-container))
-          (red (make-simple-igo :x 0 :y 0
+          (red (make-painter :x 0 :y 0
                                 :sprite 
                                 (make-polygon-sprite 
                                   :points #(#(2 2) #(200 200) #(300 2))

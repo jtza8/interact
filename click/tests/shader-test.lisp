@@ -11,7 +11,7 @@
   ;; (assert-condition 'shader-error (make-shader))
   (with-display-system (screen-width 640
                         screen-height 480)
-    (let* ((target (make-simple-igo :sprite
+    (let* ((target (make-painter :sprite
                      (make-colour-sprite :colour '(1.0 0.0 0.0 1.0)
                                          :width 100
                                          :height 100)))

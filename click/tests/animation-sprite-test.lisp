@@ -19,10 +19,10 @@
                                                :width 100 :height 100
                                                :looping nil))
            (animation-2 (diverge animation-1))
-           (igo-1 (make-instance 'simple-igo
+           (igo-1 (make-instance 'painter
                                  :x 10 :y 10
                                  :sprite animation-1))
-           (igo-2 (make-instance 'simple-igo
+           (igo-2 (make-instance 'painter
                                  :x 120 :y 10
                                  :sprite animation-2)))
       (setf (fps animation-2) 30)

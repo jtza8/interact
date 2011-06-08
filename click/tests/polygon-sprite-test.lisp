@@ -10,10 +10,10 @@
 (defun test-polygon-sprite-manually ()
   (with-display-system (screen-width 800
                         screen-height 600
-                        screen-bg-colour '(0 0 0 1))
+                        screen-colour '(0 0 0 1))
     (let* ((sprite (make-polygon-sprite :width 128 :height 128
                                         :points #(#(10 10) #(100 20)
                                                   #(90 85) #(5 80))))
-           (igo (make-simple-igo :sprite sprite :x 100 :y 0)))
+           (igo (make-painter :sprite sprite :x 100 :y 0)))
       (add-to-root igo)
       (setf (fill-colour sprite) '(1.0 0.0 0.0 1.0)))))

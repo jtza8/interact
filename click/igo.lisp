@@ -28,10 +28,10 @@
                :initarg :top-margin)
    (bottom-margin :initform 0
                   :initarg :bottom-margin)
-   (width :initform 50
+   (width :initform 0
           :initarg :width
           :reader width)
-   (height :initform 50
+   (height :initform 0
            :initarg :height
            :reader height)
    (parent :initform nil

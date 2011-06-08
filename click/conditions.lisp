@@ -152,14 +152,18 @@
            :reader reason)
    (filter :initarg :filter
            :reader filter)
+   (uniform :initarg :uniform
+            :reader uniform)
    (shader :initarg :shader
            :reader shader))
   (:report (lambda (condition stream)
-             (reason-reporter condition stream reason (filter shader)
+             (reason-reporter condition stream reason (filter uniform shader)
                (:creation "Couldn't create a new shader program.")
                (:uncompiled-shader "Shader ~s wasn't compiled." shader)
                (:linkage "Couldn't link shader program:~%~a"
-                         (gl:get-program-info-log (id filter)))))))
+                         (gl:get-program-info-log (id filter)))
+               (:uniform-not-found "Couldn't locate uniform named \"~a\" for ~s"
+                                   uniform filter)))))
 
 (define-condition camera-error (error)
   ((reason :initarg :reason

@@ -29,6 +29,7 @@
                (:file "ttf-sprite")
                (:file "sprite-tree")
                (:file "igo")
+               (:file "painter")
                (:file "container")
                (:file "shader")
                (:file "filter")

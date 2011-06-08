@@ -2,10 +2,12 @@
   :author "Jens Thiede"
   :license "BSD-Style"
   :depends-on (click)
+  :serial t
   :components ((:file "package")
                (:module "asteroids"
-                        :depends-on ("package")
                         :components ((:file "asteroid")
                                      (:file "asteroid-container")
-                                     (:file "asteroids"
-                                            :depends-on ("asteroid"))))))
+                                     (:file "asteroids")))
+               (:module "shaders"
+                        :components ((:file "warp-shader")
+                                     (:file "shader-demo")))))

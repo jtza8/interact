@@ -60,7 +60,7 @@
     (assert-equal #1# (latest-event dummy))))
 
 (defun test-rotation-manually ()
-  (with-display-system (:screen-bg-colour '(0 0 0 1) 
+  (with-display-system (:screen-colour '(0 0 0 1) 
                         :screen-width 1280 :screen-height 800)
     (load-sprite-path (asdf:system-relative-pathname 
                        :click-tests "test-sprites"))
@@ -76,7 +76,7 @@
                                                 :width 100 :height 100))
                   :container-a)
     (add-igo (igo-of-root :container-a)
-             (make-instance 'simple-igo
+             (make-instance 'painter
                             :x 18 :y 18 :width 64 :height 64
                             :pivot-x 32 :pivot-y 32 :rotation 45
                             :sprite (diverge (sprite-node :test-sheet))))

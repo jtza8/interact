@@ -15,7 +15,6 @@
                (:file "image-sequence-test")
                (:file "sprite-sheet-test")
                (:file "sprite-tree-test")
-               (:file "simple-igo")
                (:file "interactive-container")
                (:file "container-test")
                (:file "animation-sprite-test")

@@ -108,6 +108,7 @@
       (gl:with-pushed-matrix
         (gl:translate x y 0)
         (gl:bind-texture :texture-2d texture)
+        (gl:active-texture :texture0)
         (gl:with-primitives :quads
           (gl:tex-coord 0.0 0.0)
           (gl:vertex 0 0)

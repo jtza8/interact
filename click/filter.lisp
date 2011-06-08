@@ -38,6 +38,22 @@
       (unless (gl:get-program program-id :link-status)
         (error 'filter-error :reason :linkage :filter filter)))))
 
+(defmethod set-uniform ((filter filter) name type &rest values)
+  (with-slots (program-id) filter
+    (let ((old-program (gl:get-integer :current-program)))
+      (gl:use-program program-id)
+      (let ((uniform-loc (gl:get-uniform-location program-id name)))
+        (when (< uniform-loc 0)
+          (error 'filter-error :reason :uniform-not-found :filter filter
+                 :uniform name))
+        (apply (ecase type
+                 (:float #'gl:uniformf)
+                 (:int #'gl:uniformi)
+                 (:vec #'gl:uniformfv)
+                 (:matrix #'gl:uniform-matrix))
+               uniform-loc values))
+      (gl:use-program old-program))))
+
 (defmethod free ((filter filter))
   (with-slots (program-id) filter
     (gl:delete-program program-id)))

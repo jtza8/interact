@@ -30,7 +30,7 @@
                          :fps fps :sprite-vector sprite-vector
                          :looping repeating)))))
 
-(defmethod draw-sprite ((sprite animation-sprite) &key (x 0) (y 0))
+(defmethod draw-sprite ((sprite animation-sprite) &key (x 0) (y 0) width height)
   (with-slots (fps sprite-vector stopwatch repeating) sprite
     (let* ((frame-counter (truncate (/ (* (lap stopwatch) fps) 1000)))
            (frame-count (length sprite-vector))
@@ -42,7 +42,8 @@
                                      (stop stopwatch))
                                    (1- frame-count))
                                  frame-counter))))
-      (draw-sprite (aref sprite-vector frame-number) :x x :y y))))
+      (draw-sprite (aref sprite-vector frame-number) :x x :y y
+                   :width width :height height))))
 
 (defmethod free ((sprite animation-sprite))
   (with-slots (sprite-vector) sprite

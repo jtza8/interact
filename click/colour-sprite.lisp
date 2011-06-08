@@ -15,10 +15,10 @@
 
 (define-instance-maker colour-sprite)
 
-(defmethod draw-sprite ((sprite colour-sprite)
-                        &key (x 0) (y 0))
-  (with-slots (colour width height) sprite
-    (gl:push-attrib :current-bit)
-    (apply #'gl:color colour)
-    (gl:rect x y (+ x width) (+ y height))
-    (gl:pop-attrib)))
+(defmethod draw-sprite ((sprite colour-sprite) &key (x 0) (y 0) width height)
+  (with-slots (colour (actual-width width) (actual-height height)) sprite
+    (gl:with-pushed-attrib (:current-bit)
+      (apply #'gl:color colour)
+      (when (null width) (setf width actual-width))
+      (when (null height) (setf height actual-height))
+      (gl:rect x y (+ x width) (+ y height)))))

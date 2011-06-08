@@ -5,7 +5,7 @@
 (in-package :click)
 
 (defun test-fps-counter-manually ()
-  (with-display-system (screen-bg-colour '(0 0 0 1))
+  (with-display-system (screen-colour '(0 0 0 1))
     (load-sprite-path (asdf:system-relative-pathname :click-tests
                                                      "test-fonts"))
     (let ((fps-counter (make-instance 'fps-counter
