@@ -66,7 +66,9 @@
 
 (define-condition image-error (error)
   ()
-  (:report (lambda (condition stream) "an image has incorrect properties")))
+  (:report (lambda (condition stream)
+             (declare (ignore condition))
+             (format stream "an image has incorrect properties"))))
 
 (macrolet ((define-property-error (property unsupported-message)
              (flet ((format-symbol (control-string &rest format-arguments)
@@ -158,3 +160,15 @@
                (:uncompiled-shader "Shader ~s wasn't compiled." shader)
                (:linkage "Couldn't link shader program:~%~a"
                          (gl:get-program-info-log (id filter)))))))
+
+(define-condition camera-error (error)
+  ((reason :initarg :reason
+           :reader reason)
+   (camera :initarg :camera
+           :reader camera))
+  (:report (lambda (condition stream)
+             (reason-reporter condition stream reason (camera)
+               (:incomplete-framebuffer
+                "Framebuffer incomplete in ~s." camera)
+               (:listening-without-root
+                "Can not add ~s as listener without root being set." camera)))))

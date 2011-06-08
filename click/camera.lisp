@@ -36,7 +36,7 @@
             tex-u (float (/ width tex-width))
             tex-v (float (/ height tex-height)))
       (gl:bind-texture :texture-2d texture)
-      (gl:tex-image-2d :texture-2d 0 :rgb tex-width tex-height 0 :rgb
+      (gl:tex-image-2d :texture-2d 0 :rgba tex-width tex-height 0 :rgba
                        :unsigned-byte (cffi:null-pointer))
       (gl:tex-parameter :texture-2d :texture-wrap-s :clamp-to-edge)
       (gl:tex-parameter :texture-2d :texture-wrap-t :clamp-to-edge)
@@ -48,7 +48,7 @@
                                  :texture-2d texture 0)
       (assert (gl::enum= (gl:check-framebuffer-status-ext :framebuffer-ext)
                          :framebuffer-complete-ext) ()
-              "Framebuffer ~s (camera ~s) is incomplete." fbo camera)
+              'camera-error :reason :incomplete-framebuffer)
       (gl:bind-framebuffer-ext :framebuffer-ext 0)
       (pushnew camera *cameras*))))
 
@@ -65,6 +65,8 @@
                                       event-type)
   (when (null event-type)
     (with-slots (parent root) camera
+      (assert (not (null root)) ()
+              'camera-error :reason :listening-without-root)
       (add-listener parent root))))
 
 (defmethod listener-removal-notice :before ((camera camera) (listener listener)
@@ -82,7 +84,9 @@
     (gl:ortho 0 tex-width 0 tex-height 0 1)
     (gl:matrix-mode :modelview)
     (gl:load-identity)
-    (gl:clear :color-buffer-bit)))
+    (gl:with-pushed-attrib (:color-buffer-bit)
+      (gl:clear-color 0.0 0.0 0.0 0.0)
+      (gl:clear :color-buffer-bit))))
 
 (defmethod deactivate ((camera camera))
   (declare (ignore camera))
