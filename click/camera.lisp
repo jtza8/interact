@@ -8,12 +8,13 @@
 (defparameter *cameras* '())
 
 (defclass camera (igo)
-  ((offset-x :initform 0
-             :initarg :offset-x)
-   (offset-y :initform 0
-             :initarg :offset-y)
+  ((x-offset :initform 0
+             :initarg :x-offset)
+   (y-offset :initform 0
+             :initarg :y-offset)
    (fbo :initform (car (gl:gen-framebuffers-ext 1)))
-   (texture :initform (car (gl:gen-textures 1)))
+   (texture :initform (car (gl:gen-textures 1))
+            :reader texture)
    (root :initform nil
          :initarg :root
          :reader root)
@@ -43,12 +44,14 @@
       (gl:tex-parameter :texture-2d :texture-mag-filter :linear)
       (gl:tex-parameter :texture-2d :texture-min-filter :linear)
       (gl:bind-texture :texture-2d 0)
+      (when (zerop fbo)
+        (error 'camera-error :reason :creation))
       (gl:bind-framebuffer-ext :framebuffer-ext fbo)
       (gl:framebuffer-texture-2d :framebuffer-ext :color-attachment0-ext
                                  :texture-2d texture 0)
-      (assert (gl::enum= (gl:check-framebuffer-status-ext :framebuffer-ext)
-                         :framebuffer-complete-ext) ()
-              'camera-error :reason :incomplete-framebuffer)
+      (unless (gl::enum= (gl:check-framebuffer-status-ext :framebuffer-ext)
+                         :framebuffer-complete-ext)
+        (error 'camera-error :reason :incomplete-framebuffer))
       (gl:bind-framebuffer-ext :framebuffer-ext 0)
       (pushnew camera *cameras*))))
 
@@ -76,11 +79,11 @@
       (remove-listener parent root))))
 
 (defmethod activate ((camera camera))
-  (with-slots (fbo offset-x offset-y tex-width tex-height) camera
+  (with-slots (fbo x-offset y-offset tex-width tex-height) camera
     (gl:bind-framebuffer-ext :framebuffer-ext fbo)
     (gl:matrix-mode :projection)
     (gl:load-identity)
-    (gl:viewport offset-x offset-y tex-width tex-height)
+    (gl:viewport x-offset y-offset tex-width tex-height)
     (gl:ortho 0 tex-width 0 tex-height 0 1)
     (gl:matrix-mode :modelview)
     (gl:load-identity)
@@ -98,26 +101,27 @@
      (deactivate camera)))
 
 (defmethod draw ((camera camera))
-  (with-slots (root filter x y texture tex-u tex-v width height) camera
+  (with-slots (root filter x y texture tex-u tex-v tex-width 
+               tex-height width height x-offset y-offset) camera
     (unless (null root)
       (with-active-camera camera
-        (if (null filter)
-            (draw root)
-            (with-active-filter filter
-              (draw root))))
+        (draw root))
       (gl:with-pushed-matrix
         (gl:translate x y 0)
         (gl:bind-texture :texture-2d texture)
-        (gl:active-texture :texture0)
-        (gl:with-primitives :quads
-          (gl:tex-coord 0.0 0.0)
-          (gl:vertex 0 0)
-          (gl:tex-coord tex-u 0.0)
-          (gl:vertex width 0)
-          (gl:tex-coord tex-u tex-v)
-          (gl:vertex width height)
-          (gl:tex-coord 0.0 tex-v)
-          (gl:vertex 0 height))))))
+        (unwind-protect
+             (progn
+               (when (typep filter 'filter)
+                 (activate filter)
+                 (gl:active-texture :texture0)
+                 (set-uniform filter "clk_scene" :int 0)
+                 (set-uniform filter "clk_scale"
+                              :vec `#(,tex-width ,tex-height))
+                 (set-uniform filter "clk_offset" :vec `#(,x-offset ,y-offset)))
+               (rectangle 0 0 width height
+                          :tex-coords (list 0 0 tex-u 0 tex-u tex-v 0 tex-v)))
+          (when (typep filter 'filter)
+            (deactivate filter)))))))
 
 (internal delete-all-cameras)
 (defun delete-all-cameras ()

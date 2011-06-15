@@ -16,20 +16,33 @@
   (with-slots (warp-count) shader
     (setf (source-code shader)
           (format nil
-                  "uniform sampler2D click_scene;
+                  "uniform vec2 clk_scale;
+                   uniform vec2 clk_offset;
+                   uniform sampler2D clk_scene;
                    uniform vec3 warps[~d];
+
+                   vec2 clk_toClickCoords(in vec2 coords)
+                   {
+                     vec2 click_coords = coords*clk_scale+clk_offset;
+                     return click_coords;
+                   }
+
+                   vec2 clk_toTexCoords(in vec2 coords)
+                   {
+                     return (coords-clk_offset)/clk_scale;
+                   }
                    
                    vec2 warpFunc(in vec3 warp)
                    {
-                     vec2 coords = gl_TexCoord[0].xy;
-                     vec2 offset = gl_TexCoord[0].xy - warp.xy;
+                     vec2 coords = clk_toClickCoords(gl_TexCoord[0].xy);
+                     vec2 offset = coords - warp.xy;
                      float z = sqrt(warp.z*warp.z-
                                     offset.x*offset.x-
                                     offset.y*offset.y);
                      if (sqrt(dot(offset, offset)) < warp.z) {
-                       coords -= z*offset/1.0;
+                       coords -= z*offset/50.0;
                      }
-                     return coords;
+                     return clk_toTexCoords(coords);
                    }
                    
                    void main()
@@ -40,6 +53,6 @@
                        coords += warpFunc(warps[i]);
                      }
                      coords /= ~f;
-                     gl_FragColor = gl_Color * texture2D(click_scene, coords);
+                     gl_FragColor = gl_Color * texture2D(clk_scene, coords);
                    }"
                   warp-count warp-count warp-count))))

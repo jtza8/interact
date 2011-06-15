@@ -169,9 +169,12 @@
   ((reason :initarg :reason
            :reader reason)
    (camera :initarg :camera
+           :initform nil
            :reader camera))
   (:report (lambda (condition stream)
              (reason-reporter condition stream reason (camera)
+               (:creation
+                "Couldn't create framebuffer, thus couldn't create camera.")
                (:incomplete-framebuffer
                 "Framebuffer incomplete in ~s." camera)
                (:listening-without-root

@@ -19,7 +19,7 @@
 (defun update-display-gl ()
   (gl:matrix-mode :projection)
   (gl:load-identity)
-  (gl:ortho 0 (screen-width) 0 (screen-height) 0 1)
+  (gl:ortho 0 (screen-width) (screen-height) 0 0 1)
   (gl:matrix-mode :modelview)
   (gl:load-identity)
   (gl:viewport 0 0 (screen-width) (screen-height)))

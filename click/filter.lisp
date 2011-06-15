@@ -4,6 +4,7 @@
 
 (in-package :click)
 
+(internal *filters*)
 (defparameter *filters* '())
 
 (defclass filter ()

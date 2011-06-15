@@ -22,6 +22,7 @@
                                   :line-width 2)))
           (fps-counter (make-fps-counter :font-sprite (sprite-node :8x16)
                                          :x 10 :y (- (screen-height) 42))))
+      ;; (print (typep camera-1 'igo))
       (add-igo container red)
       (add-igo container fps-counter)
       (setf (root camera-1) container

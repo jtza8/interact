@@ -25,7 +25,7 @@
            (width (il:image-width))
            (height (il:image-height)))
       (assert (eq type :unsigned-byte) () 'image-type-error :actual-type type)
-      ;; (ilu:flip-image)
+      (ilu:flip-image)
       (overlay-image image 0 0 0)
       (gl:bind-texture :texture-2d texture)
       (gl:tex-parameter :texture-2d :texture-min-filter :linear)
@@ -191,6 +191,5 @@
      (gl:tex-parameter :texture-2d :texture-min-filter :linear)
      (gl:tex-image-2d :texture-2d 0 :rgba ,width ,height
                       0 :rgba :unsigned-byte 
-                      (vecto-flip (vecto::image-data vecto::*graphics-state*)
-                                  ,width 4))
+                      (vecto::image-data vecto::*graphics-state*))
      ,texture))

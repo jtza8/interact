@@ -23,6 +23,14 @@
 (define-vector-sprite-writers polygon-sprite
   points fill-colour line-colour line-width)
 
+(defmethod diverge ((sprite polygon-sprite) &rest init-args)
+  (with-slots (points width height fill-colour line-colour line-width) sprite
+    (apply #'make-instance 'polygon-sprite
+           (append init-args
+                   (list :width width :height height
+                         :points points :fill-colour fill-colour
+                         :line-colour line-colour :line-width line-width)))))
+
 (defmethod update-texture ((sprite polygon-sprite))
   (with-slots (texture width height points fill-colour 
                line-colour line-width) sprite
