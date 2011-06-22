@@ -65,11 +65,11 @@
           when (eq existing igo) do (return-from add-igo))
     (setf (parent igo) container)
     (vector-push-extend igo igos))
-  (add-listener container igo)
+  (subscribe container igo)
   (when (keywordp tag)
     (tag-igo container igo tag)))
 
-(defmethod remove-igo ((container container) igo &key (remove-listeners t))
+(defmethod remove-igo ((container container) igo &key (unsubscribes t))
   (with-slots (igos tags) container
     (setf igos (loop with new-vector = (make-array (length igos) 
                                                    :fill-pointer 0
@@ -79,8 +79,8 @@
                        do (vector-push-extend existing new-vector)
                      finally (return new-vector)))
     (remove-tag container igo)
-    (when remove-listeners
-      (remove-listener container igo))))
+    (when unsubscribes
+      (unsubscribe container igo))))
 
 (defmethod draw ((container container))
   (with-slots (visible) container
@@ -106,13 +106,13 @@
 (defun set-up-root-container ()
   (setf *root-container* (make-instance 'container :clipping nil)))
 (defun add-root-listener (listener &optional event-type)
-  (add-listener *root-container* listener event-type))
+  (subscribe *root-container* listener event-type))
 (defun remove-root-listener (listener &optional event-type)
-  (remove-listener *root-container* listener event-type))
+  (unsubscribe *root-container* listener event-type))
 (defun add-to-root (igo &optional tag)
   (add-igo *root-container* igo tag))
-(defun remove-from-root (igo &key (remove-listeners t))
-  (remove-igo *root-container* igo :remove-listeners remove-listeners))
+(defun remove-from-root (igo &key (unsubscribes t))
+  (remove-igo *root-container* igo :unsubscribes unsubscribes))
 (defun igo-of-root (tag)
   (igo-of *root-container* tag))
 (defun root-tag-of (igo)

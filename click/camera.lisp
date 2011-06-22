@@ -64,19 +64,19 @@
   (with-slots (root) camera
     (setf root value)))
 
-(defmethod listening-request :before ((camera camera) (listener listener)
+(defmethod subscription-request :before ((camera camera) (listener listener)
                                       event-type)
   (when (null event-type)
     (with-slots (parent root) camera
       (assert (not (null root)) ()
               'camera-error :reason :listening-without-root)
-      (add-listener parent root))))
+      (subscribe parent root))))
 
-(defmethod listener-removal-notice :before ((camera camera) (listener listener)
+(defmethod unsubscription-notice :before ((camera camera) (listener listener)
                                             event-type)
   (when (null event-type)
     (with-slots (parent root) camera
-      (remove-listener parent root))))
+      (unsubscribe parent root))))
 
 (defmethod activate ((camera camera))
   (with-slots (fbo x-offset y-offset tex-width tex-height) camera

@@ -7,10 +7,10 @@
 (defclass dummy-listener (listener)
   ((latest-event :initform nil
                  :reader latest-event)
-   (listening-request-called :initform nil
-                             :reader listening-request-called-p)
-   (listener-removal-notice-called :initform nil
-                                   :reader listener-removal-notice-called-p)))
+   (subscription-request-called :initform nil
+                             :reader subscription-request-called-p)
+   (unsubscription-notice-called :initform nil
+                                   :reader unsubscription-notice-called-p)))
 
 (defmethod initialize-instance :after ((listener dummy-listener) &key 
                                        (desired-events '(:dummy-event)))
@@ -19,15 +19,15 @@
                collect event
                collect #'event-handler)))
 
-(defmethod listening-request :before ((listener dummy-listener)
+(defmethod subscription-request :before ((listener dummy-listener)
                                       (listenable listenable)
                                       event-type)
-  (setf (slot-value listener 'listening-request-called) t))
+  (setf (slot-value listener 'subscription-request-called) t))
 
-(defmethod listener-removal-notice :before ((listener dummy-listener)
+(defmethod unsubscription-notice :before ((listener dummy-listener)
                                             (listenable listenable)
                                             event-type)
-  (setf (slot-value listener 'listener-removal-notice-called) t))
+  (setf (slot-value listener 'unsubscription-notice-called) t))
 
 (defmethod event-handler ((listener dummy-listener) event)
   (setf (slot-value listener 'latest-event) event))

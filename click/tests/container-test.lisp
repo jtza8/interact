@@ -13,7 +13,7 @@
     (add-igo container igo :igo)
     (assert-true (find igo (igos container)))
     (assert-eql igo (igo-of container :igo))
-    (remove-igo container igo :remove-listeners nil)
+    (remove-igo container igo :unsubscribes nil)
     (assert-condition 'igo-tag-error (igo-of container :igo))
     (assert-false (find igo (igos container)))
     (assert-eql nil (latest-event igo))

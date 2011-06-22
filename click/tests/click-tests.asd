@@ -6,10 +6,9 @@
   :depends-on ("click" "xlunit")
   :serial t
   :components ((:file "test-package")
-               (:file "stopwatch-test")
-               (:file "dummy-igo")
                (:file "dummy-listener")
-               (:file "listening-test")
+               (:file "dummy-igo")
+               (:file "stopwatch-test")
                (:file "event-converter-test")
                (:file "image-editing-test")
                (:file "image-sequence-test")

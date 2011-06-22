@@ -41,8 +41,8 @@
       (loop for i from 1 upto (1- (length points))
          for point = (aref points i)
          initially (vecto:move-to (aref (aref points 0) 0)
-                                  (aref (aref points 0) 1))
-         do (vecto:line-to (aref point 0) (aref point 1))
+                                  (- height (aref (aref points 0) 1)))
+         do (vecto:line-to (aref point 0) (- height (aref point 1)))
          finally 
            (progn
              (vecto:close-subpath)

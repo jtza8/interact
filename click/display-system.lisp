@@ -90,7 +90,7 @@
 (defmacro with-display-system ((&rest args) &body body)
   `(progn 
      ,@(loop for (setting value) on args by #'cddr
-             collect `(setf (,(intern (symbol-name setting))) ,value))
+             collect `(setf (,(intern (symbol-name setting) :click)) ,value))
      (start-display-system)
      (unwind-protect (progn ,@body
                             (run-display-system))

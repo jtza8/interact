@@ -9,15 +9,15 @@
                         window-title "Asteroids Demo"
                         screen-width 800 screen-height 600)
     (load-sprite-path 
-     (asdf:system-relative-pathname :click-examples #p"asteroids/sprites"))
+     (asdf:system-relative-pathname :click-examples #p"asteroids/sprites/"))
     (add-root-listener (make-event-assistant :quit-key :escape
                                              :fullscreen-key :F12))
     (let* ((asteroid (make-asteroid :x 100 :y 200))
-           (font (diverge (sprite-node :fonts :8x16)))
-           (fps-counter (make-fps-counter :font-sprite font
-                                          :x 10 :y (- (screen-height)
-                                                      (* (glyph-height font) 2)
-                                                      10)))
+           ;; (font (diverge (sprite-node :fonts :8x16)))
+           ;; (fps-counter (make-fps-counter :font-sprite font
+           ;;                                :x 10 :y (- (screen-height)
+           ;;                                            (* (glyph-height font) 2)
+           ;;                                            10)))
            (container (make-asteroid-container :height (screen-height)
                                                :width (screen-width)))
            (controller (make-event-converter :mappable-events
@@ -25,8 +25,9 @@
       (desire-events controller :key-down #'handle-event)
       (map-input controller
                  (key-down-handler :e `(:asteroid-explosion :source ,asteroid)))
-      (add-listener container controller)
-      (add-listener controller container)
+      (subscribe container controller)
+      (subscribe controller container)
       (add-igo container asteroid)
-      (add-root-igo container)
-      (add-root-igo fps-counter))))
+      (add-to-root container)
+      ;; (add-to-root fps-counter)
+      )))
