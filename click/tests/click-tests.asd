@@ -3,10 +3,9 @@
   :version "0.1"
   :author "Jens Thiede"
   :licence "BSD-Style License"
-  :depends-on ("click" "xlunit")
+  :depends-on ("click" "events-extra" "xlunit")
   :serial t
   :components ((:file "test-package")
-               (:file "dummy-listener")
                (:file "dummy-igo")
                (:file "stopwatch-test")
                (:file "event-converter-test")
