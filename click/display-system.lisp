@@ -4,6 +4,10 @@
 
 (in-package :click)
 
+(defparameter *global-watch* (make-instance 'watch))
+(defparameter *frame-watch* (make-instance 'watch :parent *global-watch*))
+(defparameter *iter-watch* (make-instance 'watch :parent *global-watch*))
+
 (internal define-global-settings *display-settings*)
 (define-global-settings (*display-settings*)
   (screen-width 800)
@@ -60,11 +64,12 @@
   (delete-all-filters)
   (delete-all-cameras)
   (sdl:quit-video)
-  (reset *global-stopwatch*))
+  (reset *global-watch*))
 
 (defun run-display-system ()
-  (reset *global-stopwatch* t)
-  (reset *frame-stopwatch* t)
+  (reset *global-watch* t)
+  (reset *frame-watch* t)
+  (reset *iter-watch* t)
   (let ((event (sdl:new-event)) quit)
     (unwind-protect
          (loop 
@@ -76,15 +81,18 @@
                          (setf quit t))
                        (send-event *root-container* (parse-sdl-event event))))
             do (progn
-                 (send-event *root-container* '(:before-frame))
-                 (gl:clear :color-buffer-bit)
-                 (draw *root-container*)
-                 (gl:flush)
-                 (when (> (lap *frame-stopwatch*) 16) ; 16.6666ms is 60fps.
+                 (when (> (lap *frame-watch*) 16666666) ; 16666666ns => 60fps.
+                   (send-event *root-container* '(:before-frame))
+                   (gl:clear :color-buffer-bit)
+                   (draw *root-container*)
+                   (gl:flush)
                    (sdl:update-display)
-                   (reset *frame-stopwatch* t)
-                   (send-event *root-container* '(:display-update)))
-                 (send-event *root-container* '(:after-frame))))
+                   (reset *frame-watch* t)
+                   (send-event *root-container* '(:display-update))
+                   (send-event *root-container* '(:after-frame)))
+                 (send-event *root-container* `(:loop-iteration
+                                                :time ,(lap *iter-watch* :sec)))
+                 (reset *iter-watch* t)))
       (cffi:foreign-free event))))
 
 (defmacro with-display-system ((&rest args) &body body)

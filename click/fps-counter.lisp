@@ -5,7 +5,7 @@
 (in-package :click)
 
 (defclass fps-counter (igo)
-  ((timer :initform (make-instance 'stopwatch))
+  ((timer :initform (make-instance 'watch))
    (display-frames :initform 0)
    (backstage-frames :initform 0)
    display-fps-line
@@ -31,15 +31,15 @@
     (incf display-frames)
     (if (= (lap timer) 0)
         (start timer)
-        (if (>= (lap timer) 500)
+        (if (>= (lap timer) 500000000)
             (progn
               (setf (text display-fps-line)
-                    (format nil "Display FPS: ~,2f"
-                            (* display-frames 2 (/ 500 (lap timer))))
+                    (format nil "FPS: ~,2f"
+                            (* display-frames 2 (/ 500000000 (lap timer))))
                     display-frames 0
                     (text backstage-fps-line)
-                    (format nil "Backstage FPS: ~,2f"
-                            (* backstage-frames 2 (/ 500 (lap timer))))
+                    (format nil "IPS: ~,2f"
+                            (* backstage-frames 2 (/ 500000000 (lap timer))))
                     backstage-frames 0)
               (reset timer t))))))
 

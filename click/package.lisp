@@ -3,7 +3,7 @@
 ; in the root directory of this project.
 
 (defpackage #:click
-  (:use #:common-lisp #:resource-tree #:events)
+  (:use #:common-lisp #:resource-tree #:events #:watch)
   (:import-from #:meta-package #:internal #:auto-export))
 
 (il:init)

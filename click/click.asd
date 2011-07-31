@@ -3,13 +3,13 @@
   :version "0.1"
   :author "Jens Thiede"
   :licence "BSD-Style License"
-  :depends-on ("cffi" "lispbuilder-sdl" "resource-tree" "events" "cl-opengl"
-               "cl-devil" "cl-fad" "cl-ppcre" "meta-package" "vecto")
+  :depends-on ("cffi" "lispbuilder-sdl" "resource-tree" "events" "watch"
+               "cl-opengl" "cl-devil" "cl-fad" "cl-ppcre" "meta-package"
+               "vecto")
   :serial t
   :components ((:file "package")
                (:file "conditions")
                (:file "macros")
-               (:file "stopwatch")
                (:file "sdl-events")
                (:file "event-assistant")
                (:file "sprite")

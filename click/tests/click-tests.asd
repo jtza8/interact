@@ -7,7 +7,6 @@
   :serial t
   :components ((:file "test-package")
                (:file "dummy-igo")
-               (:file "stopwatch-test")
                (:file "event-converter-test")
                (:file "image-editing-test")
                (:file "image-sequence-test")

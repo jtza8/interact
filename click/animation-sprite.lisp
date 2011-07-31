@@ -10,17 +10,17 @@
         :accessor fps)
    (sprite-vector :initarg :sprite-vector
                   :initform (error "must specify sprite vector"))
-   (stopwatch :initform (make-instance 'stopwatch))
+   (watch :initform (make-instance 'watch))
    (repeating :initform t
               :initarg :looping)))
 
 (define-instance-maker animation-sprite)
 
 (defmethod initialize-instance :after ((sprite animation-sprite) &key (start t))
-  (with-slots (sprite-vector stopwatch) sprite
+  (with-slots (sprite-vector watch) sprite
     (check-type sprite-vector vector)
     (assert (> (length sprite-vector) 0))
-    (when start (start stopwatch))))
+    (when start (start watch))))
 
 (defmethod diverge ((sprite animation-sprite) &rest init-args)
   (with-slots (height width fps sprite-vector repeating) sprite
@@ -31,15 +31,15 @@
                          :looping repeating)))))
 
 (defmethod draw-sprite ((sprite animation-sprite) &key (x 0) (y 0) width height)
-  (with-slots (fps sprite-vector stopwatch repeating) sprite
-    (let* ((frame-counter (truncate (/ (* (lap stopwatch) fps) 1000)))
+  (with-slots (fps sprite-vector watch repeating) sprite
+    (let* ((frame-counter (truncate (* (lap watch :sec) fps)))
            (frame-count (length sprite-vector))
            (frame-number (if repeating
                              (rem frame-counter frame-count)
                              (if (>= frame-counter frame-count)
                                  (progn
-                                   (when (running-p stopwatch)
-                                     (stop stopwatch))
+                                   (when (running-p watch)
+                                     (stop watch))
                                    (1- frame-count))
                                  frame-counter))))
       (draw-sprite (aref sprite-vector frame-number) :x x :y y
@@ -49,10 +49,10 @@
   (with-slots (sprite-vector) sprite
     (map nil #'free sprite-vector)))
 
-(macrolet ((messages-to-stopwatch (&rest messages)
+(macrolet ((messages-to-watch (&rest messages)
              `(progn
                 ,@(loop for message in messages
                         collect `(defmethod ,message ((sprite animation-sprite))
-                                   (with-slots (stopwatch) sprite
-                                     (,message stopwatch)))))))
-  (messages-to-stopwatch start stop))
+                                   (with-slots (watch) sprite
+                                     (,message watch)))))))
+  (messages-to-watch start stop))

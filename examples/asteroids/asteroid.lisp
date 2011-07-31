@@ -9,7 +9,7 @@
          :initarg :size
          :reader size)
    (rotation-speed :initform (- (random 101) 50))
-   (velocity :initform (cons (random 200) (random 360)))
+   (velocity :initform (cons (random 2000) (random 360)))
    sprite
    offset))
 
@@ -50,7 +50,7 @@
 (defmethod after-frame-event ((asteroid asteroid) event)
   (with-slots (offset rotation velocity rotation-speed height width x y)
       asteroid
-    (let ((time-delta (/ (frame-time) 1000.0)))
+    (let ((time-delta (lap click:*iter-watch* :sec)))
       (incf rotation (* rotation-speed time-delta))
       (incf x (* (car velocity) time-delta (cos (cdr velocity))))
       (incf y (* (car velocity) time-delta (sin (cdr velocity))))

@@ -1,2 +1,2 @@
 (in-package :click)
-(auto-export :click :add-packages (:rt))
+(auto-export :click :add-packages (:rt :events :watch))
