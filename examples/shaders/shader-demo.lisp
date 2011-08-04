@@ -2,13 +2,13 @@
 ; license that can be found in the license.txt file
 ; in the root directory of this project.
 
-(in-package :click-examples)
+(in-package :interact-examples)
 
 (defun shader-demo ()
   (with-display-system (screen-width 640
                         screen-height 480)
     (load-sprite-path (asdf:system-relative-pathname
-                       :click-examples "shaders/sprites/"))
+                       :interact-examples "shaders/sprites/"))
     (let* ((background (make-painter :sprite (sprite-node :checker)
                                      :width (screen-width)
                                      :height (screen-height)))

@@ -1,2 +1,2 @@
-(defpackage #:click-examples
-  (:use #:cl #:click))
+(defpackage #:interact-examples
+  (:use #:cl #:interact))

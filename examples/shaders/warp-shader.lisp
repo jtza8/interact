@@ -2,7 +2,7 @@
 ; license that can be found in the license.txt file
 ; in the root directory of this project.
 
-(in-package :click-examples)
+(in-package :interact-examples)
 
 (defclass warp-shader (shader)
   ((warp-count :initarg :warp-count
@@ -23,8 +23,8 @@
 
                    vec2 clk_toClickCoords(in vec2 coords)
                    {
-                     vec2 click_coords = coords*clk_scale+clk_offset;
-                     return click_coords;
+                     vec2 interact_coords = coords*clk_scale+clk_offset;
+                     return interact_coords;
                    }
 
                    vec2 clk_toTexCoords(in vec2 coords)

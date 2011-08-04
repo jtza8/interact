@@ -2,9 +2,9 @@
 ; license that can be found in the license.txt file
 ; in the root directory of this project.
 
-(in-package :click-examples)
+(in-package :interact-examples)
 
-(defclass asteroid (igo)
+(defclass asteroid (widget)
   ((size :initform :large
          :initarg :size
          :reader size)
@@ -50,7 +50,7 @@
 (defmethod after-frame-event ((asteroid asteroid) event)
   (with-slots (offset rotation velocity rotation-speed height width x y)
       asteroid
-    (let ((time-delta (lap click:*iter-watch* :sec)))
+    (let ((time-delta (lap interact:*iter-watch* :sec)))
       (incf rotation (* rotation-speed time-delta))
       (incf x (* (car velocity) time-delta (cos (cdr velocity))))
       (incf y (* (car velocity) time-delta (sin (cdr velocity))))

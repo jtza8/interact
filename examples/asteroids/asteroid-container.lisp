@@ -2,7 +2,7 @@
 ; license that can be found in the license.txt file
 ; in the root directory of this project.
 
-(in-package :click-examples)
+(in-package :interact-examples)
 
 (defclass asteroid-container (container)
   ())
@@ -17,7 +17,7 @@
 
 (defmethod asteroid-explosion-event ((container asteroid-container) event)
   (with-event-keys (source) event
-    (remove-igo container source)
+    (remove-widget container source)
     (let ((x (x source))
           (y (y source))
           (new-size (case (size source)
@@ -25,9 +25,9 @@
                       (:medium :small))))
       (when (eq (size source) :small)
         (return-from asteroid-explosion-event))
-      (add-igo container (make-instance 'asteroid :size new-size :x x :y y))
-      (add-igo container (make-instance 'asteroid :size new-size :x x :y y))
-      (add-igo container (make-instance 'asteroid :size new-size :x x :y y)))))
+      (add-widget container (make-instance 'asteroid :size new-size :x x :y y))
+      (add-widget container (make-instance 'asteroid :size new-size :x x :y y))
+      (add-widget container (make-instance 'asteroid :size new-size :x x :y y)))))
 
 (defmethod before-frame-event ((container asteroid-container) event)
   (let ((listeners (getf (slot-value container 'listeners)
