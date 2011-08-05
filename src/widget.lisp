@@ -38,6 +38,11 @@
            :initarg :parent
            :accessor parent)))
 
+(defmethod init-sprites ((widget widget)) ())
+
+(defmethod initialize-instance :after ((widget widget) &key)
+  (init-sprites widget))
+
 (defmethod draw :around ((widget widget))
   (with-slots (x y pivot-x pivot-y rotation width height) widget
     (gl:matrix-mode :modelview)
