@@ -67,10 +67,16 @@
         (list x y))))
 
 (defmethod absolute-x ((widget widget))
-  (car (absolute-pos widget)))
+  (with-slots (parent x) widget
+    (if (typep parent 'widget)
+        (+ x (absolute-x parent))
+        x)))
 
 (defmethod absolute-y ((widget widget))
-  (cadr (absolute-pos widget)))
+  (with-slots (parent y) widget
+    (if (typep parent 'widget)
+        (+ y (absolute-y parent))
+        y)))
 
 (defmethod within ((widget widget) x y)
   (with-slots (width height) widget
