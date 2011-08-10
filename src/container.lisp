@@ -10,7 +10,7 @@
   ((visible :initarg :visible
             :initform t)
    (widgets :initform (make-array 5 :fill-pointer 0 :adjustable t)
-         :reader widgets)
+            :reader widgets)
    (clipping :initarg :clipping
              :initform t
              :accessor clipping)
@@ -23,7 +23,6 @@
 
 (defmethod initialize-instance :after ((container container) &key)
   (forward-standard-events container))
-
 
 (defmethod tag-widget ((container container) (widget widget) tag)
   (with-slots (tags) container
@@ -71,16 +70,55 @@
 
 (defmethod remove-widget ((container container) widget &key (unsubscribes t))
   (with-slots (widgets tags) container
-    (setf widgets (loop with new-vector = (make-array (length widgets) 
-                                                   :fill-pointer 0
-                                                   :adjustable t)
-                     for existing across widgets
-                     unless (eq existing widget) 
-                       do (vector-push-extend existing new-vector)
-                     finally (return new-vector)))
+    (setf widgets
+          (loop with new-vector = (make-array (length widgets) 
+                                              :fill-pointer 0
+                                              :adjustable t)
+                for existing across widgets
+                unless (eq existing widget) 
+                do (vector-push-extend existing new-vector)
+                finally (return new-vector)))
     (remove-tag container widget)
     (when unsubscribes
       (unsubscribe container widget))))
+
+(internal define-order-method)
+(defmacro define-order-method (name (&optional (i 'i) (widgets 'widgets))
+                               i-test &body body)
+  `(defmethod ,name ((container container) (target-widget widget))
+     (with-slots ((,widgets widgets)) container
+       (let ((,i (position target-widget widgets :test #'eq)))
+         (when (and (not (null ,i)) ,i-test)
+           ,@body
+           t)))))
+
+(define-order-method order-up () (< (1+ i) (length widgets))
+  (setf (aref widgets i) (aref widgets (1+ i))
+        (aref widgets (1+ i)) target-widget))
+
+(define-order-method order-down () (> i 0)
+  (setf (aref widgets i) (aref widgets (1- i))
+        (aref widgets (1- i)) target-widget))
+
+(define-order-method order-top () (not (= i (1- (length widgets))))
+  (setf widgets
+        (make-array (length widgets)
+           :initial-contents
+           (concatenate 'vector
+             (subseq widgets 0 i)
+             (subseq widgets (1+ i))
+             (subseq widgets i (1+ i)))
+           :adjustable t)))
+
+(define-order-method order-bottom () (> i 0)
+  (setf widgets
+        (make-array (length widgets)
+           :initial-contents
+           (concatenate 'vector
+             (subseq widgets i (1+ i))
+             (subseq widgets 0 i)
+             (subseq widgets (1+ i)))
+           :adjustable t)))
 
 (defmethod draw ((container container))
   (with-slots (visible) container
