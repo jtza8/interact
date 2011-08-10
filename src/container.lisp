@@ -96,7 +96,6 @@
       (return-from draw-background))
     (draw-sprite background :width width :height height :mode :tile)))
 
-
 (declaim (inline set-up-root-container add-root-listener 
                  remove-root-listener add-to-root
                  remove-from-root widget-of-root

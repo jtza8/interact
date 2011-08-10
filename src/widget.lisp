@@ -21,13 +21,17 @@
              :initarg :rotation
              :accessor rotation)
    (left-margin :initform 0
-                :initarg :left-margin)
+                :initarg :left-margin
+                :reader left-margin)
    (right-margin :initform 0
-                 :initarg :right-margin)
+                 :initarg :right-margin
+                 :reader right-margin)
    (top-margin :initform 0
-               :initarg :top-margin)
+               :initarg :top-margin
+               :reader top-margin)
    (bottom-margin :initform 0
-                  :initarg :bottom-margin)
+                  :initarg :bottom-margin
+                  :reader bottom-margin)
    (width :initform 0
           :initarg :width
           :reader width)
@@ -38,7 +42,7 @@
            :initarg :parent
            :accessor parent)))
 
-(defmethod init-sprites ((widget widget)) ())
+(defmethod init-sprites ((widget widget)))
 
 (defmethod initialize-instance :after ((widget widget) &key)
   (init-sprites widget))

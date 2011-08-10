@@ -16,6 +16,7 @@
                (:file "colour-sprite")
                (:file "texture-sprite")
                (:file "animation-sprite")
+               (:file "sprite-set")
                (:file "image-editing")
                (:file "image-sequence")
                (:file "sprite-sheet")

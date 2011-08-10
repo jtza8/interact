@@ -28,8 +28,8 @@
     (let ((shader (make-shader :source-code *shader-test-code*))
           (filter (make-filter))
           (red (make-painter :sprite (make-polygon-sprite :width 256 :height 256
-                                                             :points #(#(0 0) #(100 0)
-                                                                       #(0 100)))))
+                                                          :points #(#(0 0) #(100 0)
+                                                                    #(0 100)))))
           (camera (make-camera :width 256 :height 256)))
       (setf (source-code shader) *shader-test-code*)
       (add-shader filter shader)

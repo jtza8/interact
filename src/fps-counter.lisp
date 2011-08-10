@@ -21,7 +21,7 @@
           backstage-fps-line (diverge font-sprite))
     (desire-events widget
                    :display-update #'display-update-event
-                   :before-frame #'before-frame-event)))
+                   :loop-iteration #'loop-iteration)))
 
 (internal display-update-event)
 (defmethod display-update-event ((widget fps-counter) event)
@@ -43,8 +43,8 @@
                     backstage-frames 0)
               (reset timer t))))))
 
-(internal before-frame-event)
-(defmethod before-frame-event ((widget fps-counter) event)
+(internal loop-iteration)
+(defmethod loop-iteration ((widget fps-counter) event)
   (incf (slot-value widget 'backstage-frames)))
 
 (defmethod draw ((widget fps-counter))

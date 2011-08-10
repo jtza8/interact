@@ -4,7 +4,8 @@
 
 (defpackage #:interact
   (:use #:common-lisp #:resource-tree #:events #:watch)
-  (:import-from #:meta-package #:internal #:auto-export))
+  (:import-from #:meta-package #:internal #:auto-export)
+  (:export #:draw-set-sprite))
 
 (il:init)
 (ilu:init)
