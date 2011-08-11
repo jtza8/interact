@@ -56,3 +56,9 @@
                    collect `(,snippet-name (aref ,snippets-var ,i)))
             (declare (ignorable ,@new-snippet-names))
             ,@body))))))
+
+(defmacro init-class-snippets (widget &body slot-cases)
+  `(progn
+     ,@(loop for (slot names node) in slot-cases
+             collect `(unless (slot-boundp ,widget ',slot)
+                        (setf ,slot (make-sprite-snippets ,names ,node))))))
