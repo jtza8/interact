@@ -4,38 +4,23 @@
 
 (in-package :interact)
 
-(defparameter *global-watch* (make-instance 'watch))
-(defparameter *frame-watch* (make-instance 'watch :parent *global-watch*))
-(defparameter *iter-watch* (make-instance 'watch :parent *global-watch*))
-
-(internal define-global-settings *display-settings*)
-(define-global-settings (*display-settings*)
-  (screen-width 800)
-  (screen-height 600)
-  (full-screen nil :read)
-  (window-title "Lisp")
-  (screen-colour '(1 1 1 1)))
-
-(defun prepare-interact ()
-  (set-up-root-container))
-
 (internal update-display-gl)
 (defun update-display-gl ()
   (gl:matrix-mode :projection)
   (gl:load-identity)
-  (gl:ortho 0 (screen-width) (screen-height) 0 0 1)
+  (gl:ortho 0 (width *screen*) (height *screen*) 0 0 1)
   (gl:matrix-mode :modelview)
   (gl:load-identity)
-  (gl:viewport 0 0 (screen-width) (screen-height)))
+  (gl:viewport 0 0 (width *screen*) (height *screen*)))
 
 (internal update-display-mode)
 (defun update-display-mode ()
   (let ((flags (list sdl:sdl-opengl)))
-    (when (full-screen) (push sdl:sdl-fullscreen flags))
-    (sdl:window (screen-width) (screen-height)
+    (when (full-screen *screen*) (push sdl:sdl-fullscreen flags))
+    (sdl:window (width *screen*) (height *screen*)
                 :bpp 32
                 :flags flags
-                :title-caption (window-title)))
+                :title-caption (title *screen*)))
   (update-display-gl))
 
 (defun start-display-system ()
@@ -43,20 +28,19 @@
   (setf cl-opengl-bindings:*gl-get-proc-address*
         #'sdl-cffi::sdl-gl-get-proc-address)
   (update-display-mode)
-  (apply #'gl:clear-color (screen-colour))
+  (apply #'gl:clear-color (clear-colour *screen*))
   (gl:enable :blend)
   (gl:enable :texture-2d)
   (gl:blend-func :src-alpha :one-minus-src-alpha)
   (gl:clear :color-buffer-bit)
-  (prepare-interact))
-
-(defsetf full-screen () (value)
-  `(progn 
-     (set-full-screen ,value)
-     (update-display-mode)))
+  (set-up-root-container)
+  (reset *global-watch* t)
+  (reset *frame-watch* t)
+  (reset *iter-watch* t))
 
 (defun toggle-fullscreen ()
-  (setf (full-screen) (not (full-screen))))
+  (setf (full-screen *screen*) (not (full-screen *screen*)))
+  (update-display-mode))
 
 (defun quit-display-system ()
   (delete-all-sprites)
@@ -66,41 +50,50 @@
   (sdl:quit-video)
   (reset *global-watch*))
 
-(defun run-display-system ()
-  (reset *global-watch* t)
-  (reset *frame-watch* t)
-  (reset *iter-watch* t)
-  (let ((event (sdl:new-event)) quit)
-    (unwind-protect
-         (loop 
-            until quit
-            do (loop
-                  until (= 0 (sdl-cffi::sdl-poll-event event))
-                  do (progn
-                       (when (eq (sdl:get-event-type event) :quit-event)
-                         (setf quit t))
-                       (send-event *root-container* (parse-sdl-event event))))
-            do (progn
-                 (when (> (lap *frame-watch*) 16666666) ; 16666666ns => 60fps.
-                   (send-event *root-container* '(:before-frame))
-                   (gl:clear :color-buffer-bit)
-                   (draw *root-container*)
-                   (gl:flush)
-                   (sdl:update-display)
-                   (reset *frame-watch* t)
-                   (send-event *root-container* '(:display-update))
-                   (send-event *root-container* '(:after-frame)))
-                 (send-event *root-container* `(:loop-iteration
-                                                :time ,(lap *iter-watch* :sec)))
-                 (reset *iter-watch* t)))
-      (cffi:foreign-free event))))
+(defun update-display-system ()
+  (when (> (lap *frame-watch*) 16666666) ; 16666666ns => 60fps.
+    (send-event *root-container* '(:before-frame))
+    (gl:clear :color-buffer-bit)
+    (draw *root-container*)
+    (gl:flush)
+    (sdl:update-display)
+    (reset *frame-watch* t)
+    (send-event *root-container* '(:after-frame))))
 
-(defmacro with-display-system ((&rest args) &body body)
+(defmacro with-event-loop ((&optional (event-var (gensym "EVENT-"))
+                                      (quit-var (gensym "QUIT-"))
+                                      event-code)
+                           &body body)
+  (let ((event (gensym "SDL-EVENT-")))
+   `(let ((,event (sdl:new-event)))
+      (unwind-protect
+           (loop
+              with ,quit-var
+              until ,quit-var
+              do (loop
+                    until (= 0 (sdl-cffi::sdl-poll-event ,event))
+                    do (progn
+                         (when (eq (sdl:get-event-type ,event) :quit-event)
+                           (setf ,quit-var t))
+                         (let ((,event-var (parse-sdl-event ,event)))
+                           ,event-code
+                           (send-event *root-container*
+                                       ,event-var))))
+              do (progn ,@body))
+        (cffi:foreign-free ,event)))))
+
+(defmacro with-display-system ((&key (width 1024)
+                                     (height 768)
+                                     (full-screen nil)
+                                     (clear-colour ''(0.5 0.5 0.5 1.0))
+                                     (title "Lisp"))
+                               &body body)
   `(progn 
-     ,@(loop for (setting value) on args by #'cddr
-             collect `(setf (,(intern (symbol-name setting) :interact)) ,value))
+     (setf (width *screen*) ,width
+           (height *screen*) ,height
+           (full-screen *screen*) ,full-screen
+           (clear-colour *screen*) ,clear-colour
+           (title *screen*) ,title)
      (start-display-system)
-     (unwind-protect (progn ,@body
-                            (run-display-system))
+     (unwind-protect (progn ,@body)
        (quit-display-system))))
-

@@ -5,7 +5,8 @@
 (in-package :interact)
 
 (defun test-animation-sprite-manually ()
-  (with-display-system ()
+  (with-display-system (:width 800
+                        :height 600)
     (load-sprite-path (asdf:system-relative-pathname :interact-tests
                                                      "test-sprites"))
     (let* ((sprites (loop for r from 0.0 upto 1.0 by 0.01
@@ -27,4 +28,12 @@
                                  :sprite animation-2)))
       (setf (fps animation-2) 30)
       (add-to-root widget-1 :widget-1)
-      (add-to-root widget-2 :widget-2))))
+      (add-to-root widget-2 :widget-2))
+    (with-event-loop
+        (event
+         quit
+         (case (event-type event)
+           (:key-down
+            (when (eq (getf (event-data event) :key) :escape)
+              (setf quit t)))))
+      (update-display-system))))

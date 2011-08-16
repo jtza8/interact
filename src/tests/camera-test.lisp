@@ -5,9 +5,9 @@
 (in-package :interact)
 
 (defun test-camera-manually ()
-  (with-display-system (screen-colour '(0 0 0 1)
-                        screen-width 800
-                        screen-height 600)
+  (with-display-system (:clear-colour '(0.0 0.0 0.0 1.0)
+                        :width 800
+                        :height 600)
     (load-sprite-path *test-fonts-path*)
     (let ((camera-1 (make-camera :x 0 :y 0 :width 400 :height 600))
           (camera-2 (make-camera :x 400 :y 0 :width 400 :height 600))
@@ -21,11 +21,13 @@
                                   :fill-colour '(1.0 0.0 0.0 1.0)
                                   :line-width 2)))
           (fps-counter (make-fps-counter :font-sprite (sprite-node :8x16)
-                                         :x 10 :y (- (screen-height) 42))))
+                                         :x 10
+                                         :y (- (height *screen*) 42))))
       ;; (print (typep camera-1 'widget))
       (add-widget container red)
       (add-widget container fps-counter)
       (setf (root camera-1) container
             (root camera-2) container)
       (add-to-root camera-1)
-      (add-to-root camera-2))))
+      (add-to-root camera-2))
+    (with-event-loop () (update-display-system))))

@@ -8,8 +8,12 @@
   ())
 
 (def-test-method test-add-and-remove-widget ((test container-test))
-  (let ((widget (make-instance 'dummy-widget))
-        (container (make-instance 'container)))
+  (let* ((widget (make-instance 'dummy-widget))
+         (widget-2 (make-instance 'dummy-widget))
+         (container (make-instance 'container))
+         (container-2 (make-instance 'container
+                        :widgets (list widget
+                                       (list widget-2 :widget-2)))))
     (add-widget container widget :widget)
     (assert-true (find widget (widgets container)))
     (assert-eql widget (widget-of container :widget))
@@ -22,7 +26,9 @@
     (add-widget container widget)
     (remove-widget container widget)
     (send-event container '(:mouse-motion :x 37 :y 73))
-    (assert-equal #1# (latest-event widget))))
+    (assert-equal #1# (latest-event widget))
+    (assert-true (find widget (widgets container-2)))
+    (assert-eql widget-2 (widget-of container-2 :widget-2))))
 
 (def-test-method test-tagging ((test container-test))
   (let ((widget-1 (make-instance 'dummy-widget))
@@ -100,8 +106,9 @@
     (assert-equal #1# (latest-event dummy))))
 
 (defun test-rotation-manually ()
-  (with-display-system (:screen-colour '(0 0 0 1) 
-                        :screen-width 1280 :screen-height 800)
+  (with-display-system (:clear-colour '(0 0 0 1) 
+                        :width 1280
+                        :height 800)
     (load-sprite-path (asdf:system-relative-pathname 
                        :interact-tests "test-sprites"))
     (add-root-listener (make-instance 'event-assistant 
@@ -124,4 +131,5 @@
              (make-instance 'interactive-container
                             :x 100 :y 0 :width 64 :height 64
                             :pivot-x 0 :pivot-y 0 :rotation 0
-                            :background (diverge (sprite-node :test-sheet))))))
+                            :background (diverge (sprite-node :test-sheet))))
+    (with-event-loop () (update-display-system))))

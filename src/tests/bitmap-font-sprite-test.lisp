@@ -20,17 +20,18 @@
 
 (defun test-bitmap-font-manually ()
   (let (font-sprite font-widget)
-    (with-display-system (screen-colour '(0.5 0.5 0.5 0))
+    (with-display-system (:clear-colour '(0.5 0.5 0.5 0))
       (setf font-sprite (load-font-sheet
                          (asdf:system-relative-pathname
                           :interact-tests
                           #p"test-fonts/8x16.fnt.png"))
             font-widget (make-instance 'painter :sprite font-sprite
-                                    :x 100 :y 100))
+                                       :x 100 :y 100))
       (add-to-root font-widget)
       (setf (rotation font-widget) 0
             (text font-sprite)
-            "The quick-brown fox jumps over the lazy dog.~"))
+            "The quick-brown fox jumps over the lazy dog.~")
+      (with-event-loop () (update-display-system)))
     (free font-sprite)))
 
 (def-test-method test-fetch-glyph ((test bitmap-font-sprite-test))

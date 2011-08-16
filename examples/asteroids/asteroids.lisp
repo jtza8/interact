@@ -5,9 +5,10 @@
 (in-package :interact-examples)
 
 (defun asteroids ()
-  (with-display-system (screen-colour '(0 0 0 1)
-                        window-title "Asteroids Demo"
-                        screen-width 800 screen-height 600)
+  (with-display-system (:clear-colour '(0.0 0.0 0.0 1)
+                        :title "Asteroids Demo"
+                        :width 800
+                        :height 600)
     (load-sprite-path 
      (asdf:system-relative-pathname :interact-examples #p"asteroids/sprites/"))
     (add-root-listener (make-event-assistant :quit-key :escape
@@ -29,5 +30,5 @@
       (subscribe controller container)
       (add-widget container asteroid)
       (add-to-root container)
-      (add-to-root fps-counter)
-      )))
+      (add-to-root fps-counter))
+    (with-event-loop (update-display-system))))
