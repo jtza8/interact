@@ -60,28 +60,6 @@
     (reset *frame-watch* t)
     (send-event *root-container* '(:after-frame))))
 
-(defmacro with-event-loop ((&optional (event-var (gensym "EVENT-"))
-                                      (quit-var (gensym "QUIT-"))
-                                      event-code)
-                           &body body)
-  (let ((event (gensym "SDL-EVENT-")))
-   `(let ((,event (sdl:new-event)))
-      (unwind-protect
-           (loop
-              with ,quit-var
-              until ,quit-var
-              do (loop
-                    until (= 0 (sdl-cffi::sdl-poll-event ,event))
-                    do (progn
-                         (when (eq (sdl:get-event-type ,event) :quit-event)
-                           (setf ,quit-var t))
-                         (let ((,event-var (parse-sdl-event ,event)))
-                           ,event-code
-                           (send-event *root-container*
-                                       ,event-var))))
-              do (progn ,@body))
-        (cffi:foreign-free ,event)))))
-
 (defmacro with-display-system ((&key (width 1024)
                                      (height 768)
                                      (full-screen nil)

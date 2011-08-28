@@ -33,5 +33,6 @@
                (:file "filter")
                (:file "camera")
                (:file "display-system")
+               (:file "event-loop")
                (:file "fps-counter")
                (:file "export")))

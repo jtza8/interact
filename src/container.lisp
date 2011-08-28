@@ -24,8 +24,8 @@
 (defmethod initialize-instance :after ((container container) &key widgets)
   (forward-standard-events container)
   (loop for item in widgets
-        for widget = (if (listp item) (car item) item)
-        for tag = (if (listp item) (cadr item) nil)
+        for widget = (if (listp item) (cadr item) item)
+        for tag = (if (listp item) (car item) nil)
         do (add-widget container widget tag)))
 
 (defmethod tag-widget ((container container) (widget widget) tag)
