@@ -55,7 +55,7 @@
                           :x (+ x (* i (+ glyph-width tracking)))
                           :y y)))))
 
-(defmethod diverge ((sprite bitmap-font-sprite) &rest init-args)
+(defmethod clone ((sprite bitmap-font-sprite) &rest init-args)
   (with-slots (ascii-offset glyph-width glyph-height 
                glyph-vector tracking colour) sprite
     (apply #'make-instance 'bitmap-font-sprite

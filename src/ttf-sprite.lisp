@@ -46,7 +46,7 @@
         (vecto:set-font font-object size)
         (vecto:draw-string (- x-min) (- y-min) text)))))
 
-(defmethod diverge ((sprite ttf-sprite) &rest init-args)
+(defmethod clone ((sprite ttf-sprite) &rest init-args)
   (with-slots (text size colour font-object) sprite
     (apply #'make-instance 'ttf-sprite
            (append init-args

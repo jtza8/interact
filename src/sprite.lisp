@@ -17,7 +17,7 @@
 (defmethod initialize-instance :after ((sprite sprite) &key)
   (push sprite *sprites*))
 
-(defmethod diverge ((sprite sprite) &rest init-args)
+(defmethod clone ((sprite sprite) &rest init-args)
   (declare (ignore init-args))
   sprite)
 

@@ -126,10 +126,10 @@
              (make-instance 'painter
                             :x 18 :y 18 :width 64 :height 64
                             :pivot-x 32 :pivot-y 32 :rotation 45
-                            :sprite (diverge (sprite-node :test-sheet))))
+                            :sprite (clone (sprite-node :test-sheet))))
     (add-widget (widget-of-root :container-a)
              (make-instance 'interactive-container
                             :x 100 :y 0 :width 64 :height 64
                             :pivot-x 0 :pivot-y 0 :rotation 0
-                            :background (diverge (sprite-node :test-sheet))))
+                            :background (clone (sprite-node :test-sheet))))
     (with-event-loop () (update-display-system))))

@@ -17,8 +17,8 @@
   (with-slots (display-fps-line backstage-fps-line) widget
     (when (null font-sprite)
       (error "must specify font-sprite"))
-    (setf display-fps-line (diverge font-sprite)
-          backstage-fps-line (diverge font-sprite))
+    (setf display-fps-line (clone font-sprite)
+          backstage-fps-line (clone font-sprite))
     (desire-events widget
                    :display-update #'display-update-event
                    :loop-iteration #'loop-iteration)))

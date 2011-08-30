@@ -14,7 +14,7 @@
     (add-root-listener (make-event-assistant :quit-key :escape
                                              :fullscreen-key :F12))
     (let* ((asteroid (make-asteroid :x 100 :y 200))
-           (font (diverge (sprite-node :fonts :8x16)))
+           (font (clone (sprite-node :fonts :8x16)))
            (fps-counter (make-fps-counter :font-sprite font
                                           :x 10 :y (- (screen-height)
                                                       (* (glyph-height font) 2)

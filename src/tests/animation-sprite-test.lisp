@@ -19,7 +19,7 @@
            (animation-1 (make-animation-sprite :sprite-vector sprites :fps 10
                                                :width 100 :height 100
                                                :looping nil))
-           (animation-2 (diverge animation-1))
+           (animation-2 (clone animation-1))
            (widget-1 (make-instance 'painter
                                  :x 10 :y 10
                                  :sprite animation-1))

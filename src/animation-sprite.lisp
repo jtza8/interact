@@ -22,7 +22,7 @@
     (assert (> (length sprite-vector) 0))
     (when start (start watch))))
 
-(defmethod diverge ((sprite animation-sprite) &rest init-args)
+(defmethod clone ((sprite animation-sprite) &rest init-args)
   (with-slots (height width fps sprite-vector repeating) sprite
     (apply #'make-instance 'animation-sprite
            (append init-args
