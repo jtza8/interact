@@ -18,12 +18,13 @@
     (gl:tex-parameter :texture-2d :texture-wrap-t :repeat)
     (when (null width) (setf width actual-width))
     (when (null height) (setf height actual-height))
-    (rectangle x y width height
-               :tex-coords (list 0 0 
-                                 (float (/ width actual-width)) 0
-                                 (float (/ width actual-width))
-                                 (float (/ height actual-height))
-                                 0 (float (/ height actual-height))))))
+    (let ((tex-width
+           (if (zerop actual-width) 0.0 (float (/ width actual-width))))
+          (tex-height
+           (if (zerop actual-height) 0.0 (float (/ height actual-height)))))
+      (rectangle x y width height
+                 :tex-coords
+                 (list 0 0 tex-width 0 tex-width tex-height 0 tex-height)))))
 
 (defmethod free ((sprite texture-sprite))
   (with-slots (texture) sprite
