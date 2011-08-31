@@ -31,9 +31,11 @@
     (assert-eql widget-2 (widget-of container-2 :widget-2))))
 
 (def-test-method test-tagging ((test container-test))
-  (let ((widget-1 (make-instance 'dummy-widget))
-        (widget-2 (make-instance 'dummy-widget))
-        (container (make-instance 'container)))
+  (let* ((widget-1 (make-instance 'dummy-widget))
+         (widget-2 (make-instance 'dummy-widget))
+         (container (make-instance 'container))
+         (container-2 (make-instance 'container
+                        :widgets `((:container ,container)))))
     (add-widget container widget-1)
     (tag-widget container widget-1 :widget-1)
     (add-widget container widget-2)
@@ -42,6 +44,7 @@
     (assert-condition 'widget-tag-error
                       (tag-widget container widget-1 :widget-2))
     (assert-eql widget-1 (widget-of container :widget-1))
+    (assert-eql widget-1 (widget-of container-2 :container :widget-1))
     (tag-widget container widget-2 :widget-2)
     (assert-condition 'widget-tag-error (widget-of container :widget-3))
     (remove-tag container widget-1)

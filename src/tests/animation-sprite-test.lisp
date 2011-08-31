@@ -30,10 +30,5 @@
       (add-to-root widget-1 :widget-1)
       (add-to-root widget-2 :widget-2))
     (with-event-loop
-        (event
-         quit
-         (case (event-type event)
-           (:key-down
-            (when (eq (getf (event-data event) :key) :escape)
-              (setf quit t)))))
+        #'simple-top-level-event-handler
       (update-display-system))))

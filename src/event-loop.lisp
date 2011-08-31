@@ -8,8 +8,9 @@
   (case (event-type event)
     (:key-down
      (with-event-keys (key) event
-       (when (eq key :escape)
-         t)))))
+       (case key
+         (:escape t)
+         (:F12 (toggle-fullscreen) nil))))))
 
 (defmacro with-event-loop (top-level-event-handler &body body)
   (let ((event (gensym "SDL-EVENT-"))

@@ -17,7 +17,8 @@
    (background :initform nil
                :initarg :background
                :reader background)
-   (tags :initform '())))
+   (tags :initform '()
+         :reader tags)))
 
 (define-instance-maker container)
 
@@ -52,10 +53,13 @@
                              identifier)
                   collect key and collect value))))
 
-(defmethod widget-of ((container container) tag)
-  (let ((value (getf (slot-value container 'tags) tag)))
-    (assert value (value) 'widget-tag-error :fault :invalid-tag :tag tag)
-    value))
+(defmethod widget-of ((container container) &rest tag-path)
+  (loop for tag in tag-path
+        for parent-container = container then value
+        for value = (getf (tags parent-container) tag)
+        do (assert value (value) 'widget-tag-error
+                   :fault :tag-not-found :tag tag)
+        finally (return value)))
 
 (defmethod tag-of ((container container) (widget widget))
   (loop for (key value) on (slot-value container 'tags) by #'cddr
@@ -154,8 +158,8 @@
   (add-widget *root-container* widget tag))
 (defun remove-from-root (widget &key (unsubscribes t))
   (remove-widget *root-container* widget :unsubscribes unsubscribes))
-(defun widget-of-root (tag)
-  (widget-of *root-container* tag))
+(defun widget-of-root (&rest tag-path)
+  (apply #'widget-of *root-container* tag-path))
 (defun root-tag-of (widget)
   (tag-of *root-container* widget))
 (defun root-tag-widget (widget tag)
