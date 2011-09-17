@@ -5,7 +5,7 @@
   :licence "BSD-Style License"
   :depends-on ("interact" "events-extra" "xlunit")
   :serial t
-  :components ((:file "test-package")
+  :components ((:file "package")
                (:file "dummy-widget")
                (:file "event-converter-test")
                (:file "image-editing-test")
@@ -20,6 +20,7 @@
                (:file "fps-counter-test")
                (:file "polygon-sprite-test")
                (:file "ttf-sprite-test")
-               (:file "camera-test")
-               (:file "shader-test")
-               (:file "filter-test")))
+               ;; (:file "camera-test")
+               ;; (:file "shader-test")
+               ;; (:file "filter-test")
+               ))

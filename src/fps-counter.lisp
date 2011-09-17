@@ -11,8 +11,6 @@
    display-fps-line
    backstage-fps-line))
 
-(define-instance-maker fps-counter)
-
 (defmethod initialize-instance :after ((widget fps-counter) &key font-sprite)
   (with-slots (display-fps-line backstage-fps-line) widget
     (when (null font-sprite)

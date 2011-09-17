@@ -11,8 +11,6 @@
   ((shaders :initform '())
    (program-id :reader id)))
 
-(define-instance-maker filter)
-
 (defmethod initialize-instance :after ((filter filter) &key)
   (with-slots (program-id) filter
     (setf program-id (gl:create-program))

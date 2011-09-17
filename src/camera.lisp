@@ -23,8 +23,6 @@
            :accessor filter)
    shaders tex-u tex-v tex-height tex-width))
 
-(define-instance-maker camera)
-
 (defmethod initialize-instance :after ((camera camera) &key root)
   (unless (null root)
     (setf (root camera) root))

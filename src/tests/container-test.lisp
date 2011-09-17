@@ -64,7 +64,7 @@
 
 (def-test-method test-order-up-down ((test container-test))
   (let ((widget (make-instance 'dummy-widget))
-        (container (make-container)))
+        (container (make-instance 'container)))
     (add-widget container widget)
     (add-widget container (make-instance 'dummy-widget))
     (add-widget container (make-instance 'dummy-widget))
@@ -84,7 +84,7 @@
 
 (def-test-method test-order-top-bottom ((test container-test))
   (let ((widget (make-instance 'dummy-widget))
-        (container (make-container)))
+        (container (make-instance 'container)))
     (add-widget container widget)
     (add-widget container (make-instance 'dummy-widget))
     (add-widget container (make-instance 'dummy-widget))

@@ -3,15 +3,12 @@
   :version "0.1"
   :author "Jens Thiede"
   :licence "BSD-Style License"
-  :depends-on ("cffi" "lispbuilder-sdl" "resource-tree" "events" "watch"
-               "cl-opengl" "cl-devil" "cl-fad" "cl-ppcre" "meta-package"
-               "vecto")
+  :depends-on ("cl-glfw-vanilla" "cl-opengl" "cl-devil" "cl-fad" "cl-ppcre"
+               "vecto" "meta-package" "events" "resource-tree" "watch")
   :serial t
   :components ((:file "package")
                (:file "conditions")
                (:file "macros")
-               (:file "sdl-events")
-               (:file "event-assistant")
                (:file "sprite")
                (:file "colour-sprite")
                (:file "texture-sprite")
@@ -29,10 +26,10 @@
                (:file "widget")
                (:file "painter")
                (:file "container")
-               (:file "shader")
-               (:file "filter")
-               (:file "camera")
+               ;; (:file "shader")
+               ;; (:file "filter")
+               ;; (:file "camera")
+               (:file "events")
                (:file "display-system")
-               (:file "event-loop")
-               (:file "fps-counter")
+               ;; (:file "fps-counter")
                (:file "export")))

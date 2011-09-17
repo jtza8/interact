@@ -26,8 +26,6 @@
    (text :initform ""
          :reader text)))
 
-(define-instance-maker bitmap-font-sprite)
-
 (defmethod (setf text) (value (sprite bitmap-font-sprite))
   (with-slots (width height glyph-width glyph-height
                glyph-vector text) sprite

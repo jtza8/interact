@@ -15,8 +15,6 @@
                :reader compiled-p)
    (shader-id :reader id)))
 
-(define-instance-maker shader)
-
 (defmethod initialize-instance :after ((shader shader) &key)
   (push shader *shaders*)
   (with-slots (shader-id source-code) shader

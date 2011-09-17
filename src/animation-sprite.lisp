@@ -14,8 +14,6 @@
    (repeating :initform t
               :initarg :looping)))
 
-(define-instance-maker animation-sprite)
-
 (defmethod initialize-instance :after ((sprite animation-sprite) &key (start t))
   (with-slots (sprite-vector watch) sprite
     (check-type sprite-vector vector)

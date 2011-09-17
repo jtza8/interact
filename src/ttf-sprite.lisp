@@ -26,8 +26,6 @@
 (define-vector-sprite-writers ttf-sprite
   text size)
 
-(define-instance-maker ttf-sprite)
-
 (defmethod update-texture ((sprite ttf-sprite))
   (with-slots (font-object texture size width height text x-min x-max y-min
                y-max colour) sprite
@@ -59,4 +57,4 @@
 
 (defun load-true-type-font (file-name)
   (check-file-existance file-name)
-  (make-ttf-sprite :font-object (zpb-ttf:open-font-loader file-name)))
+  (make-instance 'ttf-sprite :font-object (zpb-ttf:open-font-loader file-name)))

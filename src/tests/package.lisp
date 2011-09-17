@@ -11,6 +11,3 @@
   (asdf:system-relative-pathname :interact-tests "test-images/"))
 (defparameter *test-fonts-path*
   (asdf:system-relative-pathname :interact "tests/test-fonts/"))
-
-(start-display-system)
-(sdl:quit-video)

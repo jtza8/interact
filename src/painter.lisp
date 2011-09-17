@@ -8,8 +8,6 @@
   ((sprite :initarg :sprite
            :initform (error "sprite must be specified"))))
 
-(define-instance-maker painter)
-
 (defmethod initialize-instance :after ((widget painter) &key)
   (with-slots (sprite width height) widget
     (when (zerop width) (setf width (width sprite)))

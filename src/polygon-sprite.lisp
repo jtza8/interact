@@ -18,8 +18,6 @@
                :initarg :line-width
                :reader :line-colour)))
 
-(define-instance-maker polygon-sprite)
-
 (define-vector-sprite-writers polygon-sprite
   points fill-colour line-colour line-width)
 

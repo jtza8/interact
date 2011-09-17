@@ -57,3 +57,9 @@
   (rt:load-path *sprite-tree* path 
                 :recursive recursive
                 :parent-node-path parent-node-path))
+
+(defun load-asdf-sprite-path (system path &key (recursive t) parent-node-path)
+  (rt:load-path *sprite-tree*
+                (asdf:system-relative-pathname system path)
+                :recursive recursive
+                :parent-node-path parent-node-path))

@@ -20,8 +20,6 @@
    (tags :initform '()
          :reader tags)))
 
-(define-instance-maker container)
-
 (defmethod initialize-instance :after ((container container) &key widgets)
   (forward-standard-events container)
   (loop for item in widgets

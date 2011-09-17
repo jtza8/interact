@@ -13,8 +13,6 @@
    (height :initarg :height
            :initform 0)))
 
-(define-instance-maker colour-sprite)
-
 (defmethod draw-sprite ((sprite colour-sprite) &key (x 0) (y 0) width height)
   (with-slots (colour (actual-width width) (actual-height height)) sprite
     (gl:with-pushed-attrib (:current-bit)

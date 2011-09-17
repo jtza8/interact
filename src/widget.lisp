@@ -73,20 +73,15 @@
            (< ay y (+ ay height))))))
 
 (defmethod forward-standard-events ((widget widget))
-  (provide-events widget :display-state :key-down :key-up :mouse-motion
-                  :mouse-button-down :mouse-button-up :parent-move 
-                  :joy-axis-motion :joy-hat-motion :joy-ball-motion
-                  :joy-button-down :joy-button-up :quit :sys-wm-event
-                  :display-resize :display-exposure :user-event
-                  :before-frame :loop-iteration :after-frame :display-update)
-  (desire-events widget :display-state #'send-event :key-down #'send-event 
-                 :key-up #'send-event :mouse-motion #'send-event
-                 :mouse-button-down #'send-event :mouse-button-up #'send-event 
-                 :parent-move #'send-event :joy-axis-motion #'send-event
-                 :joy-hat-motion #'send-event :joy-ball-motion #'send-event
-                 :joy-button-down #'send-event :joy-button-up #'send-event
-                 :quit #'send-event :sys-wm-event #'send-event 
-                 :display-resize #'send-event :display-exposure #'send-event
-                 :user-event #'send-event :before-frame #'send-event
-                 :after-frame #'send-event :display-update #'send-event
-                 :loop-iteration #'send-event))
+  (provide-events widget :key-down :key-up :char-down :char-up :mouse-pos
+                  :mouse-down :mouse-up :mouse-wheel :parent-move :quit
+                  :window-size :window-refresh :before-frame :after-frame
+                  :display-update)
+  (desire-events widget :key-down #'send-event :key-up #'send-event
+                 :char-down #'send-event :char-up #'send-event
+                 :mouse-pos #'send-event :mouse-down #'send-event
+                 :mouse-up #'send-event :mouse-wheel #'send-event
+                 :parent-move #'send-event :quit #'send-event
+                 :window-size #'send-event :window-refresh #'send-event
+                 :before-frame #'send-event :after-frame #'send-event
+                 :display-update #'send-event))

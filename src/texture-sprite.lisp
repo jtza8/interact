@@ -9,8 +9,6 @@
             :initform (error "No texture name given.")
             :reader texture)))
 
-(define-instance-maker texture-sprite)
-
 (defmethod draw-sprite ((sprite texture-sprite) &key (x 0) (y 0) width height)
   (with-slots (texture (actual-width width) (actual-height height)) sprite
     (gl:bind-texture :texture-2d texture)

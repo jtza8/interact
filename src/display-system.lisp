@@ -15,18 +15,13 @@
 
 (internal update-display-mode)
 (defun update-display-mode ()
-  (let ((flags (list sdl:sdl-opengl)))
-    (when (full-screen *screen*) (push sdl:sdl-fullscreen flags))
-    (sdl:window (width *screen*) (height *screen*)
-                :bpp 32
-                :flags flags
-                :title-caption (title *screen*)))
+  (glfw:close-window)
+  (glfw:open-window (width *screen*) (height *screen*) 0 0 0 0 0 0
+                    (if (full-screen *screen*) :fullscreen :window))
+  (glfw:set-window-title (title *screen*))
   (update-display-gl))
 
 (defun start-display-system ()
-  (sdl:init-video)
-  (setf cl-opengl-bindings:*gl-get-proc-address*
-        #'sdl-cffi::sdl-gl-get-proc-address)
   (update-display-mode)
   (apply #'gl:clear-color (clear-colour *screen*))
   (gl:enable :blend)
@@ -34,6 +29,7 @@
   (gl:blend-func :src-alpha :one-minus-src-alpha)
   (gl:clear :color-buffer-bit)
   (set-up-root-container)
+  (set-event-callbacks)
   (reset *global-watch* t)
   (reset *frame-watch* t)
   (reset *iter-watch* t))
@@ -44,10 +40,9 @@
 
 (defun quit-display-system ()
   (delete-all-sprites)
-  (delete-all-shaders)
-  (delete-all-filters)
-  (delete-all-cameras)
-  (sdl:quit-video)
+  ;; (delete-all-shaders)
+  ;; (delete-all-filters)
+  ;; (delete-all-cameras)
   (reset *global-watch*))
 
 (defun update-display-system ()
@@ -56,7 +51,7 @@
     (gl:clear :color-buffer-bit)
     (draw *root-container*)
     (gl:flush)
-    (sdl:update-display)
+    (glfw:swap-buffers)
     (reset *frame-watch* t)
     (send-event *root-container* '(:after-frame))))
 
@@ -72,6 +67,7 @@
            (full-screen *screen*) ,full-screen
            (clear-colour *screen*) ,clear-colour
            (title *screen*) ,title)
-     (start-display-system)
-     (unwind-protect (progn ,@body)
-       (quit-display-system))))
+     (glfw:with-init ()
+       (start-display-system)
+       (unwind-protect (progn ,@body)
+         (quit-display-system)))))

@@ -8,6 +8,7 @@
   (:export #:draw-set-sprite))
 
 (in-package #:interact)
+(defparameter *quit-state* nil)
 (defparameter *global-watch* (make-instance 'watch))
 (defparameter *frame-watch* (make-instance 'watch :parent *global-watch*))
 (defparameter *iter-watch* (make-instance 'watch :parent *global-watch*))

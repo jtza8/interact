@@ -9,12 +9,12 @@
                         :width 800
                         :height 600)
     (load-sprite-path *test-fonts-path*)
-    (let ((camera-1 (make-camera :x 0 :y 0 :width 400 :height 600))
-          (camera-2 (make-camera :x 400 :y 0 :width 400 :height 600))
-          (container (make-container))
-          (red (make-painter :x 0 :y 0
+    (let ((camera-1 (make-instance 'camera :x 0 :y 0 :width 400 :height 600))
+          (camera-2 (make-instance 'camera :x 400 :y 0 :width 400 :height 600))
+          (container (make-instance 'container))
+          (red (make-instance 'painter :x 0 :y 0
                                 :sprite 
-                                (make-polygon-sprite 
+                                (make-instance 'polygon-sprite 
                                   :points #(#(2 2) #(200 200) #(300 2))
                                   :width 512 :height 512
                                   :line-colour '(1.0 1.0 1.0 1.0)

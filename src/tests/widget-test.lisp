@@ -10,7 +10,7 @@
 (defmethod set-up ((test widget-test))
   (with-slots (dummy container) test
     (setf dummy (make-instance 'dummy-widget :x 10 :y 13 :width 20 :height 15)
-          container (make-container :x 50 :y -200))))
+          container (make-instance 'container :x 50 :y -200))))
 
 (def-test-method test-absolute-pos ((test widget-test))
   (with-slots (dummy container) test

@@ -30,5 +30,5 @@
       (add-to-root widget-1 :widget-1)
       (add-to-root widget-2 :widget-2))
     (with-event-loop
-        #'simple-top-level-event-handler
+      (basic-event-handler)
       (update-display-system))))
