@@ -4,9 +4,19 @@
 
 (in-package :interact)
 
-(declaim (inline key-state mouse-button-state mouse-wheel-state mouse-pos))
-(defun key-state (key) (glfw:get-key key))
-(defun mouse-button-state (button) (glfw:get-mouse-button button))
+(declaim (inline key-down-p))
+(defun key-down-p (&rest keys)
+  (loop for key in keys
+        when (eq (glfw:get-key key) :press) return t
+        finally (return nil)))
+
+(declaim (inline mouse-down-p))
+(defun mouse-down-p (&rest buttons)
+  (loop for button in buttons
+        when (eq (glfw:get-mouse-button button) :press) return t
+        finally (return nil)))
+
+(declaim (inline mouse-wheel-pos mouse-pos))
 (defun mouse-wheel-pos () (glfw:get-mouse-wheel))
 (defun mouse-pos () (glfw:get-mouse-pos))
 
@@ -44,9 +54,9 @@
     (glfw:set-window-refresh-callback #'window-refresh-callback)))
 
 (defun basic-event-handler ()
-  (cond ((eq (key-state :esc) :press) (setf *quit-state* t))
+  (cond ((key-down-p :esc) (setf *quit-state* t))
         ((not (glfw:get-window-param :opened)) (setf *quit-state* t))
-        ((eq (key-state :f12) :press) (toggle-fullscreen))))
+        ((key-down-p :f12) (toggle-fullscreen))))
 
 (defmacro with-event-loop (&body body)
   `(loop initially (setf *quit-state* nil)
