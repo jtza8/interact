@@ -26,6 +26,9 @@
    (height :initform 0
            :initarg :height
            :reader height)
+   (visible :initform t
+            :initarg :visible
+            :accessor visible)
    (parent :initform nil
            :initarg :parent
            :accessor parent)))
@@ -36,7 +39,8 @@
   (init-sprites widget))
 
 (defmethod draw :around ((widget widget))
-  (with-slots (x y pivot-x pivot-y rotation width height) widget
+  (with-slots (x y pivot-x pivot-y rotation width height visible) widget
+    (unless visible (return-from draw))
     (gl:matrix-mode :modelview)
     (gl:with-pushed-matrix
       (if (not (zerop rotation))
@@ -46,6 +50,14 @@
             (gl:translate (- pivot-x) (- pivot-y) 0))
           (gl:translate x y 0))
       (call-next-method))))
+
+(declaim (inline hide))
+(defmethod hide ((widget widget))
+  (setf (visible widget) nil))
+
+(declaim (inline show))
+(defmethod show ((widget widget))
+  (setf (visible widget) t))
 
 (defmethod absolute-pos ((widget widget))
   (with-slots (parent x y) widget
