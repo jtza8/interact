@@ -8,8 +8,7 @@
 (defun sprite-zoo ()
   (with-display-system (:width 800 :height 600
                         :title "Sprite Zoo"
-                        :clear-colour '(0.2 0.2 0.2 1.0)
-                        :full-screen t)
+                        :clear-colour '(0.2 0.2 0.2 1.0))
     (load-asdf-sprite-path :interact-examples "sprite-zoo/sprites/")
     (let ((label-text (clone (sprite-node :fonts :vera)
                              :colour '(0.5 0.5 0.5 1.0)
@@ -38,6 +37,6 @@
                           :fill-colour '(0.5 0.5 0.5 1.0)
                           :line-colour '(0.0 0.0 0.0 0.0)
                           :points #(#(15 0) #(30 30) #(0 30))))))
-    (with-event-loop
+    (do-event-loop t
       (basic-event-handler)
       (update-display-system))))

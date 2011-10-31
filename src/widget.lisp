@@ -87,13 +87,13 @@
 (defmethod forward-standard-events ((widget widget))
   (provide-events widget :key-down :key-up :char-down :char-up :mouse-pos
                   :mouse-down :mouse-up :mouse-wheel :parent-move :quit
-                  :window-size :window-refresh :before-frame :after-frame
+                  :window-size :window-close :before-frame :after-frame
                   :display-update)
   (desire-events widget :key-down #'send-event :key-up #'send-event
                  :char-down #'send-event :char-up #'send-event
                  :mouse-pos #'send-event :mouse-down #'send-event
                  :mouse-up #'send-event :mouse-wheel #'send-event
                  :parent-move #'send-event :quit #'send-event
-                 :window-size #'send-event :window-refresh #'send-event
+                 :window-close #'send-event :window-size #'send-event
                  :before-frame #'send-event :after-frame #'send-event
                  :display-update #'send-event))

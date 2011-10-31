@@ -12,8 +12,8 @@
                 :initarg :fill-colour
                 :reader fill-colour)
    (line-colour :initform '(0.2 0.2 0.2 1.0)
-               :initarg :line-colour
-               :reader line-colour)
+                :initarg :line-colour
+                :reader line-colour)
    (line-width :initform 1
                :initarg :line-width
                :reader :line-colour)))

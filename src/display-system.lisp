@@ -3,6 +3,8 @@
 ; in the root directory of this project.
 
 (in-package :interact)
+(defparameter *main-window* nil)
+(defparameter *window-closed* nil)
 
 (internal update-display-gl)
 (defun update-display-gl ()
@@ -15,13 +17,21 @@
 
 (internal update-display-mode)
 (defun update-display-mode ()
-  (glfw:close-window)
-  (glfw:open-window (width *screen*) (height *screen*) 0 0 0 0 0 0
-                    (if (full-screen *screen*) :fullscreen :window))
-  (glfw:set-window-title (title *screen*))
-  (update-display-gl))
+  (when *main-window*
+    (glop:close-window *main-window*))
+  (setf *main-window*
+        (glop:create-window (title *screen*) (width *screen*) (height *screen*)
+                            :fullscreen (full-screen *screen*)
+                            :red-size 8
+                            :green-size 8
+                            :blue-size 8
+                            :alpha-size 8
+                            :depth-size 0))
+  (update-display-gl)
+  (glop:show-window *main-window*))
 
 (defun start-display-system ()
+  (setf *window-closed* nil)
   (update-display-mode)
   (apply #'gl:clear-color (clear-colour *screen*))
   (gl:enable :blend)
@@ -29,7 +39,6 @@
   (gl:blend-func :src-alpha :one-minus-src-alpha)
   (gl:clear :color-buffer-bit)
   (set-up-root-container)
-  (set-event-callbacks)
   (reset *global-watch* t)
   (reset *frame-watch* t)
   (reset *iter-watch* t))
@@ -43,7 +52,11 @@
   ;; (delete-all-shaders)
   ;; (delete-all-filters)
   ;; (delete-all-cameras)
-  (reset *global-watch*))
+  (setf *window-closed* nil
+        *mouse-pos* '(0 0)
+        *key-state* (make-hash-table)
+        *mouse-button-state* #(nil nil nil))
+  (glop:close-window *main-window*))
 
 (defun update-display-system ()
   (when (> (lap *frame-watch*) 16666666) ; 16666666ns => 60fps.
@@ -51,7 +64,9 @@
     (gl:clear :color-buffer-bit)
     (draw *root-container*)
     (gl:flush)
-    (glfw:swap-buffers)
+    (assert *main-window* ()
+            "Can't call update-display-system without a display to update.")
+    (glop:swap-buffers *main-window*)
     (reset *frame-watch* t)
     (send-event *root-container* '(:after-frame))))
 
@@ -67,7 +82,6 @@
            (full-screen *screen*) ,full-screen
            (clear-colour *screen*) ,clear-colour
            (title *screen*) ,title)
-     (glfw:with-init ()
-       (start-display-system)
-       (unwind-protect (progn ,@body)
-         (quit-display-system)))))
+     (start-display-system)
+     (unwind-protect (progn ,@body)
+       (quit-display-system))))

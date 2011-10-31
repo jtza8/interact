@@ -3,7 +3,7 @@
   :version "0.1"
   :author "Jens Thiede"
   :licence "BSD-Style License"
-  :depends-on ("cl-glfw-vanilla" "cl-opengl" "cl-devil" "cl-fad" "cl-ppcre"
+  :depends-on ("glop" "cl-opengl" "cl-devil" "cl-fad" "cl-ppcre"
                "vecto" "meta-package" "events" "resource-tree" "watch")
   :serial t
   :components ((:file "package")

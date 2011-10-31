@@ -36,13 +36,14 @@
             x-max (* size (/ (aref boundry 2) em-size))
             y-max (* size (/ (aref boundry 3) em-size))
             width (ceiling (+ (- x-min) x-max))
-            height (ceiling (+ (- y-min) y-max)))
+            height size)
       (when (or (= width 0) (= height 0))
         (return-from update-texture))
       (with-vecto-canvas-as-texture (width height texture)
         (apply #'vecto:set-rgba-fill colour)
+        (vecto:clear-canvas)
         (vecto:set-font font-object size)
-        (vecto:draw-string (- x-min) (- y-min) text)))))
+        (vecto:draw-string (- x-min) (- size) text)))))
 
 (defmethod clone ((sprite ttf-sprite) &rest init-args)
   (with-slots (text size colour font-object) sprite
