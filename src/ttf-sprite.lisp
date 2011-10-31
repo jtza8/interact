@@ -1,3 +1,39 @@
+;; ; Use of this source code is governed by a BSD-style
+;; ; license that can be found in the license.txt file
+;; ; in the root directory of this project.
+
+;; (in-package :interact)
+
+;; (define-vector-sprite-writers ttf-sprite
+;;   text size)
+
+;; (defmethod update-texture ((sprite ttf-sprite))
+;;   (with-slots (font-object texture size width height text x-min x-max y-min
+;;                y-max colour) sprite
+;;     (let ((boundry (zpb-ttf:string-bounding-box text font-object))
+;;           (em-size (zpb-ttf:units/em font-object)))
+;;       (setf x-min (* size (/ (aref boundry 0) em-size))
+;;             y-min (* size (/ (aref boundry 1) em-size))
+;;             x-max (* size (/ (aref boundry 2) em-size))
+;;             y-max (* size (/ (aref boundry 3) em-size))
+;;             width (ceiling (+ (- x-min) x-max))
+;;             height size)
+;;       (when (or (= width 0) (= height 0))
+;;         (return-from update-texture))
+;;       (with-vecto-canvas-as-texture (width height texture)
+;;         (apply #'vecto:set-rgba-fill colour)
+;;         (vecto:clear-canvas)
+;;         (vecto:set-font font-object size)
+;;         (vecto:draw-string (- x-min) (- size) text)))))
+
+;; (defmethod clone ((sprite ttf-sprite) &rest init-args)
+;;   (with-slots (text size colour font-object) sprite
+;;     (apply #'make-instance 'ttf-sprite
+;;            (append init-args
+;;                    (list :font-object font-object :text text :size size
+;;                          :colour colour)))))
+
+
 ; Use of this source code is governed by a BSD-style
 ; license that can be found in the license.txt file
 ; in the root directory of this project.
@@ -26,9 +62,16 @@
 (define-vector-sprite-writers ttf-sprite
   text size)
 
+(defmethod clone ((sprite ttf-sprite) &rest init-args)
+  (with-slots (text size colour font-object width height) sprite
+    (apply #'make-instance 'ttf-sprite
+           (append init-args
+                   (list :font-object font-object :text text :size size
+                         :colour colour :width width :height height)))))
+
 (defmethod update-texture ((sprite ttf-sprite))
-  (with-slots (font-object texture size width height text x-min x-max y-min
-               y-max colour) sprite
+  (with-slots (width height texture size x-min x-max y-min y-max text
+               font-object colour) sprite
     (let ((boundry (zpb-ttf:string-bounding-box text font-object))
           (em-size (zpb-ttf:units/em font-object)))
       (setf x-min (* size (/ (aref boundry 0) em-size))
@@ -36,21 +79,14 @@
             x-max (* size (/ (aref boundry 2) em-size))
             y-max (* size (/ (aref boundry 3) em-size))
             width (ceiling (+ (- x-min) x-max))
-            height size)
-      (when (or (= width 0) (= height 0))
-        (return-from update-texture))
-      (with-vecto-canvas-as-texture (width height texture)
+            height size))
+    (unless (or (zerop width) (zerop height))
+      (with-vecto-canvas-as-texture (width
+                                     height
+                                     texture)
         (apply #'vecto:set-rgba-fill colour)
-        (vecto:clear-canvas)
         (vecto:set-font font-object size)
-        (vecto:draw-string (- x-min) (- size) text)))))
-
-(defmethod clone ((sprite ttf-sprite) &rest init-args)
-  (with-slots (text size colour font-object) sprite
-    (apply #'make-instance 'ttf-sprite
-           (append init-args
-                   (list :font-object font-object :text text :size size
-                         :colour colour)))))
+        (vecto:draw-string 0 0 text)))))
 
 (defmethod free :after ((sprite ttf-sprite))
   (with-slots (font-object) sprite

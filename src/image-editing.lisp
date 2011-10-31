@@ -8,8 +8,8 @@
 (cffi:defcfun ("memcpy" memcpy) :pointer
   (dest :pointer) (src :pointer) (size :unsigned-int))
 
-(internal power-scale)
-(defun power-scale (value base)
+(internal expt-ceiling)
+(defun expt-ceiling (value base)
   (expt base (ceiling (log value base))))
 
 (internal natural-power-p)
